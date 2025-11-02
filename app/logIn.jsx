@@ -2,12 +2,12 @@
 import { View, Animated, StyleSheet } from "react-native";
 //import { router } from "expo-router";
 
-export default function welcomeScrn() {
+export default function logIn() {
 
   return (
     <View style={styles.container}>
       <Animated.Text style={styles.text}>
-        Welcome to MyApp 🚀
+        Welcome to log in screen 🚀
       </Animated.Text>
     </View>
   );
