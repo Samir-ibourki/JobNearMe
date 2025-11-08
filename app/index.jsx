@@ -1,74 +1,55 @@
-import React, { useRef, useEffect } from "react";
-import { View, Text, Image, TouchableOpacity, StyleSheet, Animated, Easing } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import icon from "@/assets/AppIcon.png";
 import { useRouter } from "expo-router";
+import { useEffect } from "react";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+  withTiming,
+} from "react-native-reanimated";
+import { SafeAreaView } from "react-native-safe-area-context";
+import icon from "../assets/AppIcon.png";
 
 export default function HomeScreen() {
   const router = useRouter();
-  // Animated values
-  const fadeAnim = useRef(new Animated.Value(0)).current; 
-  const scaleAnim = useRef(new Animated.Value(0.8)).current;
-  const slideAnim = useRef(new Animated.Value(50)).current; 
+
+  const progress = useSharedValue(0);
+  const translateY = useSharedValue(50);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: progress.value,
+    transform: [{ translateY: translateY.value }],
+  }));
 
   useEffect(() => {
-
-    Animated.parallel([
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 1000,
-        easing: Easing.out(Easing.ease),
-        useNativeDriver: true,
-      }),
-      Animated.spring(scaleAnim, {
-        toValue: 1,
-        friction: 5,
-        useNativeDriver: true,
-      }),
-    ]).start();
-
-    
-    Animated.timing(slideAnim, {
-      toValue: 0,
-      duration: 800,
-      delay: 800,
-      easing: Easing.out(Easing.ease),
-      useNativeDriver: true,
-    }).start();
-  }, [fadeAnim, scaleAnim, slideAnim]);
+    progress.value = withTiming(1, { duration: 1500 });
+    translateY.value = withSpring(0,{ damping: 10,stiffness: 100 });
+  }, []);
 
   return (
     <View style={styles.container}>
-
-      <Animated.View
-        style={[
-          styles.center,
-          {
-            opacity: fadeAnim,
-            transform: [{ scale: scaleAnim }],
-          },
-        ]}
-      >
-        <Image source={icon} resizeMode="contain" style={{ width: 160, height: 160 }} />
+      <Animated.View style={[styles.center, animatedStyle]}>
+        <Image
+          source={icon}
+          resizeMode="contain"
+          style={{ width: 160, height: 160 }}
+        />
         <Text style={styles.text}>JobNearMe</Text>
         <Text style={styles.subtitel}>Find Jobs near you instantly.</Text>
       </Animated.View>
 
-
       <SafeAreaView style={styles.safeBtn}>
-        <Animated.View
-          style={[
-            {
-              transform: [{ translateY: slideAnim }],
-              opacity: fadeAnim,
-              width: "100%",
-            },
-          ]}
-        >
-          <TouchableOpacity onPress={()=>router.push('/logIn')} style={styles.btn}>
+        <Animated.View style={[animatedStyle]}>
+          <TouchableOpacity
+            onPress={() => router.push("/logIn")}
+            style={styles.btn}
+          >
             <Text style={styles.btnText}>Log In</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={()=>router.push('/signUp')} style={styles.btn}>
+          <TouchableOpacity
+            onPress={() => router.push("/signUp")}
+            style={styles.btn}
+          >
             <Text style={styles.btnText}>Sign Up</Text>
           </TouchableOpacity>
         </Animated.View>
@@ -102,7 +83,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     width: "100%",
     paddingHorizontal: 20,
-    paddingBottom: 20, 
+    paddingBottom: 20,
   },
   btn: {
     backgroundColor: "#007BFF",
