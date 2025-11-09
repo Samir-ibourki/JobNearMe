@@ -1,13 +1,13 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useRouter } from "expo-router";
 import { useEffect } from "react";
-import { View, Text, StyleSheet, Image } from "react-native";
+import { Image, StyleSheet, Text, View } from "react-native";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withSpring,
   withTiming,
 } from "react-native-reanimated";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useRouter } from "expo-router";
 import icon from "../assets/AppIcon.png";
 
 export default function SplashScreen() {
@@ -30,14 +30,11 @@ export default function SplashScreen() {
       const alreadyLaunched = await AsyncStorage.getItem("alreadyLaunched");
       setTimeout(async () => {
         if (alreadyLaunched === null) {
-          
           await AsyncStorage.setItem("alreadyLaunched", "true");
           router.replace("/onboarding");
         } else {
-         
           router.replace("/onboarding");
         }
-        // router.replace("/onboarding");
       }, 3000);
     };
 
@@ -46,7 +43,7 @@ export default function SplashScreen() {
 
   return (
     <View style={styles.container}>
-      <Animated.View   style={[styles.center, animatedStyle]}>
+      <Animated.View style={[styles.center, animatedStyle]}>
         <Image
           source={icon}
           resizeMode="contain"
@@ -81,4 +78,3 @@ const styles = StyleSheet.create({
     color: "#f5f5f5",
   },
 });
-
