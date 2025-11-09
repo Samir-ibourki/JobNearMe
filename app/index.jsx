@@ -35,8 +35,9 @@ export default function SplashScreen() {
           router.replace("/onboarding");
         } else {
          
-          router.replace("/logIn");
+          router.replace("/onboarding");
         }
+        // router.replace("/onboarding");
       }, 3000);
     };
 
@@ -45,7 +46,7 @@ export default function SplashScreen() {
 
   return (
     <View style={styles.container}>
-      <Animated.View style={[styles.center, animatedStyle]}>
+      <Animated.View   style={[styles.center, animatedStyle]}>
         <Image
           source={icon}
           resizeMode="contain"
