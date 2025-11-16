@@ -1,14 +1,14 @@
 
-import { View, Animated, StyleSheet } from "react-native";
+import { View, Animated, StyleSheet, Image } from "react-native";
 //import { router } from "expo-router";
 
 export default function logIn() {
 
   return (
     <View style={styles.container}>
-      <Animated.Text style={styles.text}>
-        Welcome to log in screen 🚀
-      </Animated.Text>
+      <Animated.View style={styles.text}>
+        <Image source={require('../assets/')} />
+      </Animated.View>
     </View>
   );
 }
