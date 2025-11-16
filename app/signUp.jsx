@@ -11,3 +11,5 @@ sign up page
     </SafeAreaView>
   )
 }
+
+
