@@ -8,9 +8,9 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { onboardingData } from "./data";
+import { onboardingData } from "../../utils/data";
 
-export default function Index() {
+export default function IndexOnborading() {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const opacity = useSharedValue(1);

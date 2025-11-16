@@ -1,4 +1,4 @@
-//import AsyncStorage from "@react-native-async-storage/async-storage";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { useEffect } from "react";
 import { Image, StyleSheet, Text, View } from "react-native";
@@ -9,9 +9,8 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import icon from "../assets/AppIcon.png";
-import { storage } from "../utils/storage";
 
-export default function SplashScreen() {
+export default function Index() {
   const router = useRouter();
   const progress = useSharedValue(0);
   const translateY = useSharedValue(50);
@@ -27,30 +26,19 @@ export default function SplashScreen() {
     translateY.value = withSpring(0, { damping: 10, stiffness: 100 });
 
     // Check if it's the first time opening the app
-    // const checkFirstLaunch = async () => {
-    //   const alreadyLaunched = await AsyncStorage.getItem("alreadyLaunched");
-    //   setTimeout(async () => {
-    //     if (alreadyLaunched === null) {
-    //       await AsyncStorage.setItem("alreadyLaunched", "true");
-    //       router.replace("/onboarding");
-    //     } else {
-    //       router.replace("/onboarding");
-    //     }
-    //   }, 3000);
-    // };
+    const checkFirstLaunch = async () => {
+      const alreadyLaunched = await AsyncStorage.getItem("alreadyLaunched");
+      setTimeout(async () => {
+        if (alreadyLaunched === null) {
+          await AsyncStorage.setItem("alreadyLaunched", "true");
+          router.replace("/logIn");
+        } else {
+          router.replace("/logIn");
+        }
+      }, 3000);
+    };
 
-    // checkFirstLaunch();
-
-    const isFirstLaunch = storage.getBoolean("alreadyLaunched");
-
-    setTimeout(() => {
-      if (!isFirstLaunch) {
-        storage.set("alreadyLaunched", true);
-        router.replace("logIn");
-      } else {
-        router.replace("logIn");
-      }
-    }, 3000);
+    checkFirstLaunch();
   }, [progress, router, translateY]);
 
   return (
