@@ -41,20 +41,17 @@ export default function SplashScreen() {
 
     // checkFirstLaunch();
 
-const isFirstLaunch = storage.getBoolean('alreadyLaunched');
+    const isFirstLaunch = storage.getBoolean("alreadyLaunched");
 
-setTimeout(()=>{
-if (!isFirstLaunch) {
-  storage.set('alreadyLaunched',true);
-  router.replace('/onboarding')
-}else{
-  router.replace('/signUp')
-}
-},3000)
-
-
-
-  }, []);
+    setTimeout(() => {
+      if (!isFirstLaunch) {
+        storage.set("alreadyLaunched", true);
+        router.replace("logIn");
+      } else {
+        router.replace("logIn");
+      }
+    }, 3000);
+  }, [progress, router, translateY]);
 
   return (
     <View style={styles.container}>
