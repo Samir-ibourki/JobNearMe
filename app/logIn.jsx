@@ -13,6 +13,7 @@ import {
   View,
 } from "react-native";
 import useUserStore from "../store/useStore";
+import { inputContainer } from "../theme/styles";
 
 export default function LogIn() {
   const {
@@ -34,7 +35,7 @@ export default function LogIn() {
         showsVerticalScrollIndicator={false}
       >
         {/* Header */}
-        <Animated.View style={styles.header}>
+        <Animated.View e style={styles.header}>
           <Image
             style={styles.logo}
             source={require("../assets/AppIcon.png")}
@@ -52,7 +53,7 @@ export default function LogIn() {
 
           <View style={styles.inputWrapper}>
             <Text style={styles.label}>Email Address</Text>
-            <View style={[styles.inputContainer, email && styles.inputFocused]}>
+            <View style={[inputContainer, email && styles.inputFocused]}>
               <Ionicons name="mail-outline" size={22} color="#0A84FF" />
               <TextInput
                 style={styles.input}
@@ -69,9 +70,7 @@ export default function LogIn() {
           {/* Password Input */}
           <View style={styles.inputWrapper}>
             <Text style={styles.label}>Password</Text>
-            <View
-              style={[styles.inputContainer, password && styles.inputFocused]}
-            >
+            <View style={[inputContainer, password && styles.inputFocused]}>
               <Ionicons name="lock-closed-outline" size={22} color="#0A84FF" />
               <TextInput
                 style={styles.input}
@@ -93,7 +92,7 @@ export default function LogIn() {
 
           {/* Forgot Password */}
           <TouchableOpacity
-            onPress={() => router.push("/forgotPassword")}
+            onPress={() => router.push("forgotPassword")}
             style={styles.forgotPassword}
           >
             <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
@@ -174,21 +173,7 @@ const styles = StyleSheet.create({
     color: "#1A1A1A",
     marginBottom: 8,
   },
-  inputContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#fff",
-    borderWidth: 2,
-    borderColor: "#E5E5E5",
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    height: 56,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
-  },
+
   inputFocused: {
     borderColor: "#0A84FF",
     backgroundColor: "#F0F8FF",

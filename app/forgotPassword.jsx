@@ -1,49 +1,46 @@
 import { Ionicons } from "@expo/vector-icons";
-import { StyleSheet, Text, TextInput, View } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import Animated from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { inputContainer, label } from "../theme/styles";
 export default function ForgotPassword() {
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <View style={styles.inputContainer}>
-        <Text style={styles.label}>New Password</Text>
-        <View style={styles.input}>
-          <Ionicons name="lock-closed-outline" size={22} />
-          <TextInput placeholder="Enter your new password " />
+    <SafeAreaView style={styles.conatiner}>
+      <Animated.View style={styles.form}>
+        <View style={styles.inputWrapper}>
+          <Text style={label}>New Password</Text>
+          <View style={inputContainer}>
+            <Ionicons name="lock-closed-outline" size={22} />
+            <TextInput placeholder="Enter your new password " />
+          </View>
         </View>
-      </View>
-      <View style={styles.inputContainer}>
-        <Text style={styles.label}>Confirm Your new Password</Text>
-        <View style={styles.input}>
-          <Ionicons name="lock-closed-outline" size={22} />
-          <TextInput placeholder="Confirm your new password " />
+        <View style={styles.inputWrapper}>
+          <Text style={label}>Confirm Your new Password</Text>
+          <View style={inputContainer}>
+            <Ionicons name="lock-closed-outline" size={22} />
+            <TextInput placeholder="Confirm your new password " />
+          </View>
         </View>
-      </View>
+        <TouchableOpacity style={styles.registerBtn} activeOpacity={0.8}>
+          <Text style={styles.registerBtnText}>Reset </Text>
+        </TouchableOpacity>
+      </Animated.View>
     </SafeAreaView>
   );
 }
 const styles = StyleSheet.create({
-  label: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#1A1A1A",
-    marginBottom: 8,
+  conatiner: {
+    flex: 1,
+    paddingHorizontal: 24,
+    backgroundColor: "#eee",
   },
-  inputContainer: {
-    paddingHorizontal: 23,
-  },
-  input: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#fff",
-    borderWidth: 2,
-    borderColor: "#E5E5E5",
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    height: 56,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
+  inputWrapper: {
+    marginBottom: 20,
   },
 });
