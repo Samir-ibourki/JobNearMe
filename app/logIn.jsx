@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-
+import { router } from "expo-router";
 import {
   Animated,
   Image,
@@ -49,6 +49,7 @@ export default function LogIn() {
         {/* Form */}
         <Animated.View style={styles.form}>
           {/* Email Input */}
+
           <View style={styles.inputWrapper}>
             <Text style={styles.label}>Email Address</Text>
             <View style={[styles.inputContainer, email && styles.inputFocused]}>
@@ -81,7 +82,6 @@ export default function LogIn() {
                 onChangeText={setPassword}
               />
               <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-                {/* showPassword ? "eye-outline" : "eye-off-outline" */}
                 <Ionicons
                   name={showPassword ? "eye-outline" : "eye-off-outline"}
                   size={22}
@@ -92,7 +92,10 @@ export default function LogIn() {
           </View>
 
           {/* Forgot Password */}
-          <TouchableOpacity style={styles.forgotPassword}>
+          <TouchableOpacity
+            onPress={() => router.push("/forgotPassword")}
+            style={styles.forgotPassword}
+          >
             <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
           </TouchableOpacity>
         </Animated.View>
@@ -237,7 +240,7 @@ const styles = StyleSheet.create({
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: "#E5E5E5",
+    backgroundColor: "#646464ff",
   },
   dividerText: {
     marginHorizontal: 16,
