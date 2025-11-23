@@ -8,6 +8,7 @@ import {
 } from "react-native";
 import Animated from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { secondary } from "../theme/colors";
 import { inputContainer, label } from "../theme/styles";
 export default function ForgotPassword() {
   return (
@@ -28,7 +29,7 @@ export default function ForgotPassword() {
           </View>
         </View>
         <TouchableOpacity style={styles.registerBtn} activeOpacity={0.8}>
-          <Text style={styles.registerBtnText}>Reset </Text>
+          <Text style={styles.restBtn}>Reset your password </Text>
         </TouchableOpacity>
       </Animated.View>
     </SafeAreaView>
@@ -42,5 +43,27 @@ const styles = StyleSheet.create({
   },
   inputWrapper: {
     marginBottom: 20,
+  },
+
+  inputFocused: {
+    borderColor: secondary,
+    backgroundColor: "#F0F8FF",
+  },
+  registerBtn: {
+    backgroundColor: secondary,
+    alignItems: "center",
+    paddingVertical: 16,
+    borderRadius: 12,
+    marginBottom: 16,
+    shadowColor: secondary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  restBtn: {
+    color: "#f5f3f3ff",
+    fontSize: 18,
+    fontWeight: 600,
   },
 });

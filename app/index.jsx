@@ -9,6 +9,7 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import icon from "../assets/AppIcon.png";
+import { primary } from "../theme/colors";
 
 export default function Index() {
   const router = useRouter();
@@ -61,7 +62,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#0a84ff93",
+    backgroundColor: primary,
   },
   center: {
     alignItems: "center",
