@@ -120,7 +120,11 @@ export default function LogIn() {
           </View>
 
           {/* Register Button */}
-          <TouchableOpacity style={styles.registerBtn} activeOpacity={0.8}>
+          <TouchableOpacity
+            onPress={() => router.navigate("(auth)/signUp")}
+            style={styles.registerBtn}
+            activeOpacity={0.8}
+          >
             <Text style={styles.registerBtnText}>Create New Account</Text>
           </TouchableOpacity>
 
