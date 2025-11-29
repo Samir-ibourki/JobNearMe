@@ -4,7 +4,7 @@ export default function Layout() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="/" />
-      <Stack.Screen name="onboarding" />
+      <Stack.Screen name="onboarding/index" />
       <Stack.Screen name="(auth)/logIn" />
       <Stack.Screen name="(auth)/signUp" />
       <Stack.Screen
@@ -18,6 +18,7 @@ export default function Layout() {
           sheetAllowedDetents: [0.5, 1.0],
         }}
       />
+      <Stack.Screen name="onboarding/lastOnboard" />
     </Stack>
   );
 }

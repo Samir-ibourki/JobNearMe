@@ -37,7 +37,7 @@ export default function IndexOnborading() {
     if (currentIndex < onboardingData.length - 1) {
       setCurrentIndex(currentIndex + 1);
     } else {
-      router.push("/logIn");
+      router.push("onboarding/lastOnboard");
     }
   };
 

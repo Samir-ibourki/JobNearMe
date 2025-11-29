@@ -4,7 +4,7 @@ const app = express();
 const port = 3030;
 app.use(express.json());
 
-import "./src/models/User.js";
+import "./src/models/Users.js";
 
 sequelize
   .sync({ alter: true })

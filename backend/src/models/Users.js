@@ -1,8 +1,8 @@
 import sequelize from "../config/database.js";
 import { DataTypes } from "sequelize";
 
-const User = sequelize.define(
-  "User",
+const Users = sequelize.define(
+  "Users",
   {
     id: {
       type: DataTypes.INTEGER,
@@ -32,4 +32,4 @@ const User = sequelize.define(
   }
 );
 
-export default User;
+export default Users;
