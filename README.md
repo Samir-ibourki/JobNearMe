@@ -15,21 +15,15 @@ JobNearMe is a location-based job search application that helps users discover e
 
 ## Project Structure
 
-This is a **pnpm monorepo** containing frontend and backend packages.
-
 ```
 JobNearMe/
-├── package.json              # Root package.json with monorepo scripts
-├── pnpm-workspace.yaml       # pnpm workspace configuration
-├── .npmrc                    # pnpm configuration
-│
-├── backend/                  # @jobnearme/backend
+├── backend/                  # Backend API
 │   ├── src/
 │   │   └── config/           # Database configuration
 │   ├── server.js             # Main server entry point
 │   └── package.json          # Backend dependencies
 │
-└── frontend/                 # @jobnearme/frontend
+└── frontend/                 # React Native Mobile App
     ├── app/                  # Application screens and routing
     │   ├── (auth)/           # Authentication screens
     │   └── onboarding/       # Onboarding flow
@@ -72,36 +66,30 @@ JobNearMe/
 ## Prerequisites
 
 - Node.js (v20 or higher)
-- pnpm (v9 or higher) - [Install pnpm](https://pnpm.io/installation)
+- npm or yarn
 - PostgreSQL database
 - Expo CLI (for mobile development)
 - Android Studio or Xcode (for mobile testing)
 
 ## Installation
 
-This project uses **pnpm** with a monorepo structure for better dependency management and faster installations.
+This project has separate frontend and backend folders. Navigate to each folder to install dependencies and run the project.
 
-### Quick Start
+### Backend Setup
 
-1. Install pnpm globally (if not already installed):
-
-```bash
-npm install -g pnpm
-```
-
-2. Install all dependencies for the entire monorepo:
-
-```bash
-pnpm install
-```
-
-3. Create a `.env` file in the backend directory:
+1. Navigate to the backend directory:
 
 ```bash
 cd backend
 ```
 
-Create `.env` file with:
+2. Install dependencies:
+
+```bash
+npm install
+```
+
+3. Create a `.env` file in the backend directory with your configuration:
 
 ```env
 PORT=3000
@@ -109,81 +97,78 @@ DATABASE_URL=your_postgresql_connection_string
 JWT_SECRET=your_jwt_secret_key
 ```
 
-### Running the Project
-
-#### Run Both Frontend and Backend in Parallel
+4. Start the backend server:
 
 ```bash
-pnpm dev
+# Development mode with hot-reload
+npm run dev
+
+# Production mode
+npm start
 ```
 
-#### Run Frontend Only (Android)
+### Frontend Setup
+
+1. Navigate to the frontend directory:
 
 ```bash
-pnpm android
+cd frontend
 ```
 
-#### Run Frontend Only (iOS)
+2. Install dependencies:
 
 ```bash
-pnpm ios
+npm install
 ```
 
-#### Run Frontend Only (Web)
+3. Run the app:
 
 ```bash
-pnpm web
-```
+# Start Expo development server
+npm start
 
-#### Run Backend Only
+# Run on Android
+npm run android
 
-```bash
-pnpm backend
-```
+# Run on iOS
+npm run ios
 
-Or for development with hot-reload:
-
-```bash
-pnpm dev:backend
+# Run on Web
+npm run web
 ```
 
 ## Development
 
-### Available Scripts
+### Backend Scripts
 
-From the root directory, you can run:
+Navigate to `backend/` directory:
 
-- `pnpm dev` - Run both frontend and backend in development mode (parallel)
-- `pnpm android` - Run the Android app
-- `pnpm ios` - Run the iOS app
-- `pnpm web` - Run the web version
-- `pnpm backend` - Start the backend server
-- `pnpm dev:frontend` - Run only frontend in development mode
-- `pnpm dev:backend` - Run only backend in development mode
-- `pnpm lint` - Run linting for all packages
-- `pnpm clean` - Clean node_modules in all packages
-- `pnpm clean:all` - Clean everything including lock files
+- `npm start` - Start the backend server
+- `npm run dev` - Start with nodemon (hot-reload)
+- `npm test` - Run tests
 
-### Working on Individual Packages
+### Frontend Scripts
 
-To run commands in a specific package:
+Navigate to `frontend/` directory:
+
+- `npm start` - Start Expo development server
+- `npm run android` - Run on Android device/emulator
+- `npm run ios` - Run on iOS device/simulator
+- `npm run web` - Run in web browser
+- `npm run lint` - Run ESLint
+
+### Adding Dependencies
+
+To add new packages:
 
 ```bash
-# Frontend
-pnpm --filter @jobnearme/frontend <command>
-
 # Backend
-pnpm --filter @jobnearme/backend <command>
-```
+cd backend
+npm install <package-name>
 
-Examples:
-
-```bash
-# Install a package in frontend
-pnpm --filter @jobnearme/frontend add axios
-
-# Install a package in backend
-pnpm --filter @jobnearme/backend add express-rate-limit
+# Frontend
+cd frontend
+npm install <package-name>
 ```
 
 ## Database
