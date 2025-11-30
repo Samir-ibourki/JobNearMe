@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import Animated from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { secondary } from "../../theme/colors";
+import Colors from "../../theme/colors";
 import { inputContainer, label } from "../../theme/styles";
 export default function ForgotPassword() {
   return (
@@ -46,16 +46,16 @@ const styles = StyleSheet.create({
   },
 
   inputFocused: {
-    borderColor: secondary,
+    borderColor: Colors.Secondary,
     backgroundColor: "#F0F8FF",
   },
   registerBtn: {
-    backgroundColor: secondary,
+    backgroundColor: Colors.Secondary,
     alignItems: "center",
     paddingVertical: 16,
     borderRadius: 12,
     marginBottom: 16,
-    shadowColor: secondary,
+    shadowColor: Colors.Secondary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,

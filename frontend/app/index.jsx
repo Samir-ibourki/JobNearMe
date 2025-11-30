@@ -1,59 +1,106 @@
+// app/index.js (Splash Screen)
+
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { useEffect } from "react";
 import { Image, StyleSheet, Text, View } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withSpring,
   withTiming,
+  withSequence,
+  Easing,
 } from "react-native-reanimated";
 import icon from "../assets/AppIcon.png";
-import { primary } from "../theme/colors";
+import Colors from "../theme/colors";
 
 export default function Index() {
   const router = useRouter();
-  const progress = useSharedValue(0);
-  const translateY = useSharedValue(50);
 
-  const animatedStyle = useAnimatedStyle(() => ({
-    opacity: progress.value,
+  // Animation values
+  const opacity = useSharedValue(0);
+  const scale = useSharedValue(0.5);
+  const translateY = useSharedValue(30);
+  const logoRotate = useSharedValue(0);
+
+  const animatedLogoStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+    transform: [{ scale: scale.value }, { rotate: `${logoRotate.value}deg` }],
+  }));
+
+  const animatedTextStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
     transform: [{ translateY: translateY.value }],
   }));
 
   useEffect(() => {
-    // Animation on mount
-    progress.value = withTiming(1, { duration: 1500 });
-    translateY.value = withSpring(0, { damping: 10, stiffness: 100 });
+    // Start animations
+    opacity.value = withTiming(1, {
+      duration: 1000,
+      easing: Easing.out(Easing.exp),
+    });
 
-    // Check if it's the first time opening the app
+    scale.value = withSpring(1, {
+      damping: 8,
+      stiffness: 100,
+    });
+
+    translateY.value = withSpring(0, {
+      damping: 10,
+      stiffness: 100,
+    });
+
+    logoRotate.value = withSequence(
+      withTiming(360, { duration: 1000, easing: Easing.out(Easing.exp) }),
+      withTiming(360, { duration: 0 })
+    );
+
+    // Check first launch and navigate
     const checkFirstLaunch = async () => {
       const alreadyLaunched = await AsyncStorage.getItem("alreadyLaunched");
-      setTimeout(async () => {
-        if (alreadyLaunched === null) {
-          await AsyncStorage.setItem("alreadyLaunched", "true");
-          router.replace("onboarding/lastOnboard");
-        } else {
-          router.replace("onboarding/lastOnboard");
-        }
-      }, 3000);
+
+      setTimeout(() => {
+        opacity.value = withTiming(0, { duration: 400 });
+
+        setTimeout(async () => {
+          if (alreadyLaunched === null) {
+            await AsyncStorage.setItem("alreadyLaunched", "true");
+            router.replace("onboarding/lastOnboard");
+          } else {
+            router.replace("onboarding/lastOnboard");
+          }
+        }, 400);
+      }, 2500);
     };
 
     checkFirstLaunch();
-  }, [progress, router, translateY]);
+  }, []);
 
   return (
-    <View style={styles.container}>
-      <Animated.View style={[styles.center, animatedStyle]}>
-        <Image
-          source={icon}
-          resizeMode="contain"
-          style={{ width: 160, height: 160 }}
-        />
-        <Text style={styles.text}>JobNearMe</Text>
-        <Text style={styles.subtitle}>Find Jobs near you instantly.</Text>
-      </Animated.View>
-    </View>
+    <LinearGradient
+      colors={[Colors.Primary, Colors.Secondary, "#FFFFFF"]}
+      locations={[0, 0.6, 1]}
+      style={styles.container}
+    >
+      <View style={styles.center}>
+        <Animated.View style={[styles.logoContainer, animatedLogoStyle]}>
+          <View style={styles.logoIcon}>
+            <Image
+              source={icon}
+              resizeMode="contain"
+              style={styles.logoImage}
+            />
+          </View>
+        </Animated.View>
+
+        <Animated.View style={animatedTextStyle}>
+          <Text style={styles.appName}>JobNearMe</Text>
+          <Text style={styles.subtitle}>Find Jobs near you instantly.</Text>
+        </Animated.View>
+      </View>
+    </LinearGradient>
   );
 }
 
@@ -62,20 +109,44 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: primary,
   },
   center: {
     alignItems: "center",
-    gap: 10,
+    gap: 30,
   },
-  text: {
-    fontSize: 35,
+  logoContainer: {
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.25,
+    shadowRadius: 20,
+    elevation: 10,
+  },
+  logoIcon: {
+    width: 120,
+    height: 120,
+    borderRadius: 28,
+    backgroundColor: "rgba(255, 255, 255, 0.25)",
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 2,
+    borderColor: "rgba(255, 255, 255, 0.3)",
+  },
+  logoImage: {
+    width: 80,
+    height: 80,
+  },
+  appName: {
+    fontSize: 40,
     fontWeight: "bold",
-    color: "#fff",
+    color: "#FFFFFF",
+    letterSpacing: 1,
+    textAlign: "center",
   },
   subtitle: {
-    fontSize: 18,
+    fontSize: 16,
     textAlign: "center",
-    color: "#f5f5f5",
+    color: "rgba(255, 255, 255, 0.9)",
+    marginTop: 5,
+    fontWeight: "500",
   },
 });

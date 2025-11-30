@@ -4,7 +4,7 @@
     "slug": "JobNearMe",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/logo.png",
+    "icon": "../frontend/assets/logo.png",
     "scheme": "jobnearme",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -18,7 +18,7 @@
     },
     "web": {
       "output": "static",
-      "favicon": "./assets/logo.png"
+      "favicon": "../frontend/assets/logo.png"
     },
     "plugins": [
       "expo-router",

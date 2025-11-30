@@ -13,8 +13,8 @@ import {
   View,
 } from "react-native";
 import useUserStore from "../../store/useStore";
-import { secondary } from "../../theme/colors";
-import { inputContainer } from "../../theme/styles";
+import Colors from "../../theme/colors";
+import { inputContainer } from "../../theme/styles.js";
 
 export default function LogIn() {
   const {
@@ -55,7 +55,11 @@ export default function LogIn() {
           <View style={styles.inputWrapper}>
             <Text style={styles.label}>Email Address</Text>
             <View style={[inputContainer, email && styles.inputFocused]}>
-              <Ionicons name="mail-outline" size={22} color={secondary} />
+              <Ionicons
+                name="mail-outline"
+                size={22}
+                color={Colors.Secondary}
+              />
               <TextInput
                 style={styles.input}
                 placeholder="Enter your email"
@@ -75,7 +79,7 @@ export default function LogIn() {
               <Ionicons
                 name="lock-closed-outline"
                 size={22}
-                color={secondary}
+                color={Colors.Secondary}
               />
               <TextInput
                 style={styles.input}
@@ -184,7 +188,7 @@ const styles = StyleSheet.create({
   },
 
   inputFocused: {
-    borderColor: secondary,
+    borderColor: Colors.Secondary,
     backgroundColor: "#F0F8FF",
   },
   input: {
@@ -199,7 +203,7 @@ const styles = StyleSheet.create({
   },
   forgotPasswordText: {
     fontSize: 14,
-    color: secondary,
+    color: Colors.Secondary,
     fontWeight: "600",
   },
   btns: {
@@ -207,14 +211,14 @@ const styles = StyleSheet.create({
     marginBottom: 40,
   },
   loginBtn: {
-    backgroundColor: secondary,
+    backgroundColor: Colors.Secondary,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     paddingVertical: 16,
     borderRadius: 12,
     marginBottom: 16,
-    shadowColor: secondary,
+    shadowColor: Colors.Secondary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
@@ -245,14 +249,14 @@ const styles = StyleSheet.create({
   registerBtn: {
     backgroundColor: "#fff",
     borderWidth: 2,
-    borderColor: secondary,
+    borderColor: Colors.Secondary,
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: "center",
     marginBottom: 24,
   },
   registerBtnText: {
-    color: secondary,
+    color: Colors.Secondary,
     fontSize: 16,
     fontWeight: "700",
   },
@@ -263,7 +267,7 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
   link: {
-    color: secondary,
+    color: Colors.Secondary,
     fontWeight: "600",
   },
 });

@@ -19,6 +19,7 @@ export default function Layout() {
         }}
       />
       <Stack.Screen name="onboarding/lastOnboard" />
+      <Stack.Screen name="home" />
     </Stack>
   );
 }

@@ -1,3 +1,4 @@
+import React from "react";
 import {
   View,
   Text,
@@ -7,62 +8,68 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import { router } from "expo-router";
 
-const COLORS = {
-  primary: "#003366",
-  secondary: "#0059b3",
-  textDark: "#000000",
-  textLight: "#FFFFFF",
-  buttonPrimary: "#000000",
-  buttonSecondary: "#EEEEEE",
-  linkText: "#007bff",
-};
+import Colors from "../../theme/colors.js";
 
-const JOB_IMAGE = require("../../assets/onboard3.png");
+const image = require("../../assets/congrat.png");
 
-const JobNearMeOnboardingScreen = ({ navigation }) => {
+const LaundrifyOnboardingScreen = () => {
   return (
     <View style={styles.mainContainer}>
-      <StatusBar barStyle="light-content" backgroundColor={COLORS.primary} />
+      <StatusBar barStyle="light-content" backgroundColor={Colors.Primary} />
 
       <LinearGradient
-        colors={[COLORS.primary, COLORS.secondary]}
-        style={styles.gradientTop}
+        colors={[Colors.Primary, Colors.Secondary, "#FFFFFF"]}
+        locations={[0, 0.5, 1]}
+        style={styles.gradientBackground}
       >
         <View style={styles.header}>
-          <Text style={styles.headerLogoText}>JobNearMe</Text>
+          <View style={styles.logoContainer}>
+            <View style={styles.logoIcon}>
+              <Text style={styles.logoIconText}>🔍</Text>
+            </View>
+            <Text style={styles.headerLogoText}>JobNearMe</Text>
+          </View>
         </View>
 
         <View style={styles.illustrationContainer}>
           <Image
-            source={JOB_IMAGE}
+            source={image}
             style={styles.illustration}
             resizeMode="contain"
           />
         </View>
+
+        <View style={styles.contentBottom}>
+          <Text style={styles.title}>
+            Laundry, done for you.{"\n"}
+            <Text style={styles.subtitle}>Anytime, anywhere</Text>
+          </Text>
+
+          <TouchableOpacity
+            style={styles.getStartedButton}
+            onPress={() => router.push("(auth)/signUp")}
+          >
+            <Text style={styles.getStartedText}>Get Started</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.loginButton}
+            onPress={() => {
+              router.push("(auth)/logIn");
+            }}
+          >
+            <Text style={styles.loginText}>I already have an account</Text>
+          </TouchableOpacity>
+
+          <Text style={styles.termsText}>
+            By continuing you agree to our{" "}
+            <Text style={styles.linkText}>Terms of Services</Text>
+            {"\n"}and <Text style={styles.linkText}>Privacy Policy</Text>
+          </Text>
+        </View>
       </LinearGradient>
-
-      <View style={styles.contentBottom}>
-        <Text style={styles.title}>
-          Your Next Job Awaits.
-          {"\n"}
-          <Text style={styles.subtitle}>Find opportunities nearby</Text>
-        </Text>
-
-        <TouchableOpacity style={styles.getStartedButton} onPress={() => {}}>
-          <Text style={styles.getStartedText}>Get Started</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.loginButton}>
-          <Text style={styles.loginText}>I already have an account</Text>
-        </TouchableOpacity>
-
-        <Text style={styles.termsText}>
-          By continuing you agree to our{" "}
-          <Text style={styles.linkText}>Terms of Services</Text> and{" "}
-          <Text style={styles.linkText}>Privacy Policy</Text>
-        </Text>
-      </View>
     </View>
   );
 };
@@ -70,93 +77,103 @@ const JobNearMeOnboardingScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: "#FFFFFF",
   },
-  gradientTop: {
+  gradientBackground: {
     flex: 1,
-    paddingHorizontal: 20,
-    paddingTop: 50,
-    alignItems: "center",
   },
   header: {
     width: "100%",
-    alignItems: "flex-start",
-    marginBottom: 20,
+    paddingHorizontal: 20,
+    paddingTop: 60,
+    alignItems: "center",
+  },
+  logoContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  logoIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    backgroundColor: "rgba(255, 255, 255, 0.3)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  logoIconText: {
+    fontSize: 18,
   },
   headerLogoText: {
     fontSize: 24,
-    fontWeight: "bold",
-    color: COLORS.textLight,
+    fontWeight: "700",
+    color: Colors.textLight,
   },
   illustrationContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingBottom: 40,
+    paddingVertical: 40,
   },
   illustration: {
-    width: 250,
-    height: 250,
+    width: 600,
+    height: 600,
   },
   contentBottom: {
-    flex: 1.2,
     paddingHorizontal: 30,
+    paddingBottom: 50,
     alignItems: "center",
-    marginTop: -50, // Pulls content up over the gradient edge
   },
   title: {
-    fontSize: 34,
-    fontWeight: "900",
-    color: COLORS.textDark,
+    fontSize: 32,
+    fontWeight: "700",
+    color: Colors.textDark,
     textAlign: "center",
-    marginBottom: 20,
-    lineHeight: 40,
+    marginBottom: 30,
+    lineHeight: 38,
   },
   subtitle: {
-    fontSize: 34,
-    fontWeight: "900",
-    color: COLORS.textDark,
+    fontSize: 32,
+    fontWeight: "400",
+    color: Colors.textDark,
   },
   getStartedButton: {
     width: "100%",
-    backgroundColor: COLORS.buttonPrimary,
-    paddingVertical: 15,
-    borderRadius: 10,
+    backgroundColor: Colors.buttonPrimary,
+    paddingVertical: 18,
+    borderRadius: 12,
     alignItems: "center",
-    marginTop: 20,
+    marginBottom: 12,
   },
   getStartedText: {
-    color: COLORS.textLight,
-    fontSize: 18,
-    fontWeight: "bold",
+    color: Colors.textLight,
+    fontSize: 16,
+    fontWeight: "600",
   },
   loginButton: {
     width: "100%",
-    backgroundColor: COLORS.buttonSecondary,
-    paddingVertical: 15,
-    borderRadius: 10,
+    backgroundColor: Colors.buttonSecondary,
+    paddingVertical: 18,
+    borderRadius: 12,
     alignItems: "center",
-    marginTop: 15,
-    borderColor: "#DDDDDD",
-    borderWidth: 1,
+    marginBottom: 20,
   },
   loginText: {
-    color: COLORS.textDark,
-    fontSize: 18,
-    fontWeight: "bold",
+    color: Colors.textDark,
+    fontSize: 16,
+    fontWeight: "600",
   },
   termsText: {
-    position: "absolute",
-    bottom: 30,
     textAlign: "center",
     fontSize: 12,
-    color: "#666666",
-    paddingHorizontal: 20,
+    color: Colors.linkText,
+    lineHeight: 18,
+    fontWeight: "bold",
   },
   linkText: {
-    textDecorationLine: "underline",
-    color: COLORS.linkText,
+    color: Colors.linkText,
+    fontWeight: "500",
   },
 });
 
-export default JobNearMeOnboardingScreen;
+export default LaundrifyOnboardingScreen;
