@@ -11,12 +11,14 @@ import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 
 import Colors from "../../theme/colors.js";
+import { SafeAreaView } from "react-native-safe-area-context";
+import Logo from "../../components/logo.jsx";
 
 const image = require("../../assets/congrat.png");
 
 const LaundrifyOnboardingScreen = () => {
   return (
-    <View style={styles.mainContainer}>
+    <SafeAreaView style={styles.mainContainer}>
       <StatusBar barStyle="light-content" backgroundColor={Colors.Primary} />
 
       <LinearGradient
@@ -24,13 +26,9 @@ const LaundrifyOnboardingScreen = () => {
         locations={[0, 0.5, 1]}
         style={styles.gradientBackground}
       >
+        {/* header logo */}
         <View style={styles.header}>
-          <View style={styles.logoContainer}>
-            <View style={styles.logoIcon}>
-              <Text style={styles.logoIconText}>🔍</Text>
-            </View>
-            <Text style={styles.headerLogoText}>JobNearMe</Text>
-          </View>
+          <Logo />
         </View>
 
         <View style={styles.illustrationContainer}>
@@ -43,8 +41,8 @@ const LaundrifyOnboardingScreen = () => {
 
         <View style={styles.contentBottom}>
           <Text style={styles.title}>
-            Laundry, done for you.{"\n"}
-            <Text style={styles.subtitle}>Anytime, anywhere</Text>
+            Your dream job is{"\n"}
+            <Text style={styles.subtitle}>one tap away</Text>
           </Text>
 
           <TouchableOpacity
@@ -70,7 +68,7 @@ const LaundrifyOnboardingScreen = () => {
           </Text>
         </View>
       </LinearGradient>
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -83,31 +81,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    width: "100%",
-    paddingHorizontal: 20,
-    paddingTop: 60,
-    alignItems: "center",
-  },
-  logoContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-  },
-  logoIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
-    backgroundColor: "rgba(255, 255, 255, 0.3)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  logoIconText: {
-    fontSize: 18,
-  },
-  headerLogoText: {
-    fontSize: 24,
-    fontWeight: "700",
-    color: Colors.textLight,
+    marginBottom: 30,
   },
   illustrationContainer: {
     flex: 1,
@@ -116,8 +90,8 @@ const styles = StyleSheet.create({
     paddingVertical: 40,
   },
   illustration: {
-    width: 600,
-    height: 600,
+    width: 550,
+    height: 550,
   },
   contentBottom: {
     paddingHorizontal: 30,

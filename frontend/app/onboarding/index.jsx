@@ -1,6 +1,15 @@
+// app/onboarding/index.js
+
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  StatusBar,
+} from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import Animated, {
   useAnimatedStyle,
@@ -12,6 +21,7 @@ import Animated, {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { onboardingData } from "../../utils/data.js";
 import Colors from "../../theme/colors";
+import Logo from "../../components/logo.jsx";
 
 export default function IndexOnboarding() {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -43,13 +53,14 @@ export default function IndexOnboarding() {
       easing: Easing.out(Easing.exp),
     });
     scale.value = withSpring(1, {
-      damping: 12,
+      damping: 20,
       stiffness: 100,
     });
     translateY.value = withSpring(0, {
       damping: 15,
       stiffness: 120,
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentIndex]);
 
   const nextSlide = () => {
@@ -69,21 +80,19 @@ export default function IndexOnboarding() {
   const currentSlide = onboardingData[currentIndex];
 
   return (
-    <SafeAreaView style={styles.safe}>
+    <SafeAreaView style={styles.safe} edges={["top", "bottom"]}>
+      <StatusBar
+        barStyle="light-content"
+        backgroundColor={Colors.Primary}
+        translucent={false}
+      />
       <LinearGradient
         colors={[Colors.Primary, Colors.Secondary, "#FFFFFF"]}
         locations={[0, 0.5, 1]}
         style={styles.gradient}
       >
         {/* Logo Header */}
-        <View style={styles.header}>
-          <View style={styles.logoContainer}>
-            <View style={styles.logoIcon}>
-              <Text style={styles.logoEmoji}>🔍</Text>
-            </View>
-            <Text style={styles.logoText}>JobNearMe</Text>
-          </View>
-        </View>
+        <Logo />
 
         {/* Content */}
         <View style={styles.contentContainer}>
@@ -105,7 +114,6 @@ export default function IndexOnboarding() {
 
         {/* Bottom Section */}
         <View style={styles.bottomSection}>
-          {/* Dots Indicator */}
           <View style={styles.dotsContainer}>
             {onboardingData.map((_, index) => (
               <View
@@ -160,37 +168,12 @@ export default function IndexOnboarding() {
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: Colors.Primary,
+    backgroundColor: "#FFFFFF",
   },
   gradient: {
     flex: 1,
   },
-  header: {
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    alignItems: "center",
-  },
-  logoContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-  },
-  logoIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
-    backgroundColor: "rgba(255, 255, 255, 0.3)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  logoEmoji: {
-    fontSize: 18,
-  },
-  logoText: {
-    fontSize: 22,
-    fontWeight: "700",
-    color: "#FFFFFF",
-  },
+
   contentContainer: {
     flex: 1,
     justifyContent: "center",
@@ -201,8 +184,8 @@ const styles = StyleSheet.create({
     marginBottom: 40,
   },
   image: {
-    width: 500,
-    height: 500,
+    width: 470,
+    height: 470,
   },
   textContainer: {
     alignItems: "center",

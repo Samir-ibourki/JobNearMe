@@ -76,6 +76,7 @@ export default function Index() {
     };
 
     checkFirstLaunch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
