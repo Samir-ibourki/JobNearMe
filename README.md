@@ -24,7 +24,7 @@ JobNearMe addresses this issue by prioritizing geolocation and simplicity, makin
 
 ## Project Structure
 
-````
+```
 JobNearMe/
 ├── backend/                  # Backend API (Node.js + Express)
 │   ├── src/
@@ -48,6 +48,7 @@ JobNearMe/
     ├── theme/                 # UI theme & styles
     └── package.json
 
+```
 
 ## Tech Stack
 
@@ -96,7 +97,7 @@ This project has separate frontend and backend folders. Navigate to each folder 
 
 ```bash
 cd backend
-````
+```
 
 2. Install dependencies:
 
