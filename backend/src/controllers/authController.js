@@ -1,127 +1,100 @@
-import JWT from "jsonwebtoken";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcryptjs";
 import User from "../models/User.js";
-import bcrypt from "bcrypt";
-import { AppError } from "../middlewares/errorHandler.js";
+import { AppError, asyncHandler } from "../middlewares/errorHandler.js";
 
 const generateToken = (userId) => {
-  return JWT.sign({ id: userId }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRE || "7d",
+  return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRES_IN || "7d",
   });
 };
-const register = async (req, res, next) => {
-  try {
-    const { fullname, email, password, role } = req.body;
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+export const register = asyncHandler(async (req, res) => {
+  const { fullName, email, password, phone, city, role } = req.body;
 
-    if (!email || !fullname || !password) {
-      throw new AppError("Tous les champs sont requis", 400);
-    }
-
-    if (!emailRegex.test(email)) {
-      throw new AppError("Email invalide", 400);
-    }
-
-    const existingUser = await User.findOne({
-      where: {
-        [Op.or]: [{ email }, { fullname }],
-      },
-    });
-
-    if (existingUser) {
-      throw new AppError(
-        "Cet email ou nom d'utilisateur est déjà utilisé",
-        409
-      );
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const user = await User.create({
-      fullname,
-      email,
-      password: hashedPassword,
-      role: role || "user",
-    });
-
-    const token = generateToken(user.id);
-
-    res.status(201).json({
-      success: true,
-      message: "Utilisateur créé avec succès",
-      data: {
-        user: {
-          id: user.id,
-          fullname: user.fullname,
-          email: user.email,
-          role: user.role,
-        },
-        token,
-      },
-    });
-  } catch (error) {
-    next(error);
+  if (!fullName || !email || !password) {
+    throw new AppError("Nom, email et mot de passe sont requis", 400);
   }
-};
 
-const login = async (req, res, next) => {
-  try {
-    const { email, password } = req.body;
-
-    if (!email || !password) {
-      throw new AppError("Email et mot de passe requis", 400);
-    }
-
-    const user = await User.findOne({
-      where: { email },
-      attributes: ["id", "username", "email", "password", "role"],
-    });
-
-    if (!user) {
-      throw new AppError("Email ou mot de passe incorrect", 401);
-    }
-
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-
-    if (!isPasswordValid) {
-      throw new AppError("Email ou mot de passe incorrect", 401);
-    }
-
-    const token = generateToken(user.id);
-
-    res.status(200).json({
-      success: true,
-      message: "Connexion réussie",
-      data: {
-        user: {
-          id: user.id,
-          fullname: user.fullname,
-          email: user.email,
-          role: user.role,
-        },
-        token,
-      },
-    });
-  } catch (error) {
-    next(error);
+  if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) {
+    throw new AppError("Format email invalide", 400);
   }
-};
 
-const getProfile = async (req, res, next) => {
-  const userId = req.user.id;
-  const user = await User.findByPk(userId, {
+  const existingUser = await User.findOne({ where: { email } });
+
+  if (existingUser) {
+    throw new AppError("Cet email est déjà utilisé", 409);
+  }
+
+  const user = await User.create({
+    fullName,
+    email,
+    password,
+    phone,
+    city,
+    role: role || "candidate",
+  });
+
+  const token = generateToken(user.id);
+
+  res.status(201).json({
+    success: true,
+    message: "Inscription réussie",
+    data: {
+      user: {
+        id: user.id,
+        fullName: user.fullName,
+        email: user.email,
+        phone: user.phone,
+        city: user.city,
+        role: user.role,
+      },
+      token,
+    },
+  });
+});
+
+export const login = asyncHandler(async (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    throw new AppError("Email et mot de passe requis", 400);
+  }
+
+  const user = await User.findOne({ where: { email } });
+
+  if (!user || !(await bcrypt.compare(password, user.password))) {
+    throw new AppError("Email ou mot de passe incorrect", 401);
+  }
+
+  const token = generateToken(user.id);
+
+  res.json({
+    success: true,
+    message: "Connexion réussie",
+    data: {
+      user: {
+        id: user.id,
+        fullName: user.fullName,
+        email: user.email,
+        phone: user.phone,
+        city: user.city,
+        role: user.role,
+      },
+      token,
+    },
+  });
+});
+
+export const getProfile = asyncHandler(async (req, res) => {
+  const user = await User.findByPk(req.user.id, {
     attributes: { exclude: ["password"] },
   });
-  if (!user) {
-    return res.status(404).json({
-      success: false,
-      message: "Utilisateur introuvable",
-    });
-  }
-  res.status(200).json({
+
+  if (!user) throw new AppError("Utilisateur introuvable", 404);
+
+  res.json({
     success: true,
     data: user,
   });
-};
-
-export { register, login, getProfile };
+});
