@@ -67,9 +67,9 @@ export default function Index() {
         setTimeout(async () => {
           if (alreadyLaunched === null) {
             await AsyncStorage.setItem("alreadyLaunched", "true");
-            router.replace("onboarding/lastOnboard");
+            router.replace("onboarding/index");
           } else {
-            router.replace("onboarding/lastOnboard");
+            router.replace("onboarding/index");
           }
         }, 400);
       }, 2500);

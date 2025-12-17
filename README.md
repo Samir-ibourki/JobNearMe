@@ -13,26 +13,41 @@ A mobile application for finding job opportunities near your location, built wit
 
 JobNearMe is a location-based job search application that helps users discover employment opportunities in their vicinity. The app features a modern, user-friendly interface with comprehensive authentication and job browsing capabilities.
 
+## Context and Problem Statement
+
+Today, many job search platforms exist (such as Indeed, LinkedIn, or local sites), but they are often complex, overloaded with national or international offers, and not optimized for quick local searches. Local job offers from small businesses (shops, restaurants, crafts, services) are frequently buried or hard to find on these large platforms.
+
+**Main Problem:**  
+How can users easily and quickly find job offers near them, in a simple, intuitive, and efficient way — especially for urgent or local needs?
+
+JobNearMe addresses this issue by prioritizing geolocation and simplicity, making local employment accessible with just a few taps.
+
 ## Project Structure
 
-```
+````
 JobNearMe/
-├── backend/                  # Backend API
+├── backend/                  # Backend API (Node.js + Express)
 │   ├── src/
-│   │   └── config/           # Database configuration
-│   ├── server.js             # Main server entry point
-│   └── package.json          # Backend dependencies
+│   │   ├── config/            # Database & environment configuration
+│   │   ├── models/            # Sequelize models
+│   │   ├── controllers/       # Business logic
+│   │   ├── routes/            # API routes
+│   │   ├── middlewares/       # Auth & error handling
+│   │   └── services/          # Reusable services
+│   ├── server.js              # Server entry point
+│   └── package.json
 │
-└── frontend/                 # React Native Mobile App
-    ├── app/                  # Application screens and routing
-    │   ├── (auth)/           # Authentication screens
-    │   └── onboarding/       # Onboarding flow
-    ├── assets/               # Images and media files
-    ├── store/                # State management (Zustand)
-    ├── theme/                # UI theming and styles
-    ├── utils/                # Utility functions and data
-    └── package.json          # Frontend dependencies
-```
+└── frontend/                  # Mobile Application (React Native + Expo)
+    ├── app/                   # Screens & routing (Expo Router)
+    │   ├── (auth)/            # Authentication screens
+    │   ├── onboarding/        # Onboarding flow
+    │   └── home/              # Main application screens
+    ├── assets/                # Images & icons
+    ├── store/                 # Zustand global state
+    ├── services/              # API & Axios services
+    ├── theme/                 # UI theme & styles
+    └── package.json
+
 
 ## Tech Stack
 
@@ -42,7 +57,7 @@ JobNearMe/
 - **Navigation**: Expo Router (v6)
 - **State Management**: Zustand (v5)
 - **UI Components**: React Native Reanimated, Gesture Handler
-- **Languages**: JavaScript/TypeScript
+- **Languages**: JavaScript
 
 ### Backend
 
@@ -81,7 +96,7 @@ This project has separate frontend and backend folders. Navigate to each folder 
 
 ```bash
 cd backend
-```
+````
 
 2. Install dependencies:
 
