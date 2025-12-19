@@ -5,7 +5,7 @@ import { AppError, asyncHandler } from "../middlewares/errorHandler.js";
 export const getAllJobs = asyncHandler(async (req, res) => {
   const jobs = await Job.findAll({
     include: [
-      { model: User, as: "employer", attributes: ["fullName", "phone"] },
+      { model: User, as: "employer", attributes: ["fullname", "phone"] },
     ],
     order: [["createdAt", "DESC"]],
   });
@@ -20,7 +20,7 @@ export const getAllJobs = asyncHandler(async (req, res) => {
 export const getJobById = asyncHandler(async (req, res) => {
   const job = await Job.findByPk(req.params.id, {
     include: [
-      { model: User, as: "employer", attributes: ["fullName", "phone"] },
+      { model: User, as: "employer", attributes: ["fullname", "phone"] },
     ],
   });
 
@@ -45,7 +45,7 @@ export const getNearbyJobs = asyncHandler(async (req, res) => {
 
   const jobs = await Job.findAll({
     include: [
-      { model: User, as: "employer", attributes: ["fullName", "phone"] },
+      { model: User, as: "employer", attributes: ["fullname", "phone"] },
     ],
   });
 

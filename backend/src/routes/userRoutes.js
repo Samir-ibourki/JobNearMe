@@ -1,10 +1,8 @@
 import express from "express";
 import { updateLocation } from "../controllers/userController.js";
-import { protect } from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
 
-router.use(protect);
 router.patch("/location", updateLocation);
 
 export default router;

@@ -25,9 +25,13 @@ const User = sequelize.define(
       allowNull: false,
     },
     role: {
-      type: DataTypes.ENUM("candidate", "employer", "admin"),
+      type: DataTypes.ENUM("candidate", "employer"),
       defaultValue: "candidate",
       allowNull: false,
+    },
+    phone: {
+      type: DataTypes.STRING,
+      allowNull: true,
     },
 
     city: {
@@ -42,6 +46,7 @@ const User = sequelize.define(
       type: DataTypes.DECIMAL(11, 8),
       allowNull: true,
     },
+  
   },
   {
     timestamps: true,

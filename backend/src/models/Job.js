@@ -34,5 +34,14 @@ const Job = sequelize.define("Job", {
     type: DataTypes.STRING,
     allowNull: true,
   },
+  employerId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: "Users",
+      key: "id",
+    },
+    onDelete: "CASCADE",
+  },
 });
 export default Job;

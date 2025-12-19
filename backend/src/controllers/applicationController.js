@@ -39,7 +39,7 @@ export const getMyApplications = asyncHandler(async (req, res) => {
       {
         model: Job,
         include: [
-          { model: User, as: "employer", attributes: ["fullName", "phone"] },
+          { model: User, as: "employer", attributes: ["fullname", "phone"] },
         ],
       },
     ],

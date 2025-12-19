@@ -10,7 +10,7 @@ const generateToken = (userId) => {
   });
 };
 
-const register = async (res, req, next) => {
+const register = async (req, res, next) => {
   try {
     const { role, fullname, email, password } = req.body;
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -22,7 +22,7 @@ const register = async (res, req, next) => {
     }
     const existingUser = await User.findOne({
       where: {
-        [Op.or]: [{ email }, { fullname }],
+        [Op.or]: [{ email }],
       },
     });
 
@@ -64,7 +64,7 @@ const register = async (res, req, next) => {
 const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
-    if (!email || !email) {
+    if (!email || !password) {
       throw new AppError("Email et mot de passe requis", 400);
     }
     const user = await User.findOne({
