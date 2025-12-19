@@ -9,18 +9,23 @@ const port = 3030;
 app.use(express.json());
 
 import "./src/models/index.js";
+import seedData from "./src/seeders/seed.js";
 
 app.use("/api/auth", authRoutes);
 app.use("/api/jobs", jobRoutes);
 app.use("/api/applications", applicationRoutes);
 app.use("/api/users", userRoutes);
 sequelize
-  .sync({ force: true })
-  .then(() => {
-    console.log("databased synced successfully !");
-  })
-  .catch((err) => console.log("Error databased", err));
+  .sync({ alter: true })
+  .then(async () => {
+    console.log("Database synced successfully!");
 
-app.listen(port, () => {
-  console.log(`server running on port ${port} `);
-});
+    await seedData();
+
+    app.listen(port, () => {
+      console.log(`server running on port ${port} `);
+    });
+  })
+  .catch((err) => {
+    console.error("Database error:", err);
+  });

@@ -9,7 +9,11 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "clean": "rm -rf node_modules"
   },
-  "keywords": ["api", "backend", "express"],
+  "keywords": [
+    "api",
+    "backend",
+    "express"
+  ],
   "author": "Samir Ibourki",
   "license": "ISC",
   "description": "JobNearMe Backend API",
