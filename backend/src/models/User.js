@@ -10,7 +10,7 @@ const User = sequelize.define(
       primaryKey: true,
       autoIncrement: true,
     },
-    fullName: {
+    fullname: {
       type: DataTypes.STRING,
       allowNull: false,
     },
@@ -29,10 +29,7 @@ const User = sequelize.define(
       defaultValue: "candidate",
       allowNull: false,
     },
-    phone: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
+
     city: {
       type: DataTypes.STRING,
       allowNull: true,
@@ -50,17 +47,5 @@ const User = sequelize.define(
     timestamps: true,
   }
 );
-
-User.beforeCreate(async (user) => {
-  if (user.password) {
-    user.password = await bcrypt.hash(user.password, 10);
-  }
-});
-
-User.beforeUpdate(async (user) => {
-  if (user.changed("password") && user.password) {
-    user.password = await bcrypt.hash(user.password, 10);
-  }
-});
 
 export default User;

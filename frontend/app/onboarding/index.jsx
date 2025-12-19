@@ -1,4 +1,3 @@
-// app/onboarding/index.js
 
 import { router } from "expo-router";
 import { useEffect, useState } from "react";

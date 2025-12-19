@@ -1,5 +1,3 @@
-// app/index.js (Splash Screen)
-
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { useEffect } from "react";
@@ -69,7 +67,7 @@ export default function Index() {
             await AsyncStorage.setItem("alreadyLaunched", "true");
             router.replace("onboarding/index");
           } else {
-            router.replace("onboarding/index");
+            router.replace("(auth)/logIn");
           }
         }, 400);
       }, 2500);

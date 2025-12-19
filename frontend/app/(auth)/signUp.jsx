@@ -1,3 +1,5 @@
+// app/(auth)/signUp.js
+
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useState } from "react";
@@ -20,9 +22,8 @@ export default function SignUp() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [role, setRole] = useState("candidate"); // "candidate" or "employer"
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleSignUp = () => {
     // Validation
@@ -38,12 +39,9 @@ export default function SignUp() {
       alert("Password must be at least 6 characters");
       return;
     }
-    if (password !== confirmPassword) {
-      alert("Passwords don't match");
-      return;
-    }
 
-    console.log("Sign up:", { fullName, email, password });
+    console.log("Sign up:", { fullName, email, password, role });
+    // TODO: API call to backend
   };
 
   return (
@@ -90,6 +88,60 @@ export default function SignUp() {
               <Text style={styles.subtitle}>
                 Sign up to start finding your dream job
               </Text>
+
+              {/* Role Selection */}
+              <View style={styles.inputContainer}>
+                <Text style={styles.label}>I am a</Text>
+                <View style={styles.roleContainer}>
+                  <TouchableOpacity
+                    style={[
+                      styles.roleButton,
+                      role === "candidate" && styles.roleButtonActive,
+                    ]}
+                    onPress={() => setRole("candidate")}
+                    activeOpacity={0.7}
+                  >
+                    <Ionicons
+                      name="person"
+                      size={24}
+                      color={
+                        role === "candidate" ? "#FFFFFF" : Colors.Secondary
+                      }
+                    />
+                    <Text
+                      style={[
+                        styles.roleButtonText,
+                        role === "candidate" && styles.roleButtonTextActive,
+                      ]}
+                    >
+                      Job Seeker
+                    </Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[
+                      styles.roleButton,
+                      role === "employer" && styles.roleButtonActive,
+                    ]}
+                    onPress={() => setRole("employer")}
+                    activeOpacity={0.7}
+                  >
+                    <Ionicons
+                      name="briefcase"
+                      size={24}
+                      color={role === "employer" ? "#FFFFFF" : Colors.Secondary}
+                    />
+                    <Text
+                      style={[
+                        styles.roleButtonText,
+                        role === "employer" && styles.roleButtonTextActive,
+                      ]}
+                    >
+                      Employer
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
 
               {/* Full Name Input */}
               <View style={styles.inputContainer}>
@@ -160,42 +212,6 @@ export default function SignUp() {
                   >
                     <Ionicons
                       name={showPassword ? "eye-outline" : "eye-off-outline"}
-                      size={20}
-                      color="#999"
-                    />
-                  </TouchableOpacity>
-                </View>
-              </View>
-
-              {/* Confirm Password Input */}
-              <View style={styles.inputContainer}>
-                <Text style={styles.label}>Confirm Password</Text>
-                <View
-                  style={[
-                    styles.inputWrapper,
-                    confirmPassword && styles.inputFocused,
-                  ]}
-                >
-                  <Ionicons
-                    name="lock-closed-outline"
-                    size={20}
-                    color={confirmPassword ? Colors.Secondary : "#999"}
-                  />
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Confirm your password"
-                    placeholderTextColor="#999"
-                    secureTextEntry={!showConfirmPassword}
-                    value={confirmPassword}
-                    onChangeText={setConfirmPassword}
-                  />
-                  <TouchableOpacity
-                    onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-                  >
-                    <Ionicons
-                      name={
-                        showConfirmPassword ? "eye-outline" : "eye-off-outline"
-                      }
                       size={20}
                       color="#999"
                     />
@@ -331,6 +347,38 @@ const styles = StyleSheet.create({
     color: "#000000",
     marginBottom: 8,
   },
+
+  //role input
+  roleContainer: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  roleButton: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#F5F5F5",
+    borderWidth: 2,
+    borderColor: "#E0E0E0",
+    borderRadius: 12,
+    paddingVertical: 16,
+    gap: 8,
+  },
+  roleButtonActive: {
+    backgroundColor: Colors.Secondary,
+    borderColor: Colors.Secondary,
+  },
+  roleButtonText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#000000",
+  },
+  roleButtonTextActive: {
+    color: "#FFFFFF",
+  },
+
+  // Input Styles
   inputWrapper: {
     flexDirection: "row",
     alignItems: "center",
@@ -351,6 +399,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#000000",
   },
+
   signUpButton: {
     backgroundColor: "#000000",
     flexDirection: "row",

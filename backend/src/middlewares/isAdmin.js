@@ -1,13 +1,15 @@
-import { AppError, asyncHandler } from "./errorHandler.js";
-
-export const isAdmin = asyncHandler(async (req, res, next) => {
+export const isAdmin = (req, res, next) => {
   if (!req.user) {
-    throw new AppError("Utilisateur non authentifié", 401);
+    return res.status(401).json({
+      success: false,
+      message: "Utilisateur non authentifié",
+    });
   }
-
   if (req.user.role !== "admin") {
-    throw new AppError("Accès refusé. Rôle administrateur requis", 403);
+    return res.status(403).json({
+      success: false,
+      message: "Accès refusé. Rôle administrateur requis",
+    });
   }
-
   next();
-});
+};

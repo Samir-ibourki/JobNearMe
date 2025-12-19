@@ -1,38 +1,47 @@
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
-import { AppError, asyncHandler } from "./errorHandler.js";
 
-export const protect = asyncHandler(async (req, res, next) => {
-  let token;
-
-  if (req.headers.authorization?.startsWith("Bearer")) {
-    token = req.headers.authorization.split(" ")[1];
-  }
-
-  if (!token) {
-    throw new AppError("Accès refusé. Token manquant.", 401);
-  }
-
+export const authenticateToken = async (req, res, next) => {
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const authHeader = req.headers.authorization;
+    const token = authHeader && authHeader.split(" ")[1];
 
-    const user = await User.findByPk(decoded.id, {
-      attributes: { exclude: ["password"] },
-    });
-
-    if (!user) {
-      throw new AppError("Utilisateur non trouvé. Token invalide.", 401);
+    if (!token) {
+      return res.status(404).json({
+        succes: false,
+        message: "Acces refuse, Token manquant",
+      });
     }
 
+    const decode = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findByPk(decode.id, {
+      attributes: { exclude: ["password"] },
+    });
+    if (!user) {
+      return res.status(401).json({
+        succes: false,
+        message: "utilisateur non trouvee",
+      });
+    }
     req.user = user;
     next();
   } catch (error) {
     if (error.name === "TokenExpiredError") {
-      throw new AppError("Token expiré. Veuillez vous reconnecter.", 401);
+      return res.status().json({
+        success: false,
+        message: "Token expire. Veuillez vous reconnecter",
+      });
     }
     if (error.name === "JsonWebTokenError") {
-      throw new AppError("Token invalide.", 401);
+      return res.status(401).json({
+        successs: false,
+        message: "Token invalide",
+      });
     }
-    throw error;
+    return res.status(500).json({
+      success: false,
+      message: "Erreur d'authentification",
+      error: error.message,
+    });
   }
-});
+};
