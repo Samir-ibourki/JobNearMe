@@ -16,10 +16,10 @@
       "predictiveBackGestureEnabled": false,
       "package": "com.samir_ibourki.JobNearMe"
     },
-    "web": {
-      "output": "static",
-      "favicon": "../frontend/assets/logo.png"
-    },
+    // "web": {
+    //   "output": "static",
+    //   "favicon": "../frontend/assets/logo.png"
+    // },
     "plugins": [
       "expo-router",
       [
@@ -34,11 +34,12 @@
           }
         }
       ],
-      "expo-asset"
+      "expo-asset",
+      "expo-web-browser"
     ],
+    "platforms": ["android"],
     "experiments": {
-      "typedRoutes": true,
-      "reactCompiler": true
+      "typedRoutes": true
     }
   }
 }

@@ -27,7 +27,6 @@ export default function Index() {
     opacity: opacity.value,
     transform: [{ scale: scale.value }, { rotate: `${logoRotate.value}deg` }],
   }));
-
   const animatedTextStyle = useAnimatedStyle(() => ({
     opacity: opacity.value,
     transform: [{ translateY: translateY.value }],
