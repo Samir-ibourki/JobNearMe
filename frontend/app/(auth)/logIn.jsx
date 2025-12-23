@@ -10,12 +10,179 @@ import {
   TouchableOpacity,
   View,
   StatusBar,
+  Alert,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { SafeAreaView } from "react-native-safe-area-context";
 import useUserStore from "../../store/useStore";
 import Colors from "../../theme/colors";
+import { useLogin } from "../../hooks/useAuth";
 
+// export default function LogIn() {
+//   const {
+//     email,
+//     password,
+//     showPassword,
+//     setEmail,
+//     setPassword,
+//     setShowPassword,
+//   } = useUserStore();
+
+//   const handleLogin = () => {
+//     console.log("Login:", { email, password });
+//   };
+
+//   return (
+//     <SafeAreaView style={styles.safe} edges={["top", "bottom"]}>
+//       <StatusBar
+//         barStyle="light-content"
+//         backgroundColor={Colors.Primary}
+//         translucent={false}
+//       />
+//       <KeyboardAvoidingView
+//         style={styles.keyboardView}
+//         behavior={Platform.OS === "ios" ? "padding" : "height"}
+//       >
+//         <LinearGradient
+//           colors={[Colors.Primary, Colors.Secondary, "#FFFFFF"]}
+//           locations={[0, 0.3, 0.7]}
+//           style={styles.gradient}
+//         >
+//           <ScrollView
+//             contentContainerStyle={styles.scrollContent}
+//             showsVerticalScrollIndicator={false}
+//             keyboardShouldPersistTaps="handled"
+//           >
+//             {/* Header */}
+//             <View style={styles.header}>
+//               <TouchableOpacity
+//                 onPress={() => router.back()}
+//                 style={styles.backButton}
+//               >
+//                 <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
+//               </TouchableOpacity>
+
+//               <View style={styles.logoContainer}>
+//                 <View style={styles.logoIcon}>
+//                   <Text style={styles.logoEmoji}>🔍</Text>
+//                 </View>
+//                 <Text style={styles.logoText}>JobNearMe</Text>
+//               </View>
+//             </View>
+
+//             {/* Form Container */}
+//             <View style={styles.formContainer}>
+//               <Text style={styles.title}>Welcome Back</Text>
+//               <Text style={styles.subtitle}>
+//                 Log in to find your next opportunity
+//               </Text>
+
+//               {/* Email Input */}
+//               <View style={styles.inputContainer}>
+//                 <Text style={styles.label}>Email Address</Text>
+//                 <View
+//                   style={[styles.inputWrapper, email && styles.inputFocused]}
+//                 >
+//                   <Ionicons
+//                     name="mail-outline"
+//                     size={20}
+//                     color={email ? Colors.Secondary : "#999"}
+//                   />
+//                   <TextInput
+//                     style={styles.input}
+//                     placeholder="Enter your email"
+//                     placeholderTextColor="#999"
+//                     keyboardType="email-address"
+//                     autoCapitalize="none"
+//                     value={email}
+//                     onChangeText={setEmail}
+//                   />
+//                 </View>
+//               </View>
+
+//               {/* Password Input */}
+//               <View style={styles.inputContainer}>
+//                 <Text style={styles.label}>Password</Text>
+//                 <View
+//                   style={[styles.inputWrapper, password && styles.inputFocused]}
+//                 >
+//                   <Ionicons
+//                     name="lock-closed-outline"
+//                     size={20}
+//                     color={password ? Colors.Secondary : "#999"}
+//                   />
+//                   <TextInput
+//                     style={styles.input}
+//                     placeholder="Enter your password"
+//                     placeholderTextColor="#999"
+//                     secureTextEntry={!showPassword}
+//                     value={password}
+//                     onChangeText={setPassword}
+//                   />
+//                   <TouchableOpacity
+//                     onPress={() => setShowPassword(!showPassword)}
+//                   >
+//                     <Ionicons
+//                       name={showPassword ? "eye-outline" : "eye-off-outline"}
+//                       size={20}
+//                       color="#999"
+//                     />
+//                   </TouchableOpacity>
+//                 </View>
+//               </View>
+
+//               {/* Forgot Password */}
+//               <TouchableOpacity
+//                 onPress={() => router.push("(auth)/forgotPassword")}
+//                 style={styles.forgotPassword}
+//               >
+//                 <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+//               </TouchableOpacity>
+
+//               {/* Login Button */}
+//               <TouchableOpacity
+//                 style={styles.loginButton}
+//                 onPress={handleLogin}
+//                 activeOpacity={0.8}
+//               >
+//                 <Text
+//                   onPress={() => router.push("home")}
+//                   style={styles.loginButtonText}
+//                 >
+//                   Log In
+//                 </Text>
+//                 <Ionicons name="arrow-forward" size={20} color="#fff" />
+//               </TouchableOpacity>
+
+//               {/* Divider */}
+//               <View style={styles.divider}>
+//                 <View style={styles.dividerLine} />
+//                 <Text style={styles.dividerText}>or</Text>
+//                 <View style={styles.dividerLine} />
+//               </View>
+
+//               {/* Sign Up Link */}
+//               <TouchableOpacity
+//                 onPress={() => router.push("(auth)/signUp")}
+//                 style={styles.signUpButton}
+//                 activeOpacity={0.8}
+//               >
+//                 <Text style={styles.signUpButtonText}>Create New Account</Text>
+//               </TouchableOpacity>
+
+//               {/* Terms */}
+//               <Text style={styles.termsText}>
+//                 By continuing, you agree to our{" "}
+//                 <Text style={styles.linkText}>Terms of Service</Text> and{" "}
+//                 <Text style={styles.linkText}>Privacy Policy</Text>
+//               </Text>
+//             </View>
+//           </ScrollView>
+//         </LinearGradient>
+//       </KeyboardAvoidingView>
+//     </SafeAreaView>
+//   );
+// }
 export default function LogIn() {
   const {
     email,
@@ -25,9 +192,31 @@ export default function LogIn() {
     setPassword,
     setShowPassword,
   } = useUserStore();
+  const { mutate: login, isPending, isError, error } = useLogin();
 
   const handleLogin = () => {
-    console.log("Login:", { email, password });
+    if (!email.trim() || !password.trim()) {
+      Alert.alert("Erreur", "Veuillez remplir email et mot de passe");
+      return;
+    }
+
+    login(
+      { email, password },
+      {
+        onSuccess: () => {
+          Alert.alert("Succès", "Connexion réussie !");
+          setEmail("");
+          setPassword("");
+          router.replace("home");
+        },
+        onError: (err) => {
+          Alert.alert(
+            "Erreur",
+            err.response?.data?.message || "Échec de connexion"
+          );
+        },
+      }
+    );
   };
 
   return (
@@ -117,9 +306,7 @@ export default function LogIn() {
                     value={password}
                     onChangeText={setPassword}
                   />
-                  <TouchableOpacity
-                    onPress={() => setShowPassword(!showPassword)}
-                  >
+                  <TouchableOpacity onPress={setShowPassword}>
                     <Ionicons
                       name={showPassword ? "eye-outline" : "eye-off-outline"}
                       size={20}
@@ -139,18 +326,30 @@ export default function LogIn() {
 
               {/* Login Button */}
               <TouchableOpacity
-                style={styles.loginButton}
+                style={[styles.loginButton, isPending && { opacity: 0.7 }]}
                 onPress={handleLogin}
+                disabled={isPending}
                 activeOpacity={0.8}
               >
-                <Text
-                  onPress={() => router.push("home")}
-                  style={styles.loginButtonText}
-                >
-                  Log In
+                <Text style={styles.loginButtonText}>
+                  {isPending ? "Connexion..." : "Log In"}
                 </Text>
-                <Ionicons name="arrow-forward" size={20} color="#fff" />
+                {!isPending && (
+                  <Ionicons name="arrow-forward" size={20} color="#fff" />
+                )}
               </TouchableOpacity>
+
+              {isError && (
+                <Text
+                  style={{
+                    color: "red",
+                    textAlign: "center",
+                    marginVertical: 10,
+                  }}
+                >
+                  {error?.response?.data?.message || "Erreur de connexion"}
+                </Text>
+              )}
 
               {/* Divider */}
               <View style={styles.divider}>
@@ -163,7 +362,6 @@ export default function LogIn() {
               <TouchableOpacity
                 onPress={() => router.push("(auth)/signUp")}
                 style={styles.signUpButton}
-                activeOpacity={0.8}
               >
                 <Text style={styles.signUpButtonText}>Create New Account</Text>
               </TouchableOpacity>
@@ -181,7 +379,6 @@ export default function LogIn() {
     </SafeAreaView>
   );
 }
-
 const styles = StyleSheet.create({
   safe: {
     flex: 1,

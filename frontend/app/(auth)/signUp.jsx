@@ -2,7 +2,7 @@
 
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { useState } from "react";
+
 import {
   KeyboardAvoidingView,
   Platform,
@@ -13,35 +13,61 @@ import {
   TouchableOpacity,
   View,
   StatusBar,
+  Alert,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Colors from "../../theme/colors";
+import useUserStore from "../../store/useStore";
+import { useRegister } from "../../hooks/useAuth";
 
 export default function SignUp() {
-  const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [role, setRole] = useState("candidate"); // "candidate" or "employer"
-  const [showPassword, setShowPassword] = useState(false);
+  const {
+    fullName,
+    email,
+    password,
+    role,
+    showPassword,
+    setFullName,
+    setEmail,
+    setPassword,
+    setRole,
+    setShowPassword,
+    resetForm,
+  } = useUserStore();
+
+  const { mutate: register, isPending, isError, error } = useRegister();
 
   const handleSignUp = () => {
-    // Validation
     if (!fullName.trim()) {
-      alert("Please enter your full name");
+      Alert.alert("Erreur", "Please enter your full name");
       return;
     }
-    if (!email.includes("@")) {
-      alert("Please enter a valid email");
+    if (!email.trim() || !email.includes("@")) {
+      Alert.alert("Erreur", "Please enter a valid email");
       return;
     }
     if (password.length < 6) {
-      alert("Password must be at least 6 characters");
+      Alert.alert("Erreur", "Password must be at least 6 characters");
       return;
     }
 
-    console.log("Sign up:", { fullName, email, password, role });
-    // TODO: API call to backend
+    register(
+      { fullname: fullName, email, password, role },
+      {
+        onSuccess: () => {
+          Alert.alert("Succès", "Inscription réussie !");
+          resetForm();
+          router.replace("/(auth)/logIn");
+        },
+        onError: (err) => {
+          Alert.alert(
+            "Erreur",
+            err.response?.data?.message || "Échec de l'inscription"
+          );
+        },
+      }
+    );
   };
 
   return (
@@ -99,7 +125,6 @@ export default function SignUp() {
                       role === "candidate" && styles.roleButtonActive,
                     ]}
                     onPress={() => setRole("candidate")}
-                    activeOpacity={0.7}
                   >
                     <Ionicons
                       name="person"
@@ -124,7 +149,6 @@ export default function SignUp() {
                       role === "employer" && styles.roleButtonActive,
                     ]}
                     onPress={() => setRole("employer")}
-                    activeOpacity={0.7}
                   >
                     <Ionicons
                       name="briefcase"
@@ -207,9 +231,7 @@ export default function SignUp() {
                     value={password}
                     onChangeText={setPassword}
                   />
-                  <TouchableOpacity
-                    onPress={() => setShowPassword(!showPassword)}
-                  >
+                  <TouchableOpacity onPress={setShowPassword}>
                     <Ionicons
                       name={showPassword ? "eye-outline" : "eye-off-outline"}
                       size={20}
@@ -221,26 +243,40 @@ export default function SignUp() {
 
               {/* Sign Up Button */}
               <TouchableOpacity
-                style={styles.signUpButton}
+                style={[
+                  styles.signUpButton,
+                  isPending && styles.signUpButtonDisabled,
+                ]}
                 onPress={handleSignUp}
+                disabled={isPending}
                 activeOpacity={0.8}
               >
-                <Text style={styles.signUpButtonText}>Sign Up</Text>
-                <Ionicons name="arrow-forward" size={20} color="#fff" />
+                <Text style={styles.signUpButtonText}>
+                  {isPending ? "Creating Account..." : "Sign Up"}
+                </Text>
+                {!isPending && (
+                  <Ionicons name="arrow-forward" size={20} color="#fff" />
+                )}
               </TouchableOpacity>
 
-              {/* Divider */}
+              {isError && (
+                <Text
+                  style={{ color: "red", textAlign: "center", marginTop: 10 }}
+                >
+                  {error?.response?.data?.message || "Erreur"}
+                </Text>
+              )}
+
+              {/* Divider & Login Link */}
               <View style={styles.divider}>
                 <View style={styles.dividerLine} />
                 <Text style={styles.dividerText}>or</Text>
                 <View style={styles.dividerLine} />
               </View>
 
-              {/* Login Link */}
               <TouchableOpacity
                 onPress={() => router.push("(auth)/logIn")}
                 style={styles.loginButton}
-                activeOpacity={0.8}
               >
                 <Text style={styles.loginButtonText}>
                   Already have an account? Log In
@@ -260,7 +296,6 @@ export default function SignUp() {
     </SafeAreaView>
   );
 }
-
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
