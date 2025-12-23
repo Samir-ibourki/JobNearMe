@@ -27,6 +27,7 @@ export default function Index() {
     opacity: opacity.value,
     transform: [{ scale: scale.value }, { rotate: `${logoRotate.value}deg` }],
   }));
+
   const animatedTextStyle = useAnimatedStyle(() => ({
     opacity: opacity.value,
     transform: [{ translateY: translateY.value }],
@@ -64,7 +65,7 @@ export default function Index() {
         setTimeout(async () => {
           if (alreadyLaunched === null) {
             await AsyncStorage.setItem("alreadyLaunched", "true");
-            router.replace("onboarding/index");
+            router.replace("(auth)/logIn");
           } else {
             router.replace("(auth)/logIn");
           }

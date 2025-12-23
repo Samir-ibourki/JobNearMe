@@ -143,7 +143,12 @@ export default function LogIn() {
                 onPress={handleLogin}
                 activeOpacity={0.8}
               >
-                <Text style={styles.loginButtonText}>Log In</Text>
+                <Text
+                  onPress={() => router.push("home")}
+                  style={styles.loginButtonText}
+                >
+                  Log In
+                </Text>
                 <Ionicons name="arrow-forward" size={20} color="#fff" />
               </TouchableOpacity>
 
