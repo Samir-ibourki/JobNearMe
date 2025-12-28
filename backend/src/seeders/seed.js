@@ -66,7 +66,6 @@ const seedData = async () => {
     await Job.bulkCreate(jobs);
     console.log("3 job offers added successfully!");
 
-    console.log("Seeding completed!");
     console.log("Test Employer: employer@jobnearme.com / password123");
   } catch (error) {
     console.error("Seeding error:", error);
