@@ -8,7 +8,7 @@ export const authenticateToken = async (req, res, next) => {
 
     if (!token) {
       return res.status(404).json({
-        succes: false,
+        success: false,
         message: "Acces refuse, Token manquant",
       });
     }
@@ -19,7 +19,7 @@ export const authenticateToken = async (req, res, next) => {
     });
     if (!user) {
       return res.status(401).json({
-        succes: false,
+        success: false,
         message: "utilisateur non trouvee",
       });
     }
@@ -27,14 +27,14 @@ export const authenticateToken = async (req, res, next) => {
     next();
   } catch (error) {
     if (error.name === "TokenExpiredError") {
-      return res.status().json({
+      return res.status(401).json({
         success: false,
         message: "Token expire. Veuillez vous reconnecter",
       });
     }
     if (error.name === "JsonWebTokenError") {
       return res.status(401).json({
-        successs: false,
+        success: false,
         message: "Token invalide",
       });
     }
