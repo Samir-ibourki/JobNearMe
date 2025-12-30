@@ -1,22 +1,15 @@
 import { View, Text, StyleSheet } from "react-native";
 export default function Logo() {
   return (
-    <View style={styles.header}>
-      <View style={styles.logoContainer}>
-        <View style={styles.logoIcon}>
-          <Text style={styles.logoEmoji}>🔍</Text>
-        </View>
-        <Text style={styles.logoText}>JobNearMe</Text>
+    <View style={styles.logoContainer}>
+      <View style={styles.logoIcon}>
+        <Text style={styles.logoEmoji}>🔍</Text>
       </View>
+      <Text style={styles.logoText}>JobNearMe</Text>
     </View>
   );
 }
 const styles = StyleSheet.create({
-  header: {
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    alignItems: "center",
-  },
   logoContainer: {
     flexDirection: "row",
     alignItems: "center",

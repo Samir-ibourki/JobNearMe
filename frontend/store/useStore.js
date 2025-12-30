@@ -7,6 +7,9 @@ const useUserStore = create((set) => ({
   password: "",
   role: "candidate",
   showPassword: false,
+  phone: "",
+  city: "",
+  address: "",
 
   //action of loginScreen and signUp screen
   setFullName: (fullName) => set({ fullName }),
@@ -15,6 +18,9 @@ const useUserStore = create((set) => ({
   setRole: (role) => set({ role }),
   setShowPassword: () =>
     set((state) => ({ showPassword: !state.showPassword })),
+  setPhone: (phone) => set({ phone }),
+  setCity: (city) => set({ city }),
+  setAddress: (address) => set({ address }),
 
   resetForm: () =>
     set({
@@ -23,6 +29,9 @@ const useUserStore = create((set) => ({
       password: "",
       role: "candidate",
       showPassword: false,
+      phone: "",
+      city: "",
+      address: "",
     }),
 }));
 export default useUserStore;

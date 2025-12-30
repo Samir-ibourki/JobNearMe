@@ -17,6 +17,9 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import useUserStore from "../../store/useStore";
 import Colors from "../../theme/colors";
 import { useLogin } from "../../hooks/useAuth";
+import Divider from "../../components/Divider";
+import Terms from "../../components/Terms";
+import Logo from "../../components/Logo";
 
 export default function LogIn() {
   const {
@@ -84,12 +87,7 @@ export default function LogIn() {
                 <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
               </TouchableOpacity>
 
-              <View style={styles.logoContainer}>
-                <View style={styles.logoIcon}>
-                  <Text style={styles.logoEmoji}>🔍</Text>
-                </View>
-                <Text style={styles.logoText}>JobNearMe</Text>
-              </View>
+              <Logo />
             </View>
 
             {/* Form Container */}
@@ -187,11 +185,7 @@ export default function LogIn() {
               )}
 
               {/* Divider */}
-              <View style={styles.divider}>
-                <View style={styles.dividerLine} />
-                <Text style={styles.dividerText}>or</Text>
-                <View style={styles.dividerLine} />
-              </View>
+              <Divider />
 
               {/* Sign Up Link */}
               <TouchableOpacity
@@ -202,11 +196,7 @@ export default function LogIn() {
               </TouchableOpacity>
 
               {/* Terms */}
-              <Text style={styles.termsText}>
-                By continuing, you agree to our{" "}
-                <Text style={styles.linkText}>Terms of Service</Text> and{" "}
-                <Text style={styles.linkText}>Privacy Policy</Text>
-              </Text>
+              <Terms />
             </View>
           </ScrollView>
         </LinearGradient>
