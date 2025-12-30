@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import User from "../models/User.js";
 import { AppError } from "../middlewares/errorHandler.js";
 import { Op } from "sequelize";
+import Employer from "../models/Employer.js";
 
 const generateToken = (userId) => {
   return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
@@ -12,36 +13,57 @@ const generateToken = (userId) => {
 
 const register = async (req, res, next) => {
   try {
-    const { role, fullname, email, password } = req.body;
+    const { role, fullname, email, password, phone, city, address } = req.body;
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
     if (!email || !fullname || !password) {
       throw new AppError("tous les champs sont requis", 400);
     }
     if (!emailRegex.test(email)) {
       throw new AppError("Email invalide", 400);
     }
-    const existingUser = await User.findOne({
-      where: {
-        [Op.or]: [{ email }],
-      },
-    });
-
-    if (existingUser) {
-      throw new AppError(
-        "Cet email ou nom d'utilisateur est déjà utilisé",
-        409
-      );
-    }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = await User.create({
-      role: role || "candidate",
-      fullname,
-      email,
-      password: hashedPassword,
-    });
+    let user;
+    let type = "user";
 
-    const token = generateToken(user.id);
+    if (role === "employer") {
+      // Check existing in Employer
+      const existingEmployer = await Employer.findOne({
+        where: { email },
+      });
+      if (existingEmployer) {
+        throw new AppError("Cet email est déjà utilisé par un employeur", 409);
+      }
+
+      user = await Employer.create({
+        fullname,
+        email,
+        password: hashedPassword,
+        phone,
+        city,
+        address,
+      });
+      type = "employer";
+    } else {
+      // Default to User (Candidate)
+      const existingUser = await User.findOne({
+        where: { email },
+      });
+      if (existingUser) {
+        throw new AppError("Cet email est déjà utilisé", 409);
+      }
+
+      user = await User.create({
+        role: "candidate",
+        fullname,
+        email,
+        password: hashedPassword,
+      });
+      type = "user";
+    }
+
+    const token = generateToken(user.id, type);
 
     res.status(201).json({
       success: true,
@@ -49,7 +71,7 @@ const register = async (req, res, next) => {
       data: {
         user: {
           id: user.id,
-          role: user.role,
+          role: role === "employer" ? "employer" : user.role,
           fullname: user.fullname,
           email: user.email,
         },
@@ -67,27 +89,32 @@ const login = async (req, res, next) => {
     if (!email || !password) {
       throw new AppError("Email et mot de passe requis", 400);
     }
-    const user = await User.findOne({
-      where: { email },
-      attributes: ["id", "role", "fullname", "email", "password"],
-    });
-    if (!user) {
-      throw new AppError("email or password incorrect", 401);
-    }
-    const isPasswordValid = await bcrypt.compare(password, user.password);
 
+    let user = await User.findOne({ where: { email } });
+    let type = "user";
+
+    if (!user) {
+      user = await Employer.findOne({ where: { email } });
+      type = "employer";
+    }
+
+    if (!user) {
+      throw new AppError("Email ou mot de passe incorrect", 401);
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       throw new AppError("Email ou mot de passe incorrect", 401);
     }
 
-    const token = generateToken(user.id);
+    const token = generateToken(user.id, type);
     res.status(200).json({
       success: true,
       message: "Connexion réussie",
       data: {
         user: {
           id: user.id,
-          role: user.role,
+          role: type === "employer" ? "employer" : user.role,
           fullname: user.fullname,
           email: user.email,
         },
@@ -100,19 +127,23 @@ const login = async (req, res, next) => {
 };
 
 const getProfile = async (req, res, next) => {
-  const userId = req.user.id;
-  const user = await User.findByPk(userId, {
-    attributes: { exclude: ["password"] },
-  });
+  // req.user is set by authMiddleware
+  const user = req.user;
   if (!user) {
     return res.status(404).json({
       success: false,
       message: "Utilisateur introuvable",
     });
   }
+
+  const responseData = user.toJSON();
+  if (!responseData.role && req.userType === "employer") {
+    responseData.role = "employer";
+  }
+
   res.status(200).json({
     success: true,
-    data: user,
+    data: responseData,
   });
 };
 

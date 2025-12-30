@@ -1,11 +1,12 @@
-import { Job, User } from "../models/index.js";
+import { Job } from "../models/index.js";
 import haversineDistance from "../utils/haversine.js";
 import { AppError, asyncHandler } from "../middlewares/errorHandler.js";
+import Employer from "../models/Employer.js";
 
 export const getAllJobs = asyncHandler(async (req, res) => {
   const jobs = await Job.findAll({
     include: [
-      { model: User, as: "employer", attributes: ["fullname", "phone"] },
+      { model: Employer, as: "employer", attributes: ["fullname", "phone"] },
     ],
     order: [["createdAt", "DESC"]],
   });
@@ -20,7 +21,7 @@ export const getAllJobs = asyncHandler(async (req, res) => {
 export const getJobById = asyncHandler(async (req, res) => {
   const job = await Job.findByPk(req.params.id, {
     include: [
-      { model: User, as: "employer", attributes: ["fullname", "phone"] },
+      { model: Employer, as: "employer", attributes: ["fullname", "phone"] },
     ],
   });
 
@@ -45,7 +46,7 @@ export const getNearbyJobs = asyncHandler(async (req, res) => {
 
   const jobs = await Job.findAll({
     include: [
-      { model: User, as: "employer", attributes: ["fullname", "phone"] },
+      { model: Employer, as: "employer", attributes: ["fullname", "phone"] },
     ],
   });
 

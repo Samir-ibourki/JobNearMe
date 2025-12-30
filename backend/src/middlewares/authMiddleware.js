@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
+import Employer from "../models/Employer.js";
 
 export const authenticateToken = async (req, res, next) => {
   try {
@@ -14,16 +15,28 @@ export const authenticateToken = async (req, res, next) => {
     }
 
     const decode = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findByPk(decode.id, {
-      attributes: { exclude: ["password"] },
-    });
+
+    let user;
+    if (decode.type === "employer") {
+      user = await Employer.findByPk(decode.id, {
+        attributes: { exclude: ["password"] },
+      });
+    } else {
+      user = await User.findByPk(decode.id, {
+        attributes: { exclude: ["password"] },
+      });
+    }
+
     if (!user) {
       return res.status(401).json({
         success: false,
         message: "utilisateur non trouvee",
       });
     }
+
+    // Attach user and type to req
     req.user = user;
+    req.userType = decode.type || "user";
     next();
   } catch (error) {
     if (error.name === "TokenExpiredError") {
