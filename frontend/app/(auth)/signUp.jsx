@@ -19,7 +19,7 @@ import { useRegister } from "../../hooks/useAuth";
 import FormInput from "../../components/FormInput";
 import Divider from "../../components/Divider";
 import Terms from "../../components/Terms";
-import Logo from "../../components/Logo";
+import Logo from "../../components/Logo.jsx";
 
 export default function SignUp() {
   const {
