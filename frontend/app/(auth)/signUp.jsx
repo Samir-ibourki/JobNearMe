@@ -1,15 +1,11 @@
-// app/(auth)/signUp.js
-
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-
 import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
   StatusBar,
@@ -20,6 +16,10 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Colors from "../../theme/colors";
 import useUserStore from "../../store/useStore";
 import { useRegister } from "../../hooks/useAuth";
+import FormInput from "../../components/FormInput";
+import Divider from "../../components/Divider";
+import Terms from "../../components/Terms";
+import Logo from "../../components/Logo";
 
 export default function SignUp() {
   const {
@@ -28,11 +28,17 @@ export default function SignUp() {
     password,
     role,
     showPassword,
+    phone,
+    city,
+    address,
     setFullName,
     setEmail,
     setPassword,
     setRole,
     setShowPassword,
+    setPhone,
+    setCity,
+    setAddress,
     resetForm,
   } = useUserStore();
 
@@ -52,8 +58,23 @@ export default function SignUp() {
       return;
     }
 
+    if (role === "employer") {
+      if (!phone.trim()) {
+        Alert.alert("Erreur", "Please enter your phone number");
+        return;
+      }
+      if (!city.trim()) {
+        Alert.alert("Erreur", "Please enter your city");
+        return;
+      }
+      if (!address.trim()) {
+        Alert.alert("Erreur", "Please enter your address/location");
+        return;
+      }
+    }
+
     register(
-      { fullname: fullName, email, password, role },
+      { fullname: fullName, email, password, role, phone, city, address },
       {
         onSuccess: () => {
           Alert.alert("Succès", "Inscription réussie !");
@@ -99,13 +120,7 @@ export default function SignUp() {
               >
                 <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
               </TouchableOpacity>
-
-              <View style={styles.logoContainer}>
-                <View style={styles.logoIcon}>
-                  <Text style={styles.logoEmoji}>🔍</Text>
-                </View>
-                <Text style={styles.logoText}>JobNearMe</Text>
-              </View>
+              <Logo />
             </View>
 
             {/* Form Container */}
@@ -168,78 +183,71 @@ export default function SignUp() {
               </View>
 
               {/* Full Name Input */}
-              <View style={styles.inputContainer}>
-                <Text style={styles.label}>Full Name</Text>
-                <View
-                  style={[styles.inputWrapper, fullName && styles.inputFocused]}
-                >
-                  <Ionicons
-                    name="person-outline"
-                    size={20}
-                    color={fullName ? Colors.Secondary : "#999"}
-                  />
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Enter your full name"
-                    placeholderTextColor="#999"
-                    autoCapitalize="words"
-                    value={fullName}
-                    onChangeText={setFullName}
-                  />
-                </View>
-              </View>
+              <FormInput
+                label="Full Name"
+                value={fullName}
+                onChangeText={setFullName}
+                placeholder="Enter your full name"
+                iconName="person-outline"
+                autoCapitalize="words"
+              />
 
               {/* Email Input */}
-              <View style={styles.inputContainer}>
-                <Text style={styles.label}>Email Address</Text>
-                <View
-                  style={[styles.inputWrapper, email && styles.inputFocused]}
-                >
-                  <Ionicons
-                    name="mail-outline"
-                    size={20}
-                    color={email ? Colors.Secondary : "#999"}
-                  />
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Enter your email"
-                    placeholderTextColor="#999"
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                    value={email}
-                    onChangeText={setEmail}
-                  />
-                </View>
-              </View>
+              <FormInput
+                label="Email Address"
+                value={email}
+                onChangeText={setEmail}
+                placeholder="Enter your email"
+                iconName="mail-outline"
+                keyboardType="email-address"
+              />
 
               {/* Password Input */}
-              <View style={styles.inputContainer}>
-                <Text style={styles.label}>Password</Text>
-                <View
-                  style={[styles.inputWrapper, password && styles.inputFocused]}
-                >
-                  <Ionicons
-                    name="lock-closed-outline"
-                    size={20}
-                    color={password ? Colors.Secondary : "#999"}
+              <FormInput
+                label="Password"
+                value={password}
+                onChangeText={setPassword}
+                placeholder="Create a password"
+                iconName="lock-closed-outline"
+                secureTextEntry={true}
+                showPassword={showPassword}
+                setShowPassword={setShowPassword}
+              />
+
+              {/* Employer Specific Fields */}
+              {role === "employer" && (
+                <>
+                  {/* Phone Input */}
+                  <FormInput
+                    label="Phone Number"
+                    value={phone}
+                    onChangeText={setPhone}
+                    placeholder="Enter your phone number"
+                    iconName="call-outline"
+                    keyboardType="phone-pad"
                   />
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Create a password"
-                    placeholderTextColor="#999"
-                    secureTextEntry={!showPassword}
-                    value={password}
-                    onChangeText={setPassword}
+
+                  {/* City Input */}
+                  <FormInput
+                    label="City"
+                    value={city}
+                    onChangeText={setCity}
+                    placeholder="Enter your city"
+                    iconName="location-outline"
+                    autoCapitalize="words"
                   />
-                  <TouchableOpacity onPress={setShowPassword}>
-                    <Ionicons
-                      name={showPassword ? "eye-outline" : "eye-off-outline"}
-                      size={20}
-                      color="#999"
-                    />
-                  </TouchableOpacity>
-                </View>
-              </View>
+
+                  {/* Address Input */}
+                  <FormInput
+                    label="Address"
+                    value={address}
+                    onChangeText={setAddress}
+                    placeholder="Enter your address"
+                    iconName="map-outline"
+                    autoCapitalize="words"
+                  />
+                </>
+              )}
 
               {/* Sign Up Button */}
               <TouchableOpacity
@@ -268,11 +276,7 @@ export default function SignUp() {
               )}
 
               {/* Divider & Login Link */}
-              <View style={styles.divider}>
-                <View style={styles.dividerLine} />
-                <Text style={styles.dividerText}>or</Text>
-                <View style={styles.dividerLine} />
-              </View>
+              <Divider text="or" />
 
               <TouchableOpacity
                 onPress={() => router.push("(auth)/logIn")}
@@ -284,11 +288,7 @@ export default function SignUp() {
               </TouchableOpacity>
 
               {/* Terms */}
-              <Text style={styles.termsText}>
-                By continuing, you agree to our{" "}
-                <Text style={styles.linkText}>Terms of Service</Text> and{" "}
-                <Text style={styles.linkText}>Privacy Policy</Text>
-              </Text>
+              <Terms />
             </View>
           </ScrollView>
         </LinearGradient>
@@ -327,27 +327,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  logoContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-  },
-  logoIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
-    backgroundColor: "rgba(255, 255, 255, 0.3)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  logoEmoji: {
-    fontSize: 18,
-  },
-  logoText: {
-    fontSize: 22,
-    fontWeight: "700",
-    color: "#FFFFFF",
-  },
+
   formContainer: {
     flex: 1,
     backgroundColor: "#FFFFFF",
@@ -371,10 +351,11 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 14,
     color: "#666666",
-    marginBottom: 30,
-  },
-  inputContainer: {
     marginBottom: 20,
+  },
+  //role input
+  inputContainer: {
+    marginBottom: 10,
   },
   label: {
     fontSize: 14,
@@ -382,8 +363,6 @@ const styles = StyleSheet.create({
     color: "#000000",
     marginBottom: 8,
   },
-
-  //role input
   roleContainer: {
     flexDirection: "row",
     gap: 12,
@@ -413,28 +392,6 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
   },
 
-  // Input Styles
-  inputWrapper: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#F5F5F5",
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    borderWidth: 2,
-    borderColor: "#E0E0E0",
-    gap: 12,
-  },
-  inputFocused: {
-    borderColor: Colors.Secondary,
-    backgroundColor: "#F0F8FF",
-  },
-  input: {
-    flex: 1,
-    fontSize: 16,
-    color: "#000000",
-  },
-
   signUpButton: {
     backgroundColor: "#000000",
     flexDirection: "row",
@@ -456,21 +413,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
   },
-  divider: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginVertical: 20,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: "#E0E0E0",
-  },
-  dividerText: {
-    marginHorizontal: 10,
-    fontSize: 12,
-    color: "#666666",
-  },
   loginButton: {
     backgroundColor: "#F5F5F5",
     borderWidth: 2,
@@ -484,15 +426,5 @@ const styles = StyleSheet.create({
     color: "#000000",
     fontSize: 16,
     fontWeight: "600",
-  },
-  termsText: {
-    textAlign: "center",
-    fontSize: 12,
-    color: "#666666",
-    lineHeight: 18,
-  },
-  linkText: {
-    color: Colors.Secondary,
-    fontWeight: "500",
   },
 });

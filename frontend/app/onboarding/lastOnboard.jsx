@@ -12,7 +12,7 @@ import { router } from "expo-router";
 
 import Colors from "../../theme/colors.js";
 import { SafeAreaView } from "react-native-safe-area-context";
-import Logo from "../../components/logo.jsx";
+import Logo from "../../components/Logo.jsx";
 
 const image = require("../../assets/congrat.png");
 

@@ -1,4 +1,3 @@
-
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -20,7 +19,7 @@ import Animated, {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { onboardingData } from "../../utils/data.js";
 import Colors from "../../theme/colors";
-import Logo from "../../components/logo.jsx";
+import Logo from "../../components/Logo.jsx";
 
 export default function IndexOnboarding() {
   const [currentIndex, setCurrentIndex] = useState(0);
