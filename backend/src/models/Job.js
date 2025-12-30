@@ -38,7 +38,7 @@ const Job = sequelize.define("Job", {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-      model: "Users",
+      model: "Employers",
       key: "id",
     },
     onDelete: "CASCADE",

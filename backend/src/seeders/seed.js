@@ -1,4 +1,5 @@
-import { sequelize, User, Job } from "../models/index.js";
+import Employer from "../models/Employer.js";
+import { sequelize, Job } from "../models/index.js";
 import bcrypt from "bcryptjs";
 
 const seedData = async () => {
@@ -12,15 +13,13 @@ const seedData = async () => {
     await sequelize.sync({ force: true });
     console.log("Database reset");
 
-    const employer = await User.create({
+    const employer = await Employer.create({
       fullname: "Local Business Owner",
       email: "employer@jobnearme.com",
       password: await bcrypt.hash("password123", 10),
       phone: "+212612345678",
-      role: "employer",
       city: "Casablanca",
-      latitude: 33.5731,
-      longitude: -7.5898,
+      address: "Boulevard Mohammed V, Casablanca",
     });
     console.log("Employer created:", employer.email);
 

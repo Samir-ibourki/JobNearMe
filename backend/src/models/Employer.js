@@ -1,9 +1,8 @@
-import { DataTypes } from "sequelize";
 import sequelize from "../config/database.js";
-import bcrypt from "bcryptjs";
+import { DataTypes } from "sequelize";
 
-const User = sequelize.define(
-  "User",
+const Employer = sequelize.define(
+  "Employer",
   {
     id: {
       type: DataTypes.INTEGER,
@@ -24,15 +23,21 @@ const User = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    role: {
-      type: DataTypes.ENUM("candidate", "employer"),
-      defaultValue: "candidate",
-      allowNull: false,
+    phone: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    city: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    address: {
+      type: DataTypes.STRING,
+      allowNull: true,
     },
   },
   {
     timestamps: true,
   }
 );
-
-export default User;
+export default Employer;
