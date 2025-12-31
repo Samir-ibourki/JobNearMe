@@ -6,7 +6,6 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
   StatusBar,
@@ -16,10 +15,10 @@ import { LinearGradient } from "expo-linear-gradient";
 import { SafeAreaView } from "react-native-safe-area-context";
 import useUserStore from "../../store/useStore";
 import Colors from "../../theme/colors";
-import { useLogin } from "../../hooks/useAuth";
+import FormInput from "../../components/FormInput";
 import Divider from "../../components/Divider";
 import Terms from "../../components/Terms";
-import Logo from "../../components/Logo";
+import { useLogin } from "../../hooks/useAuth";
 
 export default function LogIn() {
   const {
@@ -41,11 +40,18 @@ export default function LogIn() {
     login(
       { email, password },
       {
-        onSuccess: () => {
+        onSuccess: (res) => {
           Alert.alert("Succès", "Connexion réussie !");
           setEmail("");
           setPassword("");
-          router.replace("home");
+
+          const user = res.data.data.user;
+
+          if (user.role === "employer") {
+            router.replace("/(employer)/dashboard");
+          } else {
+            router.replace("/(candidate)");
+          }
         },
         onError: (err) => {
           Alert.alert(
@@ -87,7 +93,12 @@ export default function LogIn() {
                 <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
               </TouchableOpacity>
 
-              <Logo />
+              <View style={styles.logoContainer}>
+                <View style={styles.logoIcon}>
+                  <Text style={styles.logoEmoji}>🔍</Text>
+                </View>
+                <Text style={styles.logoText}>JobNearMe</Text>
+              </View>
             </View>
 
             {/* Form Container */}
@@ -98,56 +109,26 @@ export default function LogIn() {
               </Text>
 
               {/* Email Input */}
-              <View style={styles.inputContainer}>
-                <Text style={styles.label}>Email Address</Text>
-                <View
-                  style={[styles.inputWrapper, email && styles.inputFocused]}
-                >
-                  <Ionicons
-                    name="mail-outline"
-                    size={20}
-                    color={email ? Colors.Secondary : "#999"}
-                  />
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Enter your email"
-                    placeholderTextColor="#999"
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                    value={email}
-                    onChangeText={setEmail}
-                  />
-                </View>
-              </View>
+              <FormInput
+                label="Email Address"
+                value={email}
+                onChangeText={setEmail}
+                placeholder="Enter your email"
+                iconName="mail-outline"
+                keyboardType="email-address"
+              />
 
               {/* Password Input */}
-              <View style={styles.inputContainer}>
-                <Text style={styles.label}>Password</Text>
-                <View
-                  style={[styles.inputWrapper, password && styles.inputFocused]}
-                >
-                  <Ionicons
-                    name="lock-closed-outline"
-                    size={20}
-                    color={password ? Colors.Secondary : "#999"}
-                  />
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Enter your password"
-                    placeholderTextColor="#999"
-                    secureTextEntry={!showPassword}
-                    value={password}
-                    onChangeText={setPassword}
-                  />
-                  <TouchableOpacity onPress={setShowPassword}>
-                    <Ionicons
-                      name={showPassword ? "eye-outline" : "eye-off-outline"}
-                      size={20}
-                      color="#999"
-                    />
-                  </TouchableOpacity>
-                </View>
-              </View>
+              <FormInput
+                label="Password"
+                value={password}
+                onChangeText={setPassword}
+                placeholder="Enter your password"
+                iconName="lock-closed-outline"
+                secureTextEntry={true}
+                showPassword={showPassword}
+                setShowPassword={setShowPassword}
+              />
 
               {/* Forgot Password */}
               <TouchableOpacity
@@ -185,7 +166,7 @@ export default function LogIn() {
               )}
 
               {/* Divider */}
-              <Divider />
+              <Divider text="or" />
 
               {/* Sign Up Link */}
               <TouchableOpacity
@@ -281,35 +262,6 @@ const styles = StyleSheet.create({
     color: "#666666",
     marginBottom: 30,
   },
-  inputContainer: {
-    marginBottom: 20,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#000000",
-    marginBottom: 8,
-  },
-  inputWrapper: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#F5F5F5",
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    borderWidth: 2,
-    borderColor: "#E0E0E0",
-    gap: 12,
-  },
-  inputFocused: {
-    borderColor: Colors.Secondary,
-    backgroundColor: "#F0F8FF",
-  },
-  input: {
-    flex: 1,
-    fontSize: 16,
-    color: "#000000",
-  },
   forgotPassword: {
     alignSelf: "flex-end",
     marginBottom: 20,
@@ -339,21 +291,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
   },
-  divider: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginVertical: 20,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: "#E0E0E0",
-  },
-  dividerText: {
-    marginHorizontal: 10,
-    fontSize: 12,
-    color: "#666666",
-  },
   signUpButton: {
     backgroundColor: "#F5F5F5",
     borderWidth: 2,
@@ -367,15 +304,5 @@ const styles = StyleSheet.create({
     color: "#000000",
     fontSize: 16,
     fontWeight: "600",
-  },
-  termsText: {
-    textAlign: "center",
-    fontSize: 12,
-    color: "#666666",
-    lineHeight: 18,
-  },
-  linkText: {
-    color: Colors.Secondary,
-    fontWeight: "500",
   },
 });
