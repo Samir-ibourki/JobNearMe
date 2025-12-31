@@ -1,12 +1,14 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import User from "../models/User.js";
+import Employer from "../models/Employer.js";
 import { AppError } from "../middlewares/errorHandler.js";
 import { Op } from "sequelize";
-import Employer from "../models/Employer.js";
+import { sendEmail } from "../utils/emailService.js";
+import crypto from "crypto";
 
-const generateToken = (userId) => {
-  return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
+const generateToken = (id, type) => {
+  return jwt.sign({ id, type }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN || "7d",
   });
 };
@@ -17,10 +19,10 @@ const register = async (req, res, next) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!email || !fullname || !password) {
-      throw new AppError("tous les champs sont requis", 400);
+      throw new AppError("All fields are required", 400);
     }
     if (!emailRegex.test(email)) {
-      throw new AppError("Email invalide", 400);
+      throw new AppError("Invalid email", 400);
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -28,12 +30,11 @@ const register = async (req, res, next) => {
     let type = "user";
 
     if (role === "employer") {
-      // Check existing in Employer
       const existingEmployer = await Employer.findOne({
         where: { email },
       });
       if (existingEmployer) {
-        throw new AppError("Cet email est déjà utilisé par un employeur", 409);
+        throw new AppError("This email is already used by an employer", 409);
       }
 
       user = await Employer.create({
@@ -46,12 +47,12 @@ const register = async (req, res, next) => {
       });
       type = "employer";
     } else {
-      // Default to User (Candidate)
+      //default to candidate
       const existingUser = await User.findOne({
         where: { email },
       });
       if (existingUser) {
-        throw new AppError("Cet email est déjà utilisé", 409);
+        throw new AppError("This email is already used", 409);
       }
 
       user = await User.create({
@@ -67,7 +68,7 @@ const register = async (req, res, next) => {
 
     res.status(201).json({
       success: true,
-      message: "Utilisateur cree avec succes",
+      message: "User created successfully",
       data: {
         user: {
           id: user.id,
@@ -87,30 +88,32 @@ const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
     if (!email || !password) {
-      throw new AppError("Email et mot de passe requis", 400);
+      throw new AppError("Email and password are required", 400);
     }
 
+    //try finding in User first
     let user = await User.findOne({ where: { email } });
     let type = "user";
 
+    // If not found in User, try Employer
     if (!user) {
       user = await Employer.findOne({ where: { email } });
       type = "employer";
     }
 
     if (!user) {
-      throw new AppError("Email ou mot de passe incorrect", 401);
+      throw new AppError("Incorrect email or password", 401);
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      throw new AppError("Email ou mot de passe incorrect", 401);
+      throw new AppError("Incorrect email or password", 401);
     }
 
     const token = generateToken(user.id, type);
     res.status(200).json({
       success: true,
-      message: "Connexion réussie",
+      message: "Login successful",
       data: {
         user: {
           id: user.id,
@@ -132,7 +135,7 @@ const getProfile = async (req, res, next) => {
   if (!user) {
     return res.status(404).json({
       success: false,
-      message: "Utilisateur introuvable",
+      message: "User not found",
     });
   }
 
@@ -147,4 +150,111 @@ const getProfile = async (req, res, next) => {
   });
 };
 
-export { register, login, getProfile };
+const forgotPassword = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+
+    // Check both tables
+    let user = await User.findOne({ where: { email } });
+    let type = "user";
+
+    if (!user) {
+      user = await Employer.findOne({ where: { email } });
+      type = "employer";
+    }
+
+    if (!user) {
+      throw new AppError("User not found with this email", 404);
+    }
+
+    // Generate Secure Random Token
+    const resetToken = crypto.randomBytes(32).toString("hex");
+    const resetTokenExpires = Date.now() + 60 * 60 * 1000;
+
+    user.resetPasswordToken = resetToken;
+    user.resetPasswordExpires = resetTokenExpires;
+    await user.save();
+
+    // Create Reset Link (Deep Link scheme for mobile app)
+    const resetLink = `jobnearme://resetPassword?token=${resetToken}`;
+
+    const message = `You requested a password reset. Please click the link below to set a new password:\n\n${resetLink}\n\nThis link expires in 1 hour.`;
+
+    const htmlMessage = `
+      <h3>Password Reset Request</h3>
+      <p>You requested a password reset. Please click the button below to set a new password:</p>
+      <a href="${resetLink}" style="background-color: #000; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">Reset Password</a>
+      <p>Or click this link: <a href="${resetLink}">${resetLink}</a></p>
+      <p>This link expires in 1 hour.</p>
+    `;
+
+    try {
+      await sendEmail({
+        to: user.email,
+        subject: "Password Reset Request - JobNearMe",
+        text: message,
+        html: htmlMessage,
+      });
+
+      res.status(200).json({
+        success: true,
+        message: "Reset link sent to email (Check Console for link)",
+      });
+    } catch (error) {
+      user.resetPasswordToken = null;
+      user.resetPasswordExpires = null;
+      await user.save();
+      throw new AppError("Error sending email", 500);
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+const resetPassword = async (req, res, next) => {
+  try {
+    // Token can come from URL params (POST /reset-password/:token) or body
+    const token = req.params.token || req.body.token;
+    const { newPassword } = req.body;
+
+    if (!token) {
+      throw new AppError("Token is missing", 400);
+    }
+
+    // ttry in User
+    let user = await User.findOne({
+      where: {
+        resetPasswordToken: token,
+        resetPasswordExpires: { [Op.gt]: Date.now() },
+      },
+    });
+
+    if (!user) {
+      //try in Employer
+      user = await Employer.findOne({
+        where: {
+          resetPasswordToken: token,
+          resetPasswordExpires: { [Op.gt]: Date.now() },
+        },
+      });
+    }
+
+    if (!user) {
+      throw new AppError("Invalid or expired token", 400);
+    }
+
+    user.password = await bcrypt.hash(newPassword, 10);
+    user.resetPasswordToken = null;
+    user.resetPasswordExpires = null;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Password reset successfully",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export { register, login, getProfile, forgotPassword, resetPassword };
