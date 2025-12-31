@@ -21,8 +21,9 @@ export default function Layout() {
           }}
         />
         <Stack.Screen name="(auth)/resetPassword" />
+        <Stack.Screen name="(candidate)" />
+        <Stack.Screen name="(employer)" />
         <Stack.Screen name="onboarding/lastOnboard" />
-        <Stack.Screen name="home" />
       </Stack>
     </QueryClientProvider>
   );
