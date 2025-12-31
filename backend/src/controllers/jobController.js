@@ -3,6 +3,70 @@ import haversineDistance from "../utils/haversine.js";
 import { AppError, asyncHandler } from "../middlewares/errorHandler.js";
 import Employer from "../models/Employer.js";
 
+export const createJob = asyncHandler(async (req, res) => {
+  //only employers can create job
+  if (req.userType !== "employer") {
+    throw new AppError("Only employers can create jobs", 403);
+  }
+
+  const {
+    title,
+    description,
+    salary,
+    type,
+    location,
+    latitude,
+    longitude,
+    requirements,
+  } = req.body;
+
+  if (!title || !description || !location) {
+    throw new AppError("Title, description and location are required", 400);
+  }
+
+  const job = await Job.create({
+    employerId: req.user.id,
+    title,
+    description,
+    salary,
+    type,
+    location,
+    latitude,
+    longitude,
+    requirements,
+  });
+
+  res.status(201).json({
+    success: true,
+    data: job,
+  });
+});
+
+export const deleteJob = asyncHandler(async (req, res) => {
+  //only employers can delete jobs
+  if (req.userType !== "employer") {
+    throw new AppError("Only employers can delete jobs", 403);
+  }
+
+  const job = await Job.findByPk(req.params.id);
+
+  if (!job) {
+    throw new AppError("Job not found", 404);
+  }
+
+  //ensure the employer owns the job
+  if (job.employerId !== req.user.id) {
+    throw new AppError("You execute this action only on your own jobs", 403);
+  }
+
+  await job.destroy();
+
+  res.json({
+    success: true,
+    message: "Job deleted successfully",
+  });
+});
+
 export const getAllJobs = asyncHandler(async (req, res) => {
   const jobs = await Job.findAll({
     include: [

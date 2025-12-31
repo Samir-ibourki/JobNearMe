@@ -1,25 +1,31 @@
-import { Application, Job, User } from "../models/index.js";
+import { Application, Job, User, Employer } from "../models/index.js";
 import { AppError, asyncHandler } from "../middlewares/errorHandler.js";
 
 export const applyToJob = asyncHandler(async (req, res) => {
   const { jobId, coverLetter } = req.body;
+
+  //only candidate can apply
+  if (req.userType !== "candidate") {
+    throw new AppError("Only candidates can apply to jobs", 403);
+  }
+
   const candidateId = req.user.id;
 
-  if (!jobId) throw new AppError("ID de l'offre requis", 400);
+  if (!jobId) throw new AppError("Job ID required", 400);
 
   const job = await Job.findByPk(jobId);
-  if (!job) throw new AppError("Offre non trouvée", 404);
+  if (!job) throw new AppError("Job not found", 404);
 
   const alreadyApplied = await Application.findOne({
-    where: { userId: candidateId, jobId },
+    where: { candidateId, jobId },
   });
 
   if (alreadyApplied) {
-    throw new AppError("Vous avez déjà postulé à cette offre", 400);
+    throw new AppError("You have already applied to this job", 400);
   }
 
   const application = await Application.create({
-    userId: candidateId,
+    candidateId,
     jobId,
     coverLetter,
     status: "pending",
@@ -27,19 +33,24 @@ export const applyToJob = asyncHandler(async (req, res) => {
 
   res.status(201).json({
     success: true,
-    message: "Candidature envoyée avec succès",
+    message: "Application submitted successfully",
     data: application,
   });
 });
 
 export const getMyApplications = asyncHandler(async (req, res) => {
   const applications = await Application.findAll({
-    where: { userId: req.user.id },
+    where: { candidateId: req.user.id },
     include: [
       {
         model: Job,
+        as: "job",
         include: [
-          { model: User, as: "employer", attributes: ["fullname", "phone"] },
+          {
+            model: Employer,
+            as: "employer",
+            attributes: ["fullname", "phone", "email"],
+          },
         ],
       },
     ],
