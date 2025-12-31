@@ -20,6 +20,7 @@ export default function Layout() {
             sheetAllowedDetents: [0.5, 1.0],
           }}
         />
+        <Stack.Screen name="(auth)/resetPassword" />
         <Stack.Screen name="onboarding/lastOnboard" />
         <Stack.Screen name="home" />
       </Stack>

@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import {
   KeyboardAvoidingView,
@@ -16,39 +16,41 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Colors from "../../theme/colors";
-import { useForgotPassword } from "../../hooks/useAuth";
+import { useResetPassword } from "../../hooks/useAuth";
 
-export default function ForgotPassword() {
-  const [email, setEmail] = useState("");
+export default function ResetPassword() {
+  const params = useLocalSearchParams();
+  const [token, setToken] = useState(params.token || "");
+  const [newPassword, setNewPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
-  // Mutations
-  const { mutate: sendOtp, isPending: isSendingOtp } = useForgotPassword();
+  if (params.token && params.token !== token) {
+    setToken(params.token);
+  }
+  const { mutate: resetPass, isPending: isResetting } = useResetPassword();
 
-  const handleSendLink = () => {
-    if (!email.trim() || !email.includes("@")) {
-      Alert.alert("Error", "Please enter a valid email address");
+  const handleReset = () => {
+    if (!token) {
+      Alert.alert("Error", "Please enter the reset token.");
+      return;
+    }
+    if (newPassword.length < 6) {
+      Alert.alert("Error", "Password must be at least 6 characters");
       return;
     }
 
-    sendOtp(
-      { email },
+    resetPass(
+      { token, newPassword },
       {
-        onSuccess: (data) => {
-          Alert.alert(
-            "Success",
-            "Reset link sent! If the link doesn't open automatically, copy the token from your email.",
-            [
-              {
-                text: "OK",
-                onPress: () => router.push("/(auth)/resetPassword"),
-              },
-            ]
-          );
+        onSuccess: () => {
+          Alert.alert("Success", "Password reset successfully! Please login.", [
+            { text: "OK", onPress: () => router.replace("(auth)/logIn") },
+          ]);
         },
         onError: (err) => {
           Alert.alert(
             "Error",
-            err.response?.data?.message || "Failed to send reset link"
+            err.response?.data?.message || "Failed to reset password"
           );
         },
       }
@@ -78,66 +80,87 @@ export default function ForgotPassword() {
           >
             {/* Header */}
             <View style={styles.header}>
-              <TouchableOpacity
-                onPress={() => router.back()}
-                style={styles.backButton}
-              >
-                <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
-              </TouchableOpacity>
-
               <View style={styles.logoContainer}>
                 <View style={styles.logoIcon}>
-                  <Ionicons name="key-outline" size={20} color="#fff" />
+                  <Ionicons name="lock-open-outline" size={20} color="#fff" />
                 </View>
-                <Text style={styles.logoText}>Recovery</Text>
+                <Text style={styles.logoText}>Reset Password</Text>
               </View>
             </View>
 
-            {/* Form Container */}
+            {/* form container */}
             <View style={styles.formContainer}>
-              <Text style={styles.title}>Forgot Password?</Text>
+              <Text style={styles.title}>New Password</Text>
               <Text style={styles.subtitle}>
-                Enter your email address and well send you a link to reset your
-                password.
+                Enter your token (from email) and new password.
               </Text>
 
               <View style={styles.stepContainer}>
-                {/* Email Input */}
+                {/*token input */}
                 <View style={styles.inputContainer}>
-                  <Text style={styles.label}>Email Address</Text>
+                  <Text style={styles.label}>Reset Token</Text>
                   <View
-                    style={[styles.inputWrapper, email && styles.inputFocused]}
+                    style={[styles.inputWrapper, token && styles.inputFocused]}
                   >
                     <Ionicons
-                      name="mail-outline"
+                      name="key-outline"
                       size={20}
-                      color={email ? Colors.Secondary : "#999"}
+                      color={token ? Colors.Secondary : "#999"}
                     />
                     <TextInput
                       style={styles.input}
-                      placeholder="Enter your email"
+                      placeholder="Paste token here"
                       placeholderTextColor="#999"
-                      keyboardType="email-address"
-                      autoCapitalize="none"
-                      value={email}
-                      onChangeText={setEmail}
+                      value={token}
+                      onChangeText={setToken}
                     />
                   </View>
                 </View>
 
+                {/* new password input */}
+                <View style={styles.inputContainer}>
+                  <Text style={styles.label}>New Password</Text>
+                  <View
+                    style={[
+                      styles.inputWrapper,
+                      newPassword && styles.inputFocused,
+                    ]}
+                  >
+                    <Ionicons
+                      name="lock-closed-outline"
+                      size={20}
+                      color={newPassword ? Colors.Secondary : "#999"}
+                    />
+                    <TextInput
+                      style={styles.input}
+                      placeholder="Enter new password"
+                      placeholderTextColor="#999"
+                      secureTextEntry={!showPassword}
+                      value={newPassword}
+                      onChangeText={setNewPassword}
+                    />
+                    <TouchableOpacity
+                      onPress={() => setShowPassword(!showPassword)}
+                    >
+                      <Ionicons
+                        name={showPassword ? "eye-outline" : "eye-off-outline"}
+                        size={20}
+                        color="#999"
+                      />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+
                 <TouchableOpacity
-                  style={[
-                    styles.actionButton,
-                    isSendingOtp && { opacity: 0.7 },
-                  ]}
-                  onPress={handleSendLink}
-                  disabled={isSendingOtp}
+                  style={[styles.actionButton, isResetting && { opacity: 0.7 }]}
+                  onPress={handleReset}
+                  disabled={isResetting}
                 >
                   <Text style={styles.actionButtonText}>
-                    {isSendingOtp ? "Sending..." : "Send Reset Link"}
+                    {isResetting ? "Resetting..." : "Set New Password"}
                   </Text>
-                  {!isSendingOtp && (
-                    <Ionicons name="send" size={18} color="#fff" />
+                  {!isResetting && (
+                    <Ionicons name="checkmark-circle" size={20} color="#fff" />
                   )}
                 </TouchableOpacity>
               </View>
@@ -165,19 +188,8 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 30,
-    alignItems: "center",
-  },
-  backButton: {
-    position: "absolute",
-    left: 20,
-    top: 20,
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
-    justifyContent: "center",
+    paddingTop: 40,
+    paddingBottom: 40,
     alignItems: "center",
   },
   logoContainer: {
@@ -273,14 +285,6 @@ const styles = StyleSheet.create({
   actionButtonText: {
     color: "#FFFFFF",
     fontSize: 16,
-    fontWeight: "600",
-  },
-  backLink: {
-    alignSelf: "center",
-    padding: 10,
-  },
-  backLinkText: {
-    color: Colors.Secondary,
     fontWeight: "600",
   },
 });
