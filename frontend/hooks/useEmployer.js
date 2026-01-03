@@ -20,19 +20,19 @@ export const useEmployerDashboardData = () => {
   const profileQuery = useEmployerProfile();
   const statsQuery = useEmployerStats();
 
-  const user = profileQuery.data?.data?.data || {
+  const user = profileQuery.data || {
     fullname: "Employer",
     role: "employer",
   };
 
-  const stats = statsQuery.data?.data?.data?.stats || {
+  const stats = statsQuery.data?.stats || {
     activeJobs: 0,
     totalApplications: 0,
     newApplications: 0,
     viewsThisWeek: 0,
   };
 
-  const recentJobs = statsQuery.data?.data?.data?.recentJobs || [];
+  const recentJobs = statsQuery.data?.recentJobs || [];
 
   return {
     user,

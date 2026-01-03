@@ -1,4 +1,4 @@
-import { Job } from "../models/index.js";
+import { Application, Job } from "../models/index.js";
 import haversineDistance from "../utils/haversine.js";
 import { AppError, asyncHandler } from "../middlewares/errorHandler.js";
 import Employer from "../models/Employer.js";
