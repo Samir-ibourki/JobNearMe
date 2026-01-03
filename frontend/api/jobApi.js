@@ -4,8 +4,10 @@ export const getAllJobs = () => API.get("/jobs");
 export const getJobById = (id) => API.get(`/jobs/${id}`);
 export const getNearbyJobs = (lat, lng, raduis) =>
   API.get("/job/nearby", { params: { lat, lng, raduis } });
-export const createJob = (data) => API.post("/jobs", data);
-export const deleteJob = (id) => API.delete(`/jobs/${id}`);
+export const createJob = (data) =>
+  API.post("/jobs", data).then((res) => res.data);
+export const deleteJob = (id) =>
+  API.delete(`/jobs/${id}`).then((res) => res.data);
 export const getEmployerJobs = () =>
   API.get("/jobs/my-jobs").then((res) => res.data.data);
 export const getEmployerStatsApi = () =>
