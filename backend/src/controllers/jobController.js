@@ -191,11 +191,11 @@ export const getEmployerStats = asyncHandler(async (req, res) => {
     },
   });
 
-  // Fetch 3 most recent jobs with application counts
+  // fetch recent jobs with application counts
   const recentJobs = await Job.findAll({
     where: { employerId },
     order: [["createdAt", "DESC"]],
-    limit: 3,
+
     include: [
       {
         model: Application,

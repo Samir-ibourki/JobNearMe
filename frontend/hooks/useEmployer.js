@@ -1,5 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
-import { getEmployerStatsApi } from "../api/jobApi";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { getEmployerStatsApi, getEmployerJobs, deleteJob } from "../api/jobApi";
 import { profileApi } from "../api/authApi";
 
 export const useEmployerStats = () => {
@@ -45,4 +45,22 @@ export const useEmployerDashboardData = () => {
       statsQuery.refetch();
     },
   };
+};
+
+export const useMyJobs = () => {
+  return useQuery({
+    queryKey: ["myJobs"],
+    queryFn: getEmployerJobs,
+  });
+};
+
+export const useDeleteJob = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: deleteJob,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["myJobs"] });
+      queryClient.invalidateQueries({ queryKey: ["employerStats"] });
+    },
+  });
 };
