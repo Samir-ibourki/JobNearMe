@@ -116,6 +116,16 @@ export default function JobDetails() {
           </View>
         </View>
 
+        <View style={styles.divider} />
+
+        <TouchableOpacity
+          style={styles.applicantsBtn}
+          onPress={() => router.push(`/(employer)/applicants/${id}`)}
+        >
+          <Ionicons name="people-outline" size={20} color="#FFF" />
+          <Text style={styles.applicantsBtnText}>View Applicants</Text>
+        </TouchableOpacity>
+
         <View style={{ height: 40 }} />
       </ScrollView>
     </SafeAreaView>
@@ -254,5 +264,19 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: "#888",
     marginTop: 4,
+  },
+  applicantsBtn: {
+    backgroundColor: Colors.Primary,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 10,
+    paddingVertical: 16,
+    borderRadius: 16,
+  },
+  applicantsBtnText: {
+    color: "#FFF",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });

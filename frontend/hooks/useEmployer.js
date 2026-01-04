@@ -8,6 +8,7 @@ import {
   getJobById,
 } from "../api/jobApi";
 import { profileApi } from "../api/authApi";
+import { getJobApplications } from "../api/applicationApi";
 
 export const useEmployerStats = () => {
   return useQuery({
@@ -96,5 +97,13 @@ export const useJobById = (id) => {
     queryKey: ["job", id],
     queryFn: () => getJobById(id),
     enabled: !!id,
+  });
+};
+
+export const useJobApplications = (jobId) => {
+  return useQuery({
+    queryKey: ["jobApplications", jobId],
+    queryFn: getJobApplications(jobId),
+    enabled: !!jobId,
   });
 };

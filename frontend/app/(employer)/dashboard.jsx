@@ -37,8 +37,12 @@ export default function EmployerDashboard() {
     : "EM";
 
   return (
-    <SafeAreaView style={styles.container} edges={["top"]}>
-      <StatusBar barStyle="light-content" backgroundColor={Colors.Primary} />
+    <SafeAreaView style={styles.container} edges={["bottom"]}>
+      <StatusBar
+        barStyle="light-content"
+        translucent
+        backgroundColor="transparent"
+      />
 
       {/* Header with Gradient */}
       <LinearGradient
@@ -204,6 +208,7 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
+    paddingTop: 50,
   },
   header: {
     flexDirection: "row",

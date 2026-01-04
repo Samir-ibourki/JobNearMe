@@ -64,3 +64,41 @@ export const getMyApplications = asyncHandler(async (req, res) => {
     data: applications,
   });
 });
+
+// employer: Get applications for a specific job
+export const getJobApplications = asyncHandler(async (req, res) => {
+  if (req.userType !== "employer") {
+    throw new AppError("Only employers can view job applications", 403);
+  }
+
+  const { jobId } = req.params;
+
+  //find the job and verify ownership
+  const job = await Job.findByPk(jobId);
+  if (!job) {
+    throw new AppError("Job not found", 404);
+  }
+
+  if (job.employerId !== req.user.id) {
+    throw new AppError("You can only view applications for your own jobs", 403);
+  }
+
+  // get all applications for this job
+  const applications = await Application.findAll({
+    where: { jobId },
+    include: [
+      {
+        model: User,
+        as: "candidate",
+        attributes: ["id", "fullname", "email", "phone"],
+      },
+    ],
+    order: [["createdAt", "DESC"]],
+  });
+
+  res.json({
+    success: true,
+    count: applications.length,
+    data: applications,
+  });
+});
