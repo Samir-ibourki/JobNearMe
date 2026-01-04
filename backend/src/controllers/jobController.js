@@ -75,7 +75,6 @@ export const getNearbyJobs = asyncHandler(async (req, res) => {
 });
 
 export const createJob = asyncHandler(async (req, res) => {
-  // Ensure only employers can create jobs
   if (req.userType !== "employer") {
     throw new AppError("Only employers can create jobs", 403);
   }
@@ -134,7 +133,6 @@ export const getEmployerJobs = asyncHandler(async (req, res) => {
 });
 
 export const deleteJob = asyncHandler(async (req, res) => {
-  // Ensure only employers can delete jobs
   if (req.userType !== "employer") {
     throw new AppError("Only employers can delete jobs", 403);
   }
@@ -165,12 +163,12 @@ export const getEmployerStats = asyncHandler(async (req, res) => {
 
   const employerId = req.user.id;
 
-  // Count active jobs
+  // count active jobs
   const activeJobsCount = await Job.count({
     where: { employerId },
   });
 
-  // Fetch employer's jobs IDs to count applications
+  // fetch employer is jobs IDs to count appliction
   const employerJobs = await Job.findAll({
     where: { employerId },
     attributes: ["id"],
@@ -178,12 +176,12 @@ export const getEmployerStats = asyncHandler(async (req, res) => {
 
   const jobIds = employerJobs.map((job) => job.id);
 
-  // Count total applications
+  // count total applications
   const totalApplicationsCount = await Application.count({
     where: { jobId: jobIds },
   });
 
-  // Count new (pending) applications
+  // count new (pending) applications
   const newApplicationsCount = await Application.count({
     where: {
       jobId: jobIds,
@@ -225,5 +223,54 @@ export const getEmployerStats = asyncHandler(async (req, res) => {
       },
       recentJobs: formattedRecentJobs,
     },
+  });
+});
+export const updateJob = asyncHandler(async (req, res) => {
+  if (req.userType !== "employer") {
+    throw new AppError("Only employers can update jobs", 403);
+  }
+
+  const {
+    title,
+    description,
+    salary,
+    category,
+    city,
+    address,
+    latitude,
+    longitude,
+  } = req.body;
+  if (!title || !description || !city || !latitude || !longitude) {
+    throw new AppError(
+      "Title, description, city, latitude and longitude are required",
+      400
+    );
+  }
+
+  const job = await Job.findByPk(req.params.id);
+
+  if (!job) {
+    throw new AppError("Job not found", 404);
+  }
+
+  // ensure the employer owns the job
+  if (job.employerId !== req.user.id) {
+    throw new AppError("You can only update your own jobs", 403);
+  }
+
+  await job.update({
+    title,
+    description,
+    salary,
+    category,
+    city,
+    address,
+    latitude: parseFloat(latitude),
+    longitude: parseFloat(longitude),
+  });
+
+  res.json({
+    success: true,
+    data: job,
   });
 });

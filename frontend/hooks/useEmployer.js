@@ -1,5 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getEmployerStatsApi, getEmployerJobs, deleteJob } from "../api/jobApi";
+import {
+  getEmployerStatsApi,
+  getEmployerJobs,
+  deleteJob,
+  createJob,
+  updateJob,
+  getJobById,
+} from "../api/jobApi";
 import { profileApi } from "../api/authApi";
 
 export const useEmployerStats = () => {
@@ -47,6 +54,26 @@ export const useEmployerDashboardData = () => {
   };
 };
 
+export const useCreateJob = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: createJob,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["myJobs"] });
+      queryClient.invalidateQueries({ queryKey: ["employerStats"] });
+    },
+  });
+};
+export const useUpdateJob = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }) => updateJob(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["myJobs"] });
+      queryClient.invalidateQueries({ queryKey: ["employerStats"] });
+    },
+  });
+};
 export const useMyJobs = () => {
   return useQuery({
     queryKey: ["myJobs"],
@@ -62,5 +89,12 @@ export const useDeleteJob = () => {
       queryClient.invalidateQueries({ queryKey: ["myJobs"] });
       queryClient.invalidateQueries({ queryKey: ["employerStats"] });
     },
+  });
+};
+export const useJobById = (id) => {
+  return useQuery({
+    queryKey: ["job", id],
+    queryFn: () => getJobById(id),
+    enabled: !!id,
   });
 };
