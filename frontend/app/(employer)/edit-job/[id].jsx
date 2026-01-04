@@ -4,20 +4,23 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Alert,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import { useState } from "react";
-import Colors from "../../theme/colors";
-import FormInput from "../../components/FormInput";
-import { useCreateJob } from "../../hooks/useEmployer";
-import { router } from "expo-router";
-import CustomAlert from "../../components/CustomAlert";
+import { useState, useEffect } from "react";
+import Colors from "../../../theme/colors";
+import FormInput from "../../../components/FormInput";
+import { useUpdateJob, useJobById } from "../../../hooks/useEmployer";
+import { router, useLocalSearchParams } from "expo-router";
+import CustomAlert from "../../../components/CustomAlert";
 
-export default function AddJob() {
+export default function EditJob() {
+  const { id } = useLocalSearchParams();
+  const { data: jobData, isLoading: fetching, error } = useJobById(id);
+
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -25,11 +28,12 @@ export default function AddJob() {
     category: "",
     city: "",
     address: "",
-    latitude: "33.5731", // Default to Casablanca for demo
-    longitude: "-7.5898",
+    latitude: "",
+    longitude: "",
   });
-  const createMutation = useCreateJob();
   const [loading, setLoading] = useState(false);
+  const updateMutation = useUpdateJob();
+
   const [alertConfig, setAlertConfig] = useState({
     visible: false,
     title: "",
@@ -50,7 +54,32 @@ export default function AddJob() {
     });
   };
 
-  const handleCreate = async () => {
+  // Populate form when job data is loaded
+  useEffect(() => {
+    if (jobData?.data) {
+      const job = jobData.data;
+      setFormData({
+        title: job.title || "",
+        description: job.description || "",
+        salary: job.salary || "",
+        category: job.category || "",
+        city: job.city || "",
+        address: job.address || "",
+        latitude: String(job.latitude) || "",
+        longitude: String(job.longitude) || "",
+      });
+    }
+  }, [jobData]);
+
+  useEffect(() => {
+    if (error) {
+      showAlert("Error", "Failed to load job data.", "error", () =>
+        router.back()
+      );
+    }
+  }, [error]);
+
+  const handleUpdate = async () => {
     if (!formData.title || !formData.description || !formData.city) {
       showAlert(
         "Error",
@@ -68,21 +97,21 @@ export default function AddJob() {
         longitude: parseFloat(formData.longitude),
       };
 
-      const res = await createMutation.mutateAsync(payload);
+      const res = await updateMutation.mutateAsync({ id, data: payload });
       if (res.success) {
         showAlert(
           "Success!",
-          "Your job has been posted successfully.",
+          "Your job has been updated successfully.",
           "success",
           () => {
             router.push("/(employer)/my-jobs");
           }
         );
       }
-    } catch (error) {
+    } catch (err) {
       showAlert(
         "Error",
-        error.response?.data?.message ||
+        err.response?.data?.message ||
           "Something went wrong. Please try again.",
         "error"
       );
@@ -90,6 +119,19 @@ export default function AddJob() {
       setLoading(false);
     }
   };
+
+  if (fetching) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.center}>
+          <ActivityIndicator size="large" color={Colors.Primary} />
+          <Text style={{ marginTop: 10, color: "#666" }}>
+            Loading job data...
+          </Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -104,7 +146,7 @@ export default function AddJob() {
           >
             <Ionicons name="arrow-back" size={24} color="#000" />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Post a Job</Text>
+          <Text style={styles.headerTitle}>Edit Job</Text>
           <View style={{ width: 40 }} />
         </View>
 
@@ -112,9 +154,7 @@ export default function AddJob() {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.form}
         >
-          <Text style={styles.formSubtitle}>
-            Enter job details to find the best candidates
-          </Text>
+          <Text style={styles.formSubtitle}>Update the job details below</Text>
 
           <FormInput
             label="Job Title"
@@ -125,26 +165,43 @@ export default function AddJob() {
           />
 
           <View style={styles.inputSpacing} />
+
           <FormInput
             label="Category"
             value={formData.category}
             onChangeText={(text) =>
               setFormData({ ...formData, category: text })
             }
-            placeholder="e.g. Hospitality, IT, Sales"
-            iconName="grid-outline"
+            placeholder="e.g. Restaurant, Retail"
+            iconName="pricetag-outline"
           />
 
           <View style={styles.inputSpacing} />
+
           <FormInput
-            label="Salary Range"
+            label="Job Description"
+            value={formData.description}
+            onChangeText={(text) =>
+              setFormData({ ...formData, description: text })
+            }
+            placeholder="Describe the role and responsibilities..."
+            iconName="document-text-outline"
+            multiline={true}
+            numberOfLines={5}
+          />
+
+          <View style={styles.inputSpacing} />
+
+          <FormInput
+            label="Salary (Optional)"
             value={formData.salary}
             onChangeText={(text) => setFormData({ ...formData, salary: text })}
-            placeholder="e.g. 4000 - 5000 DH"
+            placeholder="e.g. 3000 MAD/month"
             iconName="cash-outline"
           />
 
           <View style={styles.inputSpacing} />
+
           <FormInput
             label="City"
             value={formData.city}
@@ -154,37 +211,25 @@ export default function AddJob() {
           />
 
           <View style={styles.inputSpacing} />
+
           <FormInput
-            label="Full Address (Optional)"
+            label="Address (Optional)"
             value={formData.address}
             onChangeText={(text) => setFormData({ ...formData, address: text })}
-            placeholder="Street name, landmark..."
+            placeholder="e.g. 123 Boulevard Mohammed V"
             iconName="map-outline"
-          />
-
-          <View style={styles.inputSpacing} />
-          <View style={styles.inputSpacing} />
-          <FormInput
-            label="Job Description"
-            value={formData.description}
-            onChangeText={(text) =>
-              setFormData({ ...formData, description: text })
-            }
-            placeholder="Describe the role, responsibilities, and requirements..."
-            multiline={true}
-            iconName="document-text-outline"
           />
 
           <TouchableOpacity
             style={[styles.submitButton, loading && { opacity: 0.7 }]}
-            onPress={handleCreate}
+            onPress={handleUpdate}
             disabled={loading}
           >
             <Text style={styles.submitButtonText}>
-              {loading ? "Posting..." : "Post Job Now"}
+              {loading ? "Updating..." : "Save Changes"}
             </Text>
             {!loading && (
-              <Ionicons name="send-outline" size={18} color="#FFF" />
+              <Ionicons name="checkmark-outline" size={18} color="#FFF" />
             )}
           </TouchableOpacity>
           <View style={{ height: 40 }} />
@@ -205,6 +250,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#FFF",
+  },
+  center: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
   header: {
     flexDirection: "row",
@@ -238,12 +288,6 @@ const styles = StyleSheet.create({
   },
   inputSpacing: {
     height: 10,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#333",
-    marginBottom: 8,
   },
   submitButton: {
     backgroundColor: Colors.Primary,

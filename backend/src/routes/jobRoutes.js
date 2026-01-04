@@ -8,6 +8,7 @@ import {
   deleteJob,
   getEmployerJobs,
   getEmployerStats,
+  updateJob,
 } from "../controllers/jobController.js";
 
 const router = express.Router();
@@ -18,6 +19,7 @@ router.get("/stats", authenticateToken, getEmployerStats);
 router.post("/", authenticateToken, createJob);
 router.get("/nearby", getNearbyJobs);
 router.get("/:id", getJobById);
+router.put("/:id", authenticateToken, updateJob);
 router.delete("/:id", authenticateToken, deleteJob);
 
 export default router;
