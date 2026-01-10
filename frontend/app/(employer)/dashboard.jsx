@@ -12,14 +12,14 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import Colors from "../../theme/colors";
+import { useEmployerDashboardData } from "../../hooks/useEmployer";
 import StatCard from "../../components/StatCard";
 import QuickActionCard from "../../components/QuickActionCard";
 import EmployerJobCard from "../../components/EmployerJobCard";
 
-import { useEmployerDashboardData } from "../../hooks/useEmployer";
-
 export default function EmployerDashboard() {
   const { user, stats, recentJobs, isLoading } = useEmployerDashboardData();
+
   if (isLoading) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
@@ -27,6 +27,7 @@ export default function EmployerDashboard() {
       </View>
     );
   }
+
   const userAvatar = user.fullname
     ? user.fullname
         .split(" ")
@@ -37,14 +38,10 @@ export default function EmployerDashboard() {
     : "EM";
 
   return (
-    <SafeAreaView style={styles.container} edges={["bottom"]}>
-      <StatusBar
-        barStyle="light-content"
-        translucent
-        backgroundColor="transparent"
-      />
+    <SafeAreaView style={styles.container} edges={["top"]}>
+      <StatusBar barStyle="light-content" backgroundColor={Colors.Primary} />
 
-      {/* Header with Gradient */}
+      {/* header*/}
       <LinearGradient
         colors={[Colors.Primary, Colors.Secondary]}
         style={styles.headerGradient}
@@ -89,7 +86,7 @@ export default function EmployerDashboard() {
           </TouchableOpacity>
         </View>
 
-        {/* Quick Stats Pills */}
+        {/* quick stats pills */}
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -123,7 +120,7 @@ export default function EmployerDashboard() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        {/* Quick Actions */}
+        {/* quick actions */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Quick Actions</Text>
           <View style={styles.quickActionsGrid}>
@@ -142,7 +139,7 @@ export default function EmployerDashboard() {
           </View>
         </View>
 
-        {/* Statistics Overview */}
+        {/* statistic overview */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Overview</Text>
           <View style={styles.statsGrid}>
@@ -161,7 +158,7 @@ export default function EmployerDashboard() {
           </View>
         </View>
 
-        {/* Recent Jobs */}
+        {/* recent jobs */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <View>
@@ -183,6 +180,7 @@ export default function EmployerDashboard() {
               </View>
             </TouchableOpacity>
           </View>
+
           {recentJobs.length > 0 ? (
             recentJobs.map((job) => <EmployerJobCard key={job.id} job={job} />)
           ) : (
@@ -191,6 +189,17 @@ export default function EmployerDashboard() {
               <Text style={styles.emptyStateText}>No active jobs yet</Text>
             </View>
           )}
+        </View>
+
+        {/* switch mode */}
+        <View style={styles.switchSection}>
+          <TouchableOpacity
+            style={styles.switchBtn}
+            onPress={() => router.replace("/(candidate)")}
+          >
+            <Ionicons name="swap-horizontal" size={20} color="#FFF" />
+            <Text style={styles.switchBtnText}>Switch to Candidate Mode</Text>
+          </TouchableOpacity>
         </View>
 
         <View style={{ height: 40 }} />
@@ -208,7 +217,6 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
-    paddingTop: 50,
   },
   header: {
     flexDirection: "row",
@@ -393,5 +401,28 @@ const styles = StyleSheet.create({
     marginTop: 12,
     fontSize: 14,
     color: "#999",
+  },
+  switchSection: {
+    paddingHorizontal: 20,
+    marginTop: 10,
+  },
+  switchBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#1ABC9C",
+    paddingVertical: 16,
+    borderRadius: 14,
+    gap: 10,
+    shadowColor: "#1ABC9C",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  switchBtnText: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#FFF",
   },
 });
