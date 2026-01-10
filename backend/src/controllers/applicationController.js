@@ -1,12 +1,10 @@
-import { Application, Job } from "../models/index.js";
+import { Application, Job, User, Employer } from "../models/index.js";
 import { AppError, asyncHandler } from "../middlewares/errorHandler.js";
-import Employer from "../models/Employer.js";
 
 export const applyToJob = asyncHandler(async (req, res) => {
   const { jobId, coverLetter } = req.body;
 
-  //only candidate can apply
-  if (req.userType !== "candidate") {
+  if (req.userType !== "user") {
     throw new AppError("Only candidates can apply to jobs", 403);
   }
 
@@ -65,15 +63,12 @@ export const getMyApplications = asyncHandler(async (req, res) => {
   });
 });
 
-// employer: Get applications for a specific job
 export const getJobApplications = asyncHandler(async (req, res) => {
   if (req.userType !== "employer") {
     throw new AppError("Only employers can view job applications", 403);
   }
-
   const { jobId } = req.params;
 
-  //find the job and verify ownership
   const job = await Job.findByPk(jobId);
   if (!job) {
     throw new AppError("Job not found", 404);
@@ -83,7 +78,6 @@ export const getJobApplications = asyncHandler(async (req, res) => {
     throw new AppError("You can only view applications for your own jobs", 403);
   }
 
-  // get all applications for this job
   const applications = await Application.findAll({
     where: { jobId },
     include: [
@@ -100,5 +94,49 @@ export const getJobApplications = asyncHandler(async (req, res) => {
     success: true,
     count: applications.length,
     data: applications,
+  });
+});
+
+export const updateApplicationStatus = asyncHandler(async (req, res) => {
+  if (req.userType !== "employer") {
+    throw new AppError("Only employers can update application status", 403);
+  }
+
+  const { applicationId } = req.params;
+  const { status } = req.body;
+
+  const validStatuses = ["pending", "accepted", "rejected"];
+  if (!validStatuses.includes(status)) {
+    throw new AppError(
+      "Invalid status. Must be: pending, accepted, or rejected",
+      400
+    );
+  }
+
+  // Find the application
+  const application = await Application.findByPk(applicationId, {
+    include: [{ model: Job, as: "job" }],
+  });
+
+  if (!application) {
+    throw new AppError("Application not found", 404);
+  }
+
+  // Verify the employer owns this job
+  if (application.job.employerId !== req.user.id) {
+    throw new AppError(
+      "You can only update applications for your own jobs",
+      403
+    );
+  }
+
+  // Update the status
+  application.status = status;
+  await application.save();
+
+  res.json({
+    success: true,
+    message: `Application ${status} successfully`,
+    data: application,
   });
 });

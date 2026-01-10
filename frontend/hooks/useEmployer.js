@@ -107,3 +107,16 @@ export const useJobApplications = (jobId) => {
     enabled: !!jobId,
   });
 };
+
+export const useUpdateApplicationStatus = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ applicationId, status }) => {
+      const { updateApplicationStatus } = await import("../api/applicationApi");
+      return updateApplicationStatus(applicationId, status);
+    },
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["jobApplications"] });
+    },
+  });
+};

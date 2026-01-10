@@ -10,3 +10,8 @@ export const getMyApplications = () =>
 
 export const getJobApplications = (jobId) =>
   API.get(`/applications/job/${jobId}`).then((res) => res.data.data);
+
+export const updateApplicationStatus = (applicationId, status) =>
+  API.patch(`/applications/${applicationId}/status`, { status }).then(
+    (res) => res.data
+  );
