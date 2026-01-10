@@ -1,5 +1,4 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import { View, Text, StyleSheet, Modal, TouchableOpacity } from "react-native";
 import Animated, {
   useSharedValue,
@@ -24,8 +23,11 @@ const CustomAlert = ({
   const scale = useSharedValue(0);
   const opacity = useSharedValue(0);
 
+  const [showModal, setShowModal] = React.useState(visible);
+
   useEffect(() => {
     if (visible) {
+      setShowModal(true);
       scale.value = withSpring(1, { damping: 12, stiffness: 60 });
       opacity.value = withTiming(1, { duration: 300 });
     } else {
@@ -34,8 +36,13 @@ const CustomAlert = ({
         easing: Easing.out(Easing.quad),
       });
       opacity.value = withTiming(0, { duration: 200 });
+      // Hide modal after animation completes
+      const timer = setTimeout(() => {
+        setShowModal(false);
+      }, 200);
+      return () => clearTimeout(timer);
     }
-  }, [visible]);
+  }, [opacity, scale, visible]);
 
   const animatedStyle = useAnimatedStyle(() => {
     return {
@@ -61,7 +68,7 @@ const CustomAlert = ({
 
   const icon = getIcon();
 
-  if (!visible && opacity.value === 0) return null;
+  if (!showModal) return null;
 
   return (
     <Modal transparent visible={visible} animationType="none">
