@@ -7,6 +7,7 @@ import userRoutes from "./src/routes/userRoutes.js";
 import cors from "cors";
 import "./src/models/index.js";
 import seedData from "./src/seeders/seed.js";
+import fixJobCoordinates from "./src/seeders/fixJobCoordinates.js";
 import { errorHandler } from "./src/middlewares/errorHandler.js";
 
 const app = express();
@@ -31,9 +32,10 @@ sequelize
     console.log("Database synced successfully!");
 
     await seedData();
+    await fixJobCoordinates();
 
-    app.listen(port, "0.0.0.0", () => {
-      console.log(`🚀 Server running on http://0.0.0.0:${port}`);
+    app.listen(port, () => {
+      console.log(`server running on port ${port} `);
     });
   })
   .catch((err) => {

@@ -22,7 +22,14 @@ export default function CandidateHome() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const categories = ["All", "Restaurant", "Retail", "Delivery", "Security"];
+  const categories = [
+    "All",
+    "Restaurant",
+    "Retail",
+    "Delivery",
+    "Security",
+    "Tech",
+  ];
 
   const filteredJobs = jobs?.filter((job) => {
     // category filter
