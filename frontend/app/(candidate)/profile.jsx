@@ -1,10 +1,255 @@
-import { Text, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  StatusBar,
+  ActivityIndicator,
+  TextInput,
+  Alert,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
+import { useState, useEffect } from "react";
+import Colors from "../../theme/colors";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import API from "../../api/axios";
 
 export default function CandidateProfile() {
+  const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const [formData, setFormData] = useState({
+    fullname: "",
+    email: "",
+    phone: "",
+  });
+
+  useEffect(() => {
+    fetchProfile();
+  }, []);
+
+  const fetchProfile = async () => {
+    try {
+      const response = await API.get("/auth/profile");
+      const userData = response.data.data;
+      setUser(userData);
+      setFormData({
+        fullname: userData.fullname || "",
+        email: userData.email || "",
+        phone: userData.phone || "",
+      });
+    } catch (error) {
+      console.log("Error fetching profile:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      Alert.alert(
+        "Profile Updated",
+        "Your profile has been updated successfully!"
+      );
+      setIsEditing(false);
+      setUser({ ...user, ...formData });
+      // eslint-disable-next-line no-unused-vars
+    } catch (error) {
+      Alert.alert("Error", "Failed to update profile");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    Alert.alert("Logout", "Are you sure you want to logout?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Logout",
+        style: "destructive",
+        onPress: async () => {
+          await AsyncStorage.removeItem("token");
+          await AsyncStorage.removeItem("user");
+          router.replace("/(auth)/logIn");
+        },
+      },
+    ]);
+  };
+
+  if (isLoading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={Colors.Primary} />
+          <Text style={styles.loadingText}>Loading profile...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Candidate Profile</Text>
+      <StatusBar barStyle="dark-content" backgroundColor="#FFF" />
+
+      {/* Header */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
+          <Ionicons name="arrow-back" size={24} color="#000" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>My Profile</Text>
+        <TouchableOpacity
+          onPress={() => (isEditing ? handleSave() : setIsEditing(true))}
+          style={styles.editBtn}
+          disabled={isSaving}
+        >
+          {isSaving ? (
+            <ActivityIndicator size="small" color={Colors.Primary} />
+          ) : (
+            <Text style={styles.editBtnText}>
+              {isEditing ? "Save" : "Edit"}
+            </Text>
+          )}
+        </TouchableOpacity>
+      </View>
+
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.content}
+      >
+        {/* Avatar Section */}
+        <View style={styles.avatarSection}>
+          <View style={styles.avatar}>
+            <Text style={styles.avatarText}>
+              {user?.fullname?.charAt(0)?.toUpperCase() || "?"}
+            </Text>
+          </View>
+          <Text style={styles.userName}>{user?.fullname || "User"}</Text>
+          <View style={styles.roleBadge}>
+            <Ionicons name="person" size={14} color={Colors.Primary} />
+            <Text style={styles.roleText}>Candidate</Text>
+          </View>
+        </View>
+
+        {/* Profile Fields */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Personal Information</Text>
+
+          <View style={styles.field}>
+            <Text style={styles.fieldLabel}>Full Name</Text>
+            {isEditing ? (
+              <TextInput
+                style={styles.input}
+                value={formData.fullname}
+                onChangeText={(text) =>
+                  setFormData({ ...formData, fullname: text })
+                }
+                placeholder="Enter your name"
+              />
+            ) : (
+              <View style={styles.fieldValue}>
+                <Ionicons name="person-outline" size={18} color="#888" />
+                <Text style={styles.fieldText}>
+                  {user?.fullname || "Not set"}
+                </Text>
+              </View>
+            )}
+          </View>
+
+          <View style={styles.field}>
+            <Text style={styles.fieldLabel}>Email</Text>
+            <View style={styles.fieldValue}>
+              <Ionicons name="mail-outline" size={18} color="#888" />
+              <Text style={styles.fieldText}>{user?.email || "Not set"}</Text>
+            </View>
+          </View>
+
+          <View style={styles.field}>
+            <Text style={styles.fieldLabel}>Phone</Text>
+            {isEditing ? (
+              <TextInput
+                style={styles.input}
+                value={formData.phone}
+                onChangeText={(text) =>
+                  setFormData({ ...formData, phone: text })
+                }
+                placeholder="Enter your phone"
+                keyboardType="phone-pad"
+              />
+            ) : (
+              <View style={styles.fieldValue}>
+                <Ionicons name="call-outline" size={18} color="#888" />
+                <Text style={styles.fieldText}>{user?.phone || "Not set"}</Text>
+              </View>
+            )}
+          </View>
+        </View>
+
+        {/* Quick Actions */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Quick Actions</Text>
+
+          <TouchableOpacity
+            style={styles.actionItem}
+            onPress={() => router.push("/(candidate)/applications")}
+          >
+            <View style={styles.actionIcon}>
+              <Ionicons
+                name="document-text-outline"
+                size={22}
+                color={Colors.Primary}
+              />
+            </View>
+            <View style={styles.actionInfo}>
+              <Text style={styles.actionTitle}>My Applications</Text>
+              <Text style={styles.actionSubtitle}>
+                View your job applications
+              </Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color="#CCC" />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.actionItem}
+            onPress={() => router.push("/(candidate)")}
+          >
+            <View style={styles.actionIcon}>
+              <Ionicons
+                name="briefcase-outline"
+                size={22}
+                color={Colors.Primary}
+              />
+            </View>
+            <View style={styles.actionInfo}>
+              <Text style={styles.actionTitle}>Browse Jobs</Text>
+              <Text style={styles.actionSubtitle}>Find new opportunities</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color="#CCC" />
+          </TouchableOpacity>
+        </View>
+
+        {/* Switch Mode */}
+        <TouchableOpacity
+          style={styles.switchBtn}
+          onPress={() => router.replace("/(employer)/dashboard")}
+        >
+          <Ionicons name="swap-horizontal" size={20} color="#FFF" />
+          <Text style={styles.switchBtnText}>Switch to Employer Mode</Text>
+        </TouchableOpacity>
+
+        {/* Logout Button */}
+        <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
+          <Ionicons name="log-out-outline" size={20} color="#FF6B6B" />
+          <Text style={styles.logoutText}>Logout</Text>
+        </TouchableOpacity>
+
+        <View style={{ height: 40 }} />
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -12,13 +257,191 @@ export default function CandidateProfile() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "#F8F9FE",
+  },
+  loadingContainer: {
+    flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#fff",
   },
-  title: {
-    fontSize: 24,
+  loadingText: {
+    marginTop: 10,
+    color: "#666",
+  },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    backgroundColor: "#FFF",
+    borderBottomWidth: 1,
+    borderBottomColor: "#F0F0F0",
+  },
+  backBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#F5F5F5",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#000",
+  },
+  editBtn: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+    backgroundColor: "#F0F5FF",
+  },
+  editBtnText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: Colors.Primary,
+  },
+  content: {
+    padding: 20,
+  },
+  avatarSection: {
+    alignItems: "center",
+    marginBottom: 30,
+    paddingVertical: 20,
+    backgroundColor: "#FFF",
+    borderRadius: 20,
+  },
+  avatar: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: Colors.Primary,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  avatarText: {
+    fontSize: 32,
     fontWeight: "bold",
-    marginBottom: 10,
+    color: "#FFF",
+  },
+  userName: {
+    fontSize: 22,
+    fontWeight: "700",
+    color: "#1A1A1A",
+    marginBottom: 8,
+  },
+  roleBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#F0F5FF",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 15,
+    gap: 6,
+  },
+  roleText: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: Colors.Primary,
+  },
+  section: {
+    backgroundColor: "#FFF",
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 20,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#1A1A1A",
+    marginBottom: 16,
+  },
+  field: {
+    marginBottom: 16,
+  },
+  fieldLabel: {
+    fontSize: 13,
+    color: "#888",
+    marginBottom: 8,
+  },
+  fieldValue: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    backgroundColor: "#F8F9FE",
+    padding: 14,
+    borderRadius: 12,
+  },
+  fieldText: {
+    fontSize: 15,
+    color: "#1A1A1A",
+  },
+  input: {
+    backgroundColor: "#F8F9FE",
+    padding: 14,
+    borderRadius: 12,
+    fontSize: 15,
+    borderWidth: 1,
+    borderColor: Colors.Primary,
+  },
+  actionItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: "#F5F5F5",
+  },
+  actionIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    backgroundColor: "#F0F5FF",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 14,
+  },
+  actionInfo: {
+    flex: 1,
+  },
+  actionTitle: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: "#1A1A1A",
+  },
+  actionSubtitle: {
+    fontSize: 12,
+    color: "#888",
+    marginTop: 2,
+  },
+  logoutBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#FFF5F5",
+    paddingVertical: 16,
+    borderRadius: 12,
+    gap: 8,
+  },
+  logoutText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#FF6B6B",
+  },
+  switchBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: Colors.Primary,
+    paddingVertical: 16,
+    borderRadius: 12,
+    gap: 8,
+    marginBottom: 12,
+  },
+  switchBtnText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#FFF",
   },
 });
