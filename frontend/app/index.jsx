@@ -65,9 +65,9 @@ export default function Index() {
         setTimeout(async () => {
           if (alreadyLaunched === null) {
             await AsyncStorage.setItem("alreadyLaunched", "true");
-            router.replace("(employer)/dashboard");
+            router.replace("(candidate)");
           } else {
-            router.replace("(employer)/dashboard");
+            router.replace("(candidate)");
           }
         }, 400);
       }, 2500);
