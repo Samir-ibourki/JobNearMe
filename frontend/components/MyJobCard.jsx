@@ -43,6 +43,15 @@ const MyJobCard = ({ item, onDelete }) => {
           </Text>
         </View>
       </View>
+
+      {/* View Applicants Button */}
+      <TouchableOpacity
+        style={styles.applicantsBtn}
+        onPress={() => router.push(`/(employer)/applicants/${item.id}`)}
+      >
+        <Ionicons name="people-outline" size={18} color="#FFF" />
+        <Text style={styles.applicantsBtnText}>View Applicants</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -128,6 +137,21 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: "#888",
     fontWeight: "600",
+  },
+  applicantsBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#1ABC9C",
+    paddingVertical: 12,
+    borderRadius: 12,
+    marginTop: 15,
+    gap: 8,
+  },
+  applicantsBtnText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#FFF",
   },
 });
 
