@@ -256,5 +256,43 @@ const resetPassword = async (req, res, next) => {
     next(error);
   }
 };
+const updateProfile = async (req, res, next) => {
+  try {
+    const user = req.user;
+    if (!user) {
+      throw new AppError("User not found", 404);
+    }
 
-export { register, login, getProfile, forgotPassword, resetPassword };
+    const { fullname, phone } = req.body;
+
+    // Update allowed fields
+    if (fullname !== undefined) user.fullname = fullname;
+    if (phone !== undefined) user.phone = phone;
+
+    await user.save();
+
+    // Return updated user without password
+    const responseData = user.toJSON();
+    delete responseData.password;
+
+    if (!responseData.role && req.userType === "employer") {
+      responseData.role = "employer";
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Profile updated successfully",
+      data: responseData,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+export {
+  register,
+  login,
+  getProfile,
+  forgotPassword,
+  resetPassword,
+  updateProfile,
+};
