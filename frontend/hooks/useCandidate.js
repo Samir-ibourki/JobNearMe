@@ -1,6 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getAllJobs, getJobById, getNearbyJobs } from "../api/jobApi";
 import { applyToJob, getMyApplications } from "../api/applicationApi";
+import API from "../api/axios";
+import { profileApi } from "../api/authApi";
 
 export const useAllJobs = () => {
   return useQuery({
@@ -38,6 +40,28 @@ export const useApplyJob = () => {
     mutationFn: ({ jobId, coverLetter }) => applyToJob(jobId, coverLetter),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["myApplications"] });
+    },
+  });
+};
+
+export const useProfile = () => {
+  return useQuery({
+    queryKey: ["profile", "candidate"],
+    queryFn: profileApi,
+  });
+};
+
+// Update candidate profile (mutation)
+export const useUpdateProfile = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (data) => {
+      const response = await API.put("/auth/profile", data);
+      return response.data;
+    },
+    onSuccess: () => {
+      // Invalidate profile to refetch updated data
+      queryClient.invalidateQueries({ queryKey: ["profile"] });
     },
   });
 };

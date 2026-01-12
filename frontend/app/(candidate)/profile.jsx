@@ -15,64 +15,41 @@ import { router } from "expo-router";
 import { useState, useEffect } from "react";
 import Colors from "../../theme/colors";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import API from "../../api/axios";
+import { useProfile, useUpdateProfile } from "../../hooks/useCandidate";
 
 export default function CandidateProfile() {
-  const [user, setUser] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const { data: user, isLoading, error, refetch } = useProfile();
+  const updateMutation = useUpdateProfile();
   const [isEditing, setIsEditing] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-
   const [formData, setFormData] = useState({
     fullname: "",
-    email: "",
     phone: "",
   });
 
   useEffect(() => {
-    fetchProfile();
-  }, []);
-
-  const fetchProfile = async () => {
-    try {
-      const response = await API.get("/auth/profile");
-      const userData = response.data.data;
-      setUser(userData);
+    if (user) {
       setFormData({
-        fullname: userData.fullname || "",
-        email: userData.email || "",
-        phone: userData.phone || "",
+        fullname: user.fullname || "",
+        phone: user.phone || "",
       });
-    } catch (error) {
-      console.log("Error fetching profile:", error);
-    } finally {
-      setIsLoading(false);
     }
-  };
+  }, [user]);
 
   const handleSave = async () => {
-    setIsSaving(true);
     try {
-      Alert.alert(
-        "Profile Updated",
-        "Your profile has been updated successfully!"
-      );
+      await updateMutation.mutateAsync(formData);
+      Alert.alert("Success", "Profile updated successfully!");
       setIsEditing(false);
-      setUser({ ...user, ...formData });
-      // eslint-disable-next-line no-unused-vars
-    } catch (error) {
-      Alert.alert("Error", "Failed to update profile");
-    } finally {
-      setIsSaving(false);
+    } catch (err) {
+      Alert.alert("Error", err.message || "Failed to update profile");
     }
   };
 
   const handleLogout = async () => {
-    Alert.alert("Logout", "Are you sure you want to logout?", [
+    Alert.alert("Switch Account", "You will be logged out to switch account.", [
       { text: "Cancel", style: "cancel" },
       {
-        text: "Logout",
-        style: "destructive",
+        text: "Continue",
         onPress: async () => {
           await AsyncStorage.removeItem("token");
           await AsyncStorage.removeItem("user");
@@ -93,6 +70,20 @@ export default function CandidateProfile() {
     );
   }
 
+  if (error) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.loadingContainer}>
+          <Ionicons name="alert-circle-outline" size={48} color="#FF6B6B" />
+          <Text style={styles.errorText}>Failed to load profile</Text>
+          <TouchableOpacity style={styles.retryBtn} onPress={() => refetch()}>
+            <Text style={styles.retryBtnText}>Retry</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFF" />
@@ -106,9 +97,9 @@ export default function CandidateProfile() {
         <TouchableOpacity
           onPress={() => (isEditing ? handleSave() : setIsEditing(true))}
           style={styles.editBtn}
-          disabled={isSaving}
+          disabled={updateMutation.isPending}
         >
-          {isSaving ? (
+          {updateMutation.isPending ? (
             <ActivityIndicator size="small" color={Colors.Primary} />
           ) : (
             <Text style={styles.editBtnText}>
@@ -233,19 +224,10 @@ export default function CandidateProfile() {
           </TouchableOpacity>
         </View>
 
-        {/* Switch Mode */}
-        <TouchableOpacity
-          style={styles.switchBtn}
-          onPress={() => router.replace("/(employer)/dashboard")}
-        >
+        {/* Switch Account / Logout */}
+        <TouchableOpacity style={styles.switchBtn} onPress={handleLogout}>
           <Ionicons name="swap-horizontal" size={20} color="#FFF" />
-          <Text style={styles.switchBtnText}>Switch to Employer Mode</Text>
-        </TouchableOpacity>
-
-        {/* Logout Button */}
-        <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
-          <Ionicons name="log-out-outline" size={20} color="#FF6B6B" />
-          <Text style={styles.logoutText}>Logout</Text>
+          <Text style={styles.switchBtnText}>Switch Account</Text>
         </TouchableOpacity>
 
         <View style={{ height: 40 }} />
@@ -267,6 +249,22 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 10,
     color: "#666",
+  },
+  errorText: {
+    marginTop: 12,
+    fontSize: 16,
+    color: "#666",
+  },
+  retryBtn: {
+    marginTop: 16,
+    backgroundColor: Colors.Primary,
+    paddingHorizontal: 24,
+    paddingVertical: 10,
+    borderRadius: 8,
+  },
+  retryBtnText: {
+    color: "#FFF",
+    fontWeight: "600",
   },
   header: {
     flexDirection: "row",
@@ -414,20 +412,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#888",
     marginTop: 2,
-  },
-  logoutBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#FFF5F5",
-    paddingVertical: 16,
-    borderRadius: 12,
-    gap: 8,
-  },
-  logoutText: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#FF6B6B",
   },
   switchBtn: {
     flexDirection: "row",

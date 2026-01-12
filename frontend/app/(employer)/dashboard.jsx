@@ -7,6 +7,7 @@ import {
   ScrollView,
   TouchableOpacity,
   StatusBar,
+  Alert,
   ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -16,6 +17,7 @@ import { useEmployerDashboardData } from "../../hooks/useEmployer";
 import StatCard from "../../components/StatCard";
 import QuickActionCard from "../../components/QuickActionCard";
 import EmployerJobCard from "../../components/EmployerJobCard";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function EmployerDashboard() {
   const { user, stats, recentJobs, isLoading } = useEmployerDashboardData();
@@ -41,7 +43,7 @@ export default function EmployerDashboard() {
     <SafeAreaView style={styles.container} edges={["top"]}>
       <StatusBar barStyle="light-content" backgroundColor={Colors.Primary} />
 
-      {/* header*/}
+      {/* Header with Gradient */}
       <LinearGradient
         colors={[Colors.Primary, Colors.Secondary]}
         style={styles.headerGradient}
@@ -71,22 +73,31 @@ export default function EmployerDashboard() {
 
           <TouchableOpacity
             style={styles.notificationButton}
-            onPress={() => router.push("/(employer)/notifications")}
+            onPress={() => {
+              Alert.alert(
+                "Switch Account",
+                "You will be logged out to switch account.",
+                [
+                  { text: "Cancel", style: "cancel" },
+                  {
+                    text: "Continue",
+                    onPress: async () => {
+                      await AsyncStorage.removeItem("token");
+                      await AsyncStorage.removeItem("user");
+                      router.replace("/(auth)/logIn");
+                    },
+                  },
+                ]
+              );
+            }}
           >
             <View style={styles.notificationIconContainer}>
-              <Ionicons name="notifications" size={22} color="#FFF" />
-              {stats.newApplications > 0 && (
-                <View style={styles.notificationBadge}>
-                  <Text style={styles.notificationBadgeText}>
-                    {stats.newApplications}
-                  </Text>
-                </View>
-              )}
+              <Ionicons name="log-out-outline" size={22} color="#FFF" />
             </View>
           </TouchableOpacity>
         </View>
 
-        {/* quick stats pills */}
+        {/* Quick Stats Pills */}
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -120,7 +131,7 @@ export default function EmployerDashboard() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        {/* quick actions */}
+        {/* Quick Actions */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Quick Actions</Text>
           <View style={styles.quickActionsGrid}>
@@ -139,7 +150,7 @@ export default function EmployerDashboard() {
           </View>
         </View>
 
-        {/* statistic overview */}
+        {/* Statistics Overview */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Overview</Text>
           <View style={styles.statsGrid}>
@@ -158,7 +169,7 @@ export default function EmployerDashboard() {
           </View>
         </View>
 
-        {/* recent jobs */}
+        {/* Recent Jobs */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <View>
@@ -189,17 +200,6 @@ export default function EmployerDashboard() {
               <Text style={styles.emptyStateText}>No active jobs yet</Text>
             </View>
           )}
-        </View>
-
-        {/* switch mode */}
-        <View style={styles.switchSection}>
-          <TouchableOpacity
-            style={styles.switchBtn}
-            onPress={() => router.replace("/(candidate)")}
-          >
-            <Ionicons name="swap-horizontal" size={20} color="#FFF" />
-            <Text style={styles.switchBtnText}>Switch to Candidate Mode</Text>
-          </TouchableOpacity>
         </View>
 
         <View style={{ height: 40 }} />

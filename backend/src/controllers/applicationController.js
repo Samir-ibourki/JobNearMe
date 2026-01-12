@@ -1,5 +1,6 @@
-import { Application, Job, User, Employer } from "../models/index.js";
+import { Application, Job, User } from "../models/index.js";
 import { AppError, asyncHandler } from "../middlewares/errorHandler.js";
+import Employer from "../models/Employer.js";
 
 export const applyToJob = asyncHandler(async (req, res) => {
   const { jobId, coverLetter } = req.body;
