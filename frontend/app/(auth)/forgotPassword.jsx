@@ -21,7 +21,7 @@ import { useForgotPassword } from "../../hooks/useAuth";
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
 
-  // Mutations
+  // mutations
   const { mutate: sendOtp, isPending: isSendingOtp } = useForgotPassword();
 
   const handleSendLink = () => {
