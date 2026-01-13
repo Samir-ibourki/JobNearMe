@@ -84,7 +84,7 @@ export default function LogIn() {
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
           >
-            {/* Header */}
+            {/* header */}
             <View style={styles.header}>
               <TouchableOpacity
                 onPress={() => router.back()}
@@ -101,14 +101,14 @@ export default function LogIn() {
               </View>
             </View>
 
-            {/* Form Container */}
+            {/* form container */}
             <View style={styles.formContainer}>
               <Text style={styles.title}>Welcome Back</Text>
               <Text style={styles.subtitle}>
                 Log in to find your next opportunity
               </Text>
 
-              {/* Email Input */}
+              {/* email input */}
               <FormInput
                 label="Email Address"
                 value={email}
@@ -118,7 +118,7 @@ export default function LogIn() {
                 keyboardType="email-address"
               />
 
-              {/* Password Input */}
+              {/* password input */}
               <FormInput
                 label="Password"
                 value={password}
@@ -130,7 +130,7 @@ export default function LogIn() {
                 setShowPassword={setShowPassword}
               />
 
-              {/* Forgot Password */}
+              {/* forgot password */}
               <TouchableOpacity
                 onPress={() => router.push("(auth)/forgotPassword")}
                 style={styles.forgotPassword}
@@ -138,7 +138,7 @@ export default function LogIn() {
                 <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
               </TouchableOpacity>
 
-              {/* Login Button */}
+              {/* login button */}
               <TouchableOpacity
                 style={[styles.loginButton, isPending && { opacity: 0.7 }]}
                 onPress={handleLogin}
@@ -165,10 +165,10 @@ export default function LogIn() {
                 </Text>
               )}
 
-              {/* Divider */}
+              {/* divider */}
               <Divider text="or" />
 
-              {/* Sign Up Link */}
+              {/* signup link */}
               <TouchableOpacity
                 onPress={() => router.push("(auth)/signUp")}
                 style={styles.signUpButton}
@@ -176,7 +176,7 @@ export default function LogIn() {
                 <Text style={styles.signUpButtonText}>Create New Account</Text>
               </TouchableOpacity>
 
-              {/* Terms */}
+              {/* terms */}
               <Terms />
             </View>
           </ScrollView>

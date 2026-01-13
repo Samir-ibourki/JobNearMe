@@ -112,7 +112,7 @@ export default function SignUp() {
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
           >
-            {/* Header */}
+            {/* header */}
             <View style={styles.header}>
               <TouchableOpacity
                 onPress={() => router.back()}
@@ -123,14 +123,14 @@ export default function SignUp() {
               <Logo />
             </View>
 
-            {/* Form Container */}
+            {/* form container */}
             <View style={styles.formContainer}>
               <Text style={styles.title}>Create Account</Text>
               <Text style={styles.subtitle}>
                 Sign up to start finding your dream job
               </Text>
 
-              {/* Role Selection */}
+              {/* role select */}
               <View style={styles.inputContainer}>
                 <Text style={styles.label}>I am a</Text>
                 <View style={styles.roleContainer}>
@@ -182,7 +182,7 @@ export default function SignUp() {
                 </View>
               </View>
 
-              {/* Full Name Input */}
+              {/* fullname input */}
               <FormInput
                 label="Full Name"
                 value={fullName}
@@ -192,7 +192,7 @@ export default function SignUp() {
                 autoCapitalize="words"
               />
 
-              {/* Email Input */}
+              {/* email input */}
               <FormInput
                 label="Email Address"
                 value={email}
@@ -202,7 +202,7 @@ export default function SignUp() {
                 keyboardType="email-address"
               />
 
-              {/* Password Input */}
+              {/* password input */}
               <FormInput
                 label="Password"
                 value={password}
@@ -214,10 +214,10 @@ export default function SignUp() {
                 setShowPassword={setShowPassword}
               />
 
-              {/* Employer Specific Fields */}
+              {/* employer Fields */}
               {role === "employer" && (
                 <>
-                  {/* Phone Input */}
+                  {/* phone input */}
                   <FormInput
                     label="Phone Number"
                     value={phone}
@@ -227,7 +227,7 @@ export default function SignUp() {
                     keyboardType="phone-pad"
                   />
 
-                  {/* City Input */}
+                  {/* city nput */}
                   <FormInput
                     label="City"
                     value={city}
@@ -237,7 +237,7 @@ export default function SignUp() {
                     autoCapitalize="words"
                   />
 
-                  {/* Address Input */}
+                  {/* address input */}
                   <FormInput
                     label="Address"
                     value={address}
@@ -249,7 +249,7 @@ export default function SignUp() {
                 </>
               )}
 
-              {/* Sign Up Button */}
+              {/* sign up button */}
               <TouchableOpacity
                 style={[
                   styles.signUpButton,
@@ -275,7 +275,7 @@ export default function SignUp() {
                 </Text>
               )}
 
-              {/* Divider & Login Link */}
+              {/* divider + login link */}
               <Divider text="or" />
 
               <TouchableOpacity
@@ -287,7 +287,7 @@ export default function SignUp() {
                 </Text>
               </TouchableOpacity>
 
-              {/* Terms */}
+              {/* terms */}
               <Terms />
             </View>
           </ScrollView>
