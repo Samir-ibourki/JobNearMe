@@ -103,7 +103,7 @@ export const useJobById = (id) => {
 export const useJobApplications = (jobId) => {
   return useQuery({
     queryKey: ["jobApplications", jobId],
-    queryFn: getJobApplications(jobId),
+    queryFn: () => getJobApplications(jobId),
     enabled: !!jobId,
   });
 };
