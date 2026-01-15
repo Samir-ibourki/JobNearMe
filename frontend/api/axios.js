@@ -1,14 +1,20 @@
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Constants from "expo-constants";
+import { Platform } from "react-native";
 
-//android Studio
-let API_URL = "http://10.0.2.2:3030/api";
+let API_URL;
 
-// Dynamic for Physical Device (Expo Go / Dev Build)
-if (Constants.expoConfig?.hostUri) {
+if (Platform.OS === "android" && !Constants.expoConfig?.hostUri?.includes("192.")) {
+  // Android Emulator - use 10.0.2.2 to reach host machine's localhost
+  API_URL = "http://10.0.2.2:3030/api";
+} else if (Constants.expoConfig?.hostUri) {
+  // Physical Device (Expo Go / Dev Build) - use the host machine's IP
   const ip = Constants.expoConfig.hostUri.split(":").shift();
   API_URL = `http://${ip}:3030/api`;
+} else {
+  // Fallback for web or other platforms
+  API_URL = "http://localhost:3030/api";
 }
 
 const API = axios.create({
