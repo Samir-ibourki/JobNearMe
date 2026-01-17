@@ -24,8 +24,6 @@ export default function AddJob() {
     category: "",
     city: "",
     address: "",
-    latitude: "33.5731", // Default to Casablanca for demo
-    longitude: "-7.5898",
   });
   const createMutation = useCreateJob();
   const [loading, setLoading] = useState(false);
@@ -59,12 +57,24 @@ export default function AddJob() {
       return;
     }
 
+    if (!formData.address) {
+      showAlert(
+        "Error",
+        "Please provide a full address so we can show the job on the map.",
+        "error"
+      );
+      return;
+    }
+
     setLoading(true);
     try {
       const payload = {
-        ...formData,
-        latitude: parseFloat(formData.latitude),
-        longitude: parseFloat(formData.longitude),
+        title: formData.title,
+        description: formData.description,
+        salary: formData.salary,
+        category: formData.category,
+        city: formData.city,
+        address: formData.address,
       };
 
       const res = await createMutation.mutateAsync(payload);
@@ -154,7 +164,7 @@ export default function AddJob() {
 
           <View style={styles.inputSpacing} />
           <FormInput
-            label="Full Address (Optional)"
+            label="Full Address"
             value={formData.address}
             onChangeText={(text) => setFormData({ ...formData, address: text })}
             placeholder="Street name, landmark..."
