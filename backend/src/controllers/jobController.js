@@ -2,6 +2,7 @@ import { Application, Job } from "../models/index.js";
 import haversineDistance from "../utils/haversine.js";
 import { AppError, asyncHandler } from "../middlewares/errorHandler.js";
 import Employer from "../models/Employer.js";
+import { geocodeAddress } from "../services/geocodingService.js";
 
 export const getAllJobs = asyncHandler(async (req, res) => {
   const jobs = await Job.findAll({
@@ -79,20 +80,26 @@ export const createJob = asyncHandler(async (req, res) => {
     throw new AppError("Only employers can create jobs", 403);
   }
 
-  const {
-    title,
-    description,
-    salary,
-    category,
-    city,
-    address,
-    latitude,
-    longitude,
-  } = req.body;
+  const { title, description, salary, category, city, address } = req.body;
 
-  if (!title || !description || !city || !latitude || !longitude) {
+  let { latitude, longitude } = req.body;
+
+  if (!title || !description || !city) {
+    throw new AppError("Title, description and city are required", 400);
+  }
+
+  // autoGeocode if coordinates are missing but address is provided
+  if (address && (!latitude || !longitude)) {
+    const coords = await geocodeAddress(`${address}, ${city}`);
+    if (coords) {
+      latitude = coords.latitude;
+      longitude = coords.longitude;
+    }
+  }
+
+  if (!latitude || !longitude) {
     throw new AppError(
-      "Title, description, city, latitude and longitude are required",
+      "Could not determine location coordinates. Please provide a more specific address.",
       400
     );
   }
@@ -163,7 +170,6 @@ export const getEmployerStats = asyncHandler(async (req, res) => {
 
   const employerId = req.user.id;
 
-  // count active jobs
   const activeJobsCount = await Job.count({
     where: { employerId },
   });
@@ -176,12 +182,10 @@ export const getEmployerStats = asyncHandler(async (req, res) => {
 
   const jobIds = employerJobs.map((job) => job.id);
 
-  // count total applications
   const totalApplicationsCount = await Application.count({
     where: { jobId: jobIds },
   });
 
-  // count new (pending) applications
   const newApplicationsCount = await Application.count({
     where: {
       jobId: jobIds,
@@ -230,21 +234,12 @@ export const updateJob = asyncHandler(async (req, res) => {
     throw new AppError("Only employers can update jobs", 403);
   }
 
-  const {
-    title,
-    description,
-    salary,
-    category,
-    city,
-    address,
-    latitude,
-    longitude,
-  } = req.body;
-  if (!title || !description || !city || !latitude || !longitude) {
-    throw new AppError(
-      "Title, description, city, latitude and longitude are required",
-      400
-    );
+  const { title, description, salary, category, city, address } = req.body;
+
+  let { latitude, longitude } = req.body;
+
+  if (!title || !description || !city) {
+    throw new AppError("Title, description and city are required", 400);
   }
 
   const job = await Job.findByPk(req.params.id);
@@ -258,6 +253,14 @@ export const updateJob = asyncHandler(async (req, res) => {
     throw new AppError("You can only update your own jobs", 403);
   }
 
+  if (address && address !== job.address && (!latitude || !longitude)) {
+    const coords = await geocodeAddress(`${address}, ${city}`);
+    if (coords) {
+      latitude = coords.latitude;
+      longitude = coords.longitude;
+    }
+  }
+
   await job.update({
     title,
     description,
@@ -265,8 +268,8 @@ export const updateJob = asyncHandler(async (req, res) => {
     category,
     city,
     address,
-    latitude: parseFloat(latitude),
-    longitude: parseFloat(longitude),
+    latitude: latitude ? parseFloat(latitude) : job.latitude,
+    longitude: longitude ? parseFloat(longitude) : job.longitude,
   });
 
   res.json({
