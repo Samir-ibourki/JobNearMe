@@ -60,6 +60,7 @@ const register = async (req, res, next) => {
         fullname,
         email,
         password: hashedPassword,
+        phone,
       });
       type = "user";
     }

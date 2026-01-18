@@ -58,11 +58,12 @@ export default function SignUp() {
       return;
     }
 
+    if (!phone.trim()) {
+      Alert.alert("Erreur", "Please enter your phone number");
+      return;
+    }
+
     if (role === "employer") {
-      if (!phone.trim()) {
-        Alert.alert("Erreur", "Please enter your phone number");
-        return;
-      }
       if (!city.trim()) {
         Alert.alert("Erreur", "Please enter your city");
         return;
@@ -84,10 +85,10 @@ export default function SignUp() {
         onError: (err) => {
           Alert.alert(
             "Erreur",
-            err.response?.data?.message || "Échec de l'inscription"
+            err.response?.data?.message || "Échec de l'inscription",
           );
         },
-      }
+      },
     );
   };
 
@@ -213,7 +214,15 @@ export default function SignUp() {
                 showPassword={showPassword}
                 setShowPassword={setShowPassword}
               />
-
+              {/* phone input */}
+              <FormInput
+                label="Phone Number"
+                value={phone}
+                onChangeText={setPhone}
+                placeholder="Enter your phone number"
+                iconName="call-outline"
+                keyboardType="phone-pad"
+              />
               {/* employer Fields */}
               {role === "employer" && (
                 <>
