@@ -26,58 +26,119 @@ JobNearMe addresses this issue by prioritizing geolocation and simplicity, makin
 
 ```
 JobNearMe/
-├── backend/                  # Backend API (Node.js + Express)
+├── backend/                    # Backend API (Node.js + Express)
 │   ├── src/
-│   │   ├── config/            # Database & environment configuration
-│   │   ├── models/            # Sequelize models
-│   │   ├── controllers/       # Business logic
-│   │   ├── routes/            # API routes
-│   │   ├── middlewares/       # Auth & error handling
-│   │   └── services/          # Reusable services
-│   ├── server.js              # Server entry point
+│   │   ├── config/             # Database & environment configuration
+│   │   │   └── database.js     # Sequelize database connection
+│   │   ├── controllers/        # Business logic
+│   │   │   ├── authController.js
+│   │   │   ├── jobController.js
+│   │   │   ├── applicationController.js
+│   │   │   └── userController.js
+│   │   ├── models/             # Sequelize models
+│   │   │   ├── User.js         # Candidate model
+│   │   │   ├── Employer.js     # Employer model
+│   │   │   ├── Job.js          # Job posting model
+│   │   │   ├── Application.js  # Job application model
+│   │   │   └── index.js        # Model associations
+│   │   ├── routes/             # API routes
+│   │   │   ├── authRoutes.js
+│   │   │   ├── jobRoutes.js
+│   │   │   ├── applicationRoutes.js
+│   │   │   └── userRoutes.js
+│   │   ├── middlewares/        # Auth & error handling
+│   │   │   ├── authMiddleware.js
+│   │   │   └── errorHandler.js
+│   │   ├── services/           # Reusable services
+│   │   │   └── emailService.js
+│   │   ├── seeders/            # Database seeders
+│   │   └── tests/              # Jest tests
+│   ├── server.js               # Server entry point
+│   ├── Dockerfile              # Docker configuration
+│   ├── railway.toml            # Railway deployment config
 │   └── package.json
 │
-└── frontend/                  # Mobile Application (React Native + Expo)
-    ├── app/                   # Screens & routing (Expo Router)
-    │   ├── (auth)/            # Authentication screens
-    │   ├── onboarding/        # Onboarding flow
-    │   └── home/              # Main application screens
-    ├── assets/                # Images & icons
-    ├── store/                 # Zustand global state
-    ├── services/              # API & Axios services
-    ├── theme/                 # UI theme & styles
-    └── package.json
-
+├── frontend/                    # Mobile Application (React Native + Expo)
+│   ├── app/                     # Screens & routing (Expo Router)
+│   │   ├── (auth)/              # Authentication screens
+│   │   │   ├── logIn.jsx
+│   │   │   ├── signUp.jsx
+│   │   │   ├── forgotPassword.jsx
+│   │   │   └── resetPassword.jsx
+│   │   ├── (candidate)/         # Candidate screens
+│   │   │   ├── index.jsx        # Home/Job listings
+│   │   │   ├── map.jsx          # Jobs on map
+│   │   │   ├── myApplications.jsx
+│   │   │   └── profile.jsx
+│   │   ├── (employer)/          # Employer screens
+│   │   │   ├── dashboard.jsx
+│   │   │   ├── addJob.jsx
+│   │   │   ├── myJobs.jsx
+│   │   │   └── applicants.jsx
+│   │   └── onboarding/          # Onboarding flow
+│   ├── api/                     # API services
+│   │   └── axios.js             # Axios configuration
+│   ├── components/              # Reusable components
+│   ├── hooks/                   # Custom React hooks
+│   │   ├── useAuth.js
+│   │   ├── useJobs.js
+│   │   └── useApplications.js
+│   ├── store/                   # Zustand global state
+│   │   └── useStore.js
+│   ├── theme/                   # UI theme & styles
+│   │   └── colors.js
+│   └── package.json
+│
+├── railway.toml                 # Railway deployment config
+└── docker-compose.yml           # Docker compose config
 ```
 
 ## Tech Stack
 
 ### Frontend
 
-- **Framework**: React Native (v0.81.5) with Expo (v54)
-- **Navigation**: Expo Router (v6)
-- **State Management**: Zustand (v5)
-- **UI Components**: React Native Reanimated, Gesture Handler
-- **Languages**: JavaScript
+- **Framework**: React Native with Expo
+- **Navigation**: Expo Router
+- **State Management**: Zustand
+- **Data Fetching**: React Query (TanStack Query)
+- **HTTP Client**: Axios
+- **Maps**: React Native Maps
 
 ### Backend
 
 - **Runtime**: Node.js
-- **Framework**: Express (v5)
+- **Framework**: Express
 - **Database**: PostgreSQL with Sequelize ORM
 - **Authentication**: JWT (JSON Web Tokens)
 - **Password Hashing**: bcryptjs
 - **Validation**: express-validator
 - **Security**: Helmet, CORS
+- **Email**: Nodemailer
 
 ## Features
 
-- User authentication (Sign Up, Log In, Forgot Password)
+### For Candidates
+- User registration and authentication
+- Browse and search job listings
+- View jobs on interactive map
+- Apply for jobs with cover letter
+- Track application status
+- Location-based job recommendations
+- Profile management
+
+### For Employers
+- Employer registration
+- Post new job listings
+- Manage posted jobs (edit, delete)
+- View applicants for each job
+- Accept or reject applications
+- Dashboard with statistics
+
+### General
 - Onboarding experience for new users
-- Location-based job search
+- Forgot/Reset password functionality
 - Modern and responsive UI
 - Secure API with JWT authentication
-- Database management with Sequelize
 
 ## Prerequisites
 
@@ -89,131 +150,87 @@ JobNearMe/
 
 ## Installation
 
-This project has separate frontend and backend folders. Navigate to each folder to install dependencies and run the project.
-
 ### Backend Setup
-
-1. Navigate to the backend directory:
 
 ```bash
 cd backend
-```
-
-2. Install dependencies:
-
-```bash
 npm install
 ```
 
-3. Create a `.env` file in the backend directory with your configuration:
+Create a `.env` file:
 
 ```env
-PORT=3000
-DATABASE_URL=your_postgresql_connection_string
+# APP CONFIG
+PORT=3030
+NODE_ENV=development
+
+# DATABASE CONFIG
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=JobNearMe
+DB_USER=postgres
+DB_PASSWORD=your_password
+
+# EMAIL CONFIG
+EMAIL_USER=your_email@gmail.com
+EMAIL_PASS=your_app_password
+
+# JWT CONFIG
 JWT_SECRET=your_jwt_secret_key
+JWT_EXPIRE=7d
 ```
 
-4. Start the backend server:
+Start the server:
 
 ```bash
-# Development mode with hot-reload
-npm run dev
-
-# Production mode
-npm start
+npm run dev    # Development
+npm start      # Production
 ```
 
 ### Frontend Setup
 
-1. Navigate to the frontend directory:
-
 ```bash
 cd frontend
-```
-
-2. Install dependencies:
-
-```bash
 npm install
-```
-
-3. Run the app:
-
-```bash
-# Start Expo development server
 npm start
-
-# Run on Android
-npm run android
-
-# Run on iOS
-npm run ios
-
-# Run on Web
-npm run web
 ```
-
-## Development
-
-### Backend Scripts
-
-Navigate to `backend/` directory:
-
-- `npm start` - Start the backend server
-- `npm run dev` - Start with nodemon (hot-reload)
-- `npm test` - Run tests
-
-### Frontend Scripts
-
-Navigate to `frontend/` directory:
-
-- `npm start` - Start Expo development server
-- `npm run android` - Run on Android device/emulator
-- `npm run ios` - Run on iOS device/simulator
-- `npm run web` - Run in web browser
-- `npm run lint` - Run ESLint
-
-### Adding Dependencies
-
-To add new packages:
-
-```bash
-# Backend
-cd backend
-npm install <package-name>
-
-# Frontend
-cd frontend
-npm install <package-name>
-```
-
-## Database
-
-The application uses PostgreSQL with Sequelize ORM. Database configuration can be found in:
-
-- [backend/src/config/database.js](backend/src/config/database.js)
-- [backend/src/config/config.json](backend/src/config/config.json)
 
 ## API Endpoints
 
-The backend provides RESTful API endpoints for:
-
-- User registration and authentication
-- Job listings and search
-- User profile management
-- Location-based queries
-
-## Screens
-
 ### Authentication
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/auth/register` | User registration |
+| POST | `/api/auth/login` | User login |
+| POST | `/api/auth/forgot-password` | Request password reset |
+| POST | `/api/auth/reset-password` | Reset password |
+| GET | `/api/auth/profile` | Get user profile |
+| PUT | `/api/auth/profile` | Update user profile |
 
-- [Sign Up](<frontend/app/(auth)/signUp.jsx>) - New user registration
-- [Log In](<frontend/app/(auth)/logIn.jsx>) - User authentication
-- [Forgot Password](<frontend/app/(auth)/forgotPassword.jsx>) - Password recovery
+### Jobs
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/jobs` | Get all jobs |
+| GET | `/api/jobs/:id` | Get job by ID |
+| GET | `/api/jobs/nearby` | Get nearby jobs |
+| GET | `/api/jobs/employer` | Get employer's jobs |
+| POST | `/api/jobs` | Create new job |
+| PUT | `/api/jobs/:id` | Update job |
+| DELETE | `/api/jobs/:id` | Delete job |
 
-### Onboarding
+### Applications
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/applications` | Get user applications |
+| GET | `/api/applications/job/:jobId` | Get job applicants |
+| POST | `/api/applications` | Submit application |
+| PUT | `/api/applications/:id` | Update application status |
 
-- [Onboarding Flow](frontend/app/onboarding/index.jsx) - First-time user experience
+## Deployment
+
+The backend is deployed on **Railway** with PostgreSQL database.
+
+- **API URL**: `https://jobnearme-az.railway.app`
 
 ## Contributing
 
@@ -226,10 +243,6 @@ The backend provides RESTful API endpoints for:
 ## License
 
 This project is licensed under the ISC License.
-
-## Contact
-
-For any inquiries or issues, please open an issue on the [GitHub repository](https://github.com/Samir-ibourki/JobNearMe/issues).
 
 ---
 
