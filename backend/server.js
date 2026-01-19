@@ -13,9 +13,18 @@ import { errorHandler } from "./src/middlewares/errorHandler.js";
 const app = express();
 const port = process.env.PORT || 3030;
 
-//middlewars
+//middlewares
 app.use(cors());
 app.use(express.json());
+
+// Health check route for Railway
+app.get("/", (req, res) => {
+  res.status(200).json({ 
+    status: "ok", 
+    message: "JobNearMe API is running",
+    timestamp: new Date().toISOString()
+  });
+});
 
 //routes
 app.use("/api/auth", authRoutes);
