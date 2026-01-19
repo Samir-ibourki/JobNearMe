@@ -15,7 +15,6 @@ router.post("/register", register);
 router.post("/login", login);
 router.get("/profile", authenticateToken, getProfile);
 router.put("/profile", authenticateToken, updateProfile);
-// Forgot Password
 router.post("/forgot-password", forgotPassword);
 router.post("/reset-password/:token", resetPassword);
 
