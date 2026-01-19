@@ -11,7 +11,7 @@ import fixJobCoordinates from "./src/seeders/fixJobCoordinates.js";
 import { errorHandler } from "./src/middlewares/errorHandler.js";
 
 const app = express();
-const port = 3030;
+const port = process.env.PORT || 3030;
 
 //middlewars
 app.use(cors());
@@ -31,11 +31,14 @@ sequelize
   .then(async () => {
     console.log("Database synced successfully!");
 
-    await seedData();
-    await fixJobCoordinates();
+    // Run seeders only in development mode
+    if (process.env.NODE_ENV !== 'production') {
+      await seedData();
+      await fixJobCoordinates();
+    }
 
-    app.listen(port, () => {
-      console.log(`server running on port ${port} `);
+    app.listen(port, '0.0.0.0', () => {
+      console.log(`Server running on port ${port} in ${process.env.NODE_ENV || 'development'} mode`);
     });
   })
   .catch((err) => {

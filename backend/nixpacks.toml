@@ -1,0 +1,14 @@
+# Nixpacks configuration for Railway deployment
+# Hadchi kaygol l Railway bli hadchi Node.js project
+
+[phases.setup]
+nixPkgs = ["nodejs_20", "npm"]
+
+[phases.install]
+cmds = ["npm install"]
+
+[phases.build]
+cmds = []
+
+[start]
+cmd = "npm start"
