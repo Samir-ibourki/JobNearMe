@@ -226,17 +226,7 @@ export default function SignUp() {
               {/* employer Fields */}
               {role === "employer" && (
                 <>
-                  {/* phone input */}
-                  <FormInput
-                    label="Phone Number"
-                    value={phone}
-                    onChangeText={setPhone}
-                    placeholder="Enter your phone number"
-                    iconName="call-outline"
-                    keyboardType="phone-pad"
-                  />
-
-                  {/* city nput */}
+                  {/* city input */}
                   <FormInput
                     label="City"
                     value={city}
