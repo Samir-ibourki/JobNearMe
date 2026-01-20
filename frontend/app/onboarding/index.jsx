@@ -87,78 +87,76 @@ export default function IndexOnboarding() {
       <LinearGradient
         colors={[Colors.Primary, Colors.Secondary, "#FFFFFF"]}
         locations={[0, 0.5, 1]}
-        style={styles.gradient}
-      >
-        {/* Logo Header */}
-        <Logo />
+        style={[styles.gradient, StyleSheet.absoluteFill]}
+      />
+      {/* Logo Header */}
+      <Logo />
+      {/* Content */}
+      <View style={styles.contentContainer}>
+        {/* Image */}
+        <Animated.View style={[styles.imageContainer, animatedImageStyle]}>
+          <Image
+            source={currentSlide.img}
+            resizeMode="contain"
+            style={styles.image}
+          />
+        </Animated.View>
 
-        {/* Content */}
-        <View style={styles.contentContainer}>
-          {/* Image */}
-          <Animated.View style={[styles.imageContainer, animatedImageStyle]}>
-            <Image
-              source={currentSlide.img}
-              resizeMode="contain"
-              style={styles.image}
+        {/* Text Content */}
+        <Animated.View style={[styles.textContainer, animatedTextStyle]}>
+          <Text style={styles.title}>{currentSlide.title}</Text>
+          <Text style={styles.subtitle}>{currentSlide.subTitle}</Text>
+        </Animated.View>
+      </View>
+
+      {/* Bottom Section */}
+      <View style={styles.bottomSection}>
+        <View style={styles.dotsContainer}>
+          {onboardingData.map((_, index) => (
+            <View
+              key={index}
+              style={[styles.dot, currentIndex === index && styles.activeDot]}
             />
-          </Animated.View>
-
-          {/* Text Content */}
-          <Animated.View style={[styles.textContainer, animatedTextStyle]}>
-            <Text style={styles.title}>{currentSlide.title}</Text>
-            <Text style={styles.subtitle}>{currentSlide.subTitle}</Text>
-          </Animated.View>
+          ))}
         </View>
 
-        {/* Bottom Section */}
-        <View style={styles.bottomSection}>
-          <View style={styles.dotsContainer}>
-            {onboardingData.map((_, index) => (
-              <View
-                key={index}
-                style={[styles.dot, currentIndex === index && styles.activeDot]}
-              />
-            ))}
-          </View>
-
-          {/* Buttons */}
-          <View style={styles.btns}>
-            {currentIndex > 0 && (
-              <TouchableOpacity
-                onPress={prevSlide}
-                style={styles.prevButton}
-                activeOpacity={0.8}
-              >
-                <Text style={styles.prevText}>Previous</Text>
-              </TouchableOpacity>
-            )}
+        {/* Buttons */}
+        <View style={styles.btns}>
+          {currentIndex > 0 && (
             <TouchableOpacity
-              onPress={nextSlide}
-              style={[
-                styles.nextButton,
-                currentIndex === 0 && styles.nextButtonFull,
-              ]}
+              onPress={prevSlide}
+              style={styles.prevButton}
               activeOpacity={0.8}
             >
-              <Text style={styles.nextText}>
-                {currentIndex === onboardingData.length - 1
-                  ? "Get Started"
-                  : "Next"}
-              </Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* Skip Button */}
-          {currentIndex < onboardingData.length - 1 && (
-            <TouchableOpacity
-              onPress={() => router.push("onboarding/lastOnboard")}
-              style={styles.skipButton}
-            >
-              <Text style={styles.skipText}>Skip</Text>
+              <Text style={styles.prevText}>Previous</Text>
             </TouchableOpacity>
           )}
+          <TouchableOpacity
+            onPress={nextSlide}
+            style={[
+              styles.nextButton,
+              currentIndex === 0 && styles.nextButtonFull,
+            ]}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.nextText}>
+              {currentIndex === onboardingData.length - 1
+                ? "Get Started"
+                : "Next"}
+            </Text>
+          </TouchableOpacity>
         </View>
-      </LinearGradient>
+
+        {/* Skip Button */}
+        {currentIndex < onboardingData.length - 1 && (
+          <TouchableOpacity
+            onPress={() => router.push("onboarding/lastOnboard")}
+            style={styles.skipButton}
+          >
+            <Text style={styles.skipText}>Skip</Text>
+          </TouchableOpacity>
+        )}
+      </View>
     </SafeAreaView>
   );
 }

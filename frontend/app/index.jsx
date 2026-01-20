@@ -52,7 +52,7 @@ export default function Index() {
 
     logoRotate.value = withSequence(
       withTiming(360, { duration: 1000, easing: Easing.out(Easing.exp) }),
-      withTiming(360, { duration: 0 })
+      withTiming(360, { duration: 0 }),
     );
 
     // Check first launch and navigate
@@ -65,9 +65,9 @@ export default function Index() {
         setTimeout(async () => {
           if (alreadyLaunched === null) {
             await AsyncStorage.setItem("alreadyLaunched", "true");
-            router.replace("(auth)/logIn");
+            router.replace("onboarding");
           } else {
-            router.replace("(auth)/logIn");
+            router.replace("onboarding");
           }
         }, 400);
       }, 2500);

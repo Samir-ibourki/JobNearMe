@@ -56,10 +56,10 @@ export default function LogIn() {
         onError: (err) => {
           Alert.alert(
             "Erreur",
-            err.response?.data?.message || "Échec de connexion"
+            err.response?.data?.message || "Échec de connexion",
           );
         },
-      }
+      },
     );
   };
 
@@ -70,117 +70,116 @@ export default function LogIn() {
         backgroundColor={Colors.Primary}
         translucent={false}
       />
+      <LinearGradient
+        colors={[Colors.Primary, Colors.Secondary, "#FFFFFF"]}
+        locations={[0, 0.3, 0.7]}
+        style={[styles.gradient, StyleSheet.absoluteFill]}
+      />
       <KeyboardAvoidingView
         style={styles.keyboardView}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        <LinearGradient
-          colors={[Colors.Primary, Colors.Secondary, "#FFFFFF"]}
-          locations={[0, 0.3, 0.7]}
-          style={styles.gradient}
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
         >
-          <ScrollView
-            contentContainerStyle={styles.scrollContent}
-            showsVerticalScrollIndicator={false}
-            keyboardShouldPersistTaps="handled"
-          >
-            {/* header */}
-            <View style={styles.header}>
-              <TouchableOpacity
-                onPress={() => router.back()}
-                style={styles.backButton}
-              >
-                <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
-              </TouchableOpacity>
+          {/* header */}
+          <View style={styles.header}>
+            <TouchableOpacity
+              onPress={() => router.back()}
+              style={styles.backButton}
+            >
+              <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
+            </TouchableOpacity>
 
-              <View style={styles.logoContainer}>
-                <View style={styles.logoIcon}>
-                  <Text style={styles.logoEmoji}>🔍</Text>
-                </View>
-                <Text style={styles.logoText}>JobNearMe</Text>
+            <View style={styles.logoContainer}>
+              <View style={styles.logoIcon}>
+                <Text style={styles.logoEmoji}>🔍</Text>
               </View>
+              <Text style={styles.logoText}>JobNearMe</Text>
             </View>
+          </View>
 
-            {/* form container */}
-            <View style={styles.formContainer}>
-              <Text style={styles.title}>Welcome Back</Text>
-              <Text style={styles.subtitle}>
-                Log in to find your next opportunity
+          {/* form container */}
+          <View style={styles.formContainer}>
+            <Text style={styles.title}>Welcome Back</Text>
+            <Text style={styles.subtitle}>
+              Log in to find your next opportunity
+            </Text>
+
+            {/* email input */}
+            <FormInput
+              label="Email Address"
+              value={email}
+              onChangeText={setEmail}
+              placeholder="Enter your email"
+              iconName="mail-outline"
+              keyboardType="email-address"
+            />
+
+            {/* password input */}
+            <FormInput
+              label="Password"
+              value={password}
+              onChangeText={setPassword}
+              placeholder="Enter your password"
+              iconName="lock-closed-outline"
+              secureTextEntry={true}
+              showPassword={showPassword}
+              setShowPassword={setShowPassword}
+            />
+
+            {/* forgot password */}
+            <TouchableOpacity
+              onPress={() => router.push("(auth)/forgotPassword")}
+              style={styles.forgotPassword}
+            >
+              <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+            </TouchableOpacity>
+
+            {/* login button */}
+            <TouchableOpacity
+              style={[styles.loginButton, isPending && { opacity: 0.7 }]}
+              onPress={handleLogin}
+              disabled={isPending}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.loginButtonText}>
+                {isPending ? "Connexion..." : "Log In"}
               </Text>
-
-              {/* email input */}
-              <FormInput
-                label="Email Address"
-                value={email}
-                onChangeText={setEmail}
-                placeholder="Enter your email"
-                iconName="mail-outline"
-                keyboardType="email-address"
-              />
-
-              {/* password input */}
-              <FormInput
-                label="Password"
-                value={password}
-                onChangeText={setPassword}
-                placeholder="Enter your password"
-                iconName="lock-closed-outline"
-                secureTextEntry={true}
-                showPassword={showPassword}
-                setShowPassword={setShowPassword}
-              />
-
-              {/* forgot password */}
-              <TouchableOpacity
-                onPress={() => router.push("(auth)/forgotPassword")}
-                style={styles.forgotPassword}
-              >
-                <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
-              </TouchableOpacity>
-
-              {/* login button */}
-              <TouchableOpacity
-                style={[styles.loginButton, isPending && { opacity: 0.7 }]}
-                onPress={handleLogin}
-                disabled={isPending}
-                activeOpacity={0.8}
-              >
-                <Text style={styles.loginButtonText}>
-                  {isPending ? "Connexion..." : "Log In"}
-                </Text>
-                {!isPending && (
-                  <Ionicons name="arrow-forward" size={20} color="#fff" />
-                )}
-              </TouchableOpacity>
-
-              {isError && (
-                <Text
-                  style={{
-                    color: "red",
-                    textAlign: "center",
-                    marginVertical: 10,
-                  }}
-                >
-                  {error?.response?.data?.message || "Erreur de connexion"}
-                </Text>
+              {!isPending && (
+                <Ionicons name="arrow-forward" size={20} color="#fff" />
               )}
+            </TouchableOpacity>
 
-              {/* divider */}
-              <Divider text="or" />
-
-              {/* signup link */}
-              <TouchableOpacity
-                onPress={() => router.push("(auth)/signUp")}
-                style={styles.signUpButton}
+            {isError && (
+              <Text
+                style={{
+                  color: "red",
+                  textAlign: "center",
+                  marginVertical: 10,
+                }}
               >
-                <Text style={styles.signUpButtonText}>Create New Account</Text>
-              </TouchableOpacity>
+                {error?.response?.data?.message || "Erreur de connexion"}
+              </Text>
+            )}
 
-              {/* terms */}
-              <Terms />
-            </View>
-          </ScrollView>
-        </LinearGradient>
+            {/* divider */}
+            <Divider text="or" />
+
+            {/* signup link */}
+            <TouchableOpacity
+              onPress={() => router.push("(auth)/signUp")}
+              style={styles.signUpButton}
+            >
+              <Text style={styles.signUpButtonText}>Create New Account</Text>
+            </TouchableOpacity>
+
+            {/* terms */}
+            <Terms />
+          </View>
+        </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );

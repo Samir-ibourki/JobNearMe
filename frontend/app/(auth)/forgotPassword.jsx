@@ -42,16 +42,16 @@ export default function ForgotPassword() {
                 text: "OK",
                 onPress: () => router.push("/(auth)/resetPassword"),
               },
-            ]
+            ],
           );
         },
         onError: (err) => {
           Alert.alert(
             "Error",
-            err.response?.data?.message || "Failed to send reset link"
+            err.response?.data?.message || "Failed to send reset link",
           );
         },
-      }
+      },
     );
   };
 
@@ -62,88 +62,84 @@ export default function ForgotPassword() {
         backgroundColor={Colors.Primary}
         translucent={false}
       />
+      <LinearGradient
+        colors={[Colors.Primary, Colors.Secondary, "#FFFFFF"]}
+        locations={[0, 0.3, 0.7]}
+        style={[styles.gradient, StyleSheet.absoluteFill]}
+      />
       <KeyboardAvoidingView
         style={styles.keyboardView}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        <LinearGradient
-          colors={[Colors.Primary, Colors.Secondary, "#FFFFFF"]}
-          locations={[0, 0.3, 0.7]}
-          style={styles.gradient}
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
         >
-          <ScrollView
-            contentContainerStyle={styles.scrollContent}
-            showsVerticalScrollIndicator={false}
-            keyboardShouldPersistTaps="handled"
-          >
-            {/* Header */}
-            <View style={styles.header}>
-              <TouchableOpacity
-                onPress={() => router.back()}
-                style={styles.backButton}
-              >
-                <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
-              </TouchableOpacity>
+          {/* Header */}
+          <View style={styles.header}>
+            <TouchableOpacity
+              onPress={() => router.back()}
+              style={styles.backButton}
+            >
+              <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
+            </TouchableOpacity>
 
-              <View style={styles.logoContainer}>
-                <View style={styles.logoIcon}>
-                  <Ionicons name="key-outline" size={20} color="#fff" />
-                </View>
-                <Text style={styles.logoText}>Recovery</Text>
+            <View style={styles.logoContainer}>
+              <View style={styles.logoIcon}>
+                <Ionicons name="key-outline" size={20} color="#fff" />
               </View>
+              <Text style={styles.logoText}>Recovery</Text>
             </View>
+          </View>
 
-            {/* Form Container */}
-            <View style={styles.formContainer}>
-              <Text style={styles.title}>Forgot Password?</Text>
-              <Text style={styles.subtitle}>
-                Enter your email address and well send you a link to reset your
-                password.
-              </Text>
+          {/* Form Container */}
+          <View style={styles.formContainer}>
+            <Text style={styles.title}>Forgot Password?</Text>
+            <Text style={styles.subtitle}>
+              Enter your email address and well send you a link to reset your
+              password.
+            </Text>
 
-              <View style={styles.stepContainer}>
-                {/* Email Input */}
-                <View style={styles.inputContainer}>
-                  <Text style={styles.label}>Email Address</Text>
-                  <View
-                    style={[styles.inputWrapper, email && styles.inputFocused]}
-                  >
-                    <Ionicons
-                      name="mail-outline"
-                      size={20}
-                      color={email ? Colors.Secondary : "#999"}
-                    />
-                    <TextInput
-                      style={styles.input}
-                      placeholder="Enter your email"
-                      placeholderTextColor="#999"
-                      keyboardType="email-address"
-                      autoCapitalize="none"
-                      value={email}
-                      onChangeText={setEmail}
-                    />
-                  </View>
-                </View>
-
-                <TouchableOpacity
-                  style={[
-                    styles.actionButton,
-                    isSendingOtp && { opacity: 0.7 },
-                  ]}
-                  onPress={handleSendLink}
-                  disabled={isSendingOtp}
+            <View style={styles.stepContainer}>
+              {/* Email Input */}
+              <View style={styles.inputContainer}>
+                <Text style={styles.label}>Email Address</Text>
+                <View
+                  style={[styles.inputWrapper, email && styles.inputFocused]}
                 >
-                  <Text style={styles.actionButtonText}>
-                    {isSendingOtp ? "Sending..." : "Send Reset Link"}
-                  </Text>
-                  {!isSendingOtp && (
-                    <Ionicons name="send" size={18} color="#fff" />
-                  )}
-                </TouchableOpacity>
+                  <Ionicons
+                    name="mail-outline"
+                    size={20}
+                    color={email ? Colors.Secondary : "#999"}
+                  />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Enter your email"
+                    placeholderTextColor="#999"
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    value={email}
+                    onChangeText={setEmail}
+                  />
+                </View>
               </View>
+
+              <TouchableOpacity
+                style={[styles.actionButton, isSendingOtp && { opacity: 0.7 }]}
+                onPress={handleSendLink}
+                disabled={isSendingOtp}
+              >
+                <Text style={styles.actionButtonText}>
+                  {isSendingOtp ? "Sending..." : "Send Reset Link"}
+                </Text>
+                {!isSendingOtp && (
+                  <Ionicons name="send" size={18} color="#fff" />
+                )}
+              </TouchableOpacity>
             </View>
-          </ScrollView>
-        </LinearGradient>
+          </View>
+        </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );

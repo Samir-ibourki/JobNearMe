@@ -93,204 +93,201 @@ export default function SignUp() {
   };
 
   return (
-    <SafeAreaView style={styles.safe} edges={["top", "bottom"]}>
+    <SafeAreaView style={styles.safe} edges={["bottom", "top"]}>
       <StatusBar
         barStyle="light-content"
         backgroundColor={Colors.Primary}
         translucent={false}
       />
+      <LinearGradient
+        colors={[Colors.Primary, Colors.Secondary, "#FFFFFF"]}
+        locations={[0, 0.3, 0.7]}
+        style={[styles.gradient, StyleSheet.absoluteFill]}
+      />
       <KeyboardAvoidingView
         style={styles.keyboardView}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        <LinearGradient
-          colors={[Colors.Primary, Colors.Secondary, "#FFFFFF"]}
-          locations={[0, 0.3, 0.7]}
-          style={styles.gradient}
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
         >
-          <ScrollView
-            contentContainerStyle={styles.scrollContent}
-            showsVerticalScrollIndicator={false}
-            keyboardShouldPersistTaps="handled"
-          >
-            {/* header */}
-            <View style={styles.header}>
-              <TouchableOpacity
-                onPress={() => router.back()}
-                style={styles.backButton}
-              >
-                <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
-              </TouchableOpacity>
-              <Logo />
-            </View>
+          {/* header */}
+          <View style={styles.header}>
+            <TouchableOpacity
+              onPress={() => router.back()}
+              style={styles.backButton}
+            >
+              <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
+            </TouchableOpacity>
+            <Logo />
+          </View>
 
-            {/* form container */}
-            <View style={styles.formContainer}>
-              <Text style={styles.title}>Create Account</Text>
-              <Text style={styles.subtitle}>
-                Sign up to start finding your dream job
-              </Text>
+          {/* form container */}
+          <View style={styles.formContainer}>
+            <Text style={styles.title}>Create Account</Text>
+            <Text style={styles.subtitle}>
+              Sign up to start finding your dream job
+            </Text>
 
-              {/* role select */}
-              <View style={styles.inputContainer}>
-                <Text style={styles.label}>I am a</Text>
-                <View style={styles.roleContainer}>
-                  <TouchableOpacity
-                    style={[
-                      styles.roleButton,
-                      role === "candidate" && styles.roleButtonActive,
-                    ]}
-                    onPress={() => setRole("candidate")}
-                  >
-                    <Ionicons
-                      name="person"
-                      size={24}
-                      color={
-                        role === "candidate" ? "#FFFFFF" : Colors.Secondary
-                      }
-                    />
-                    <Text
-                      style={[
-                        styles.roleButtonText,
-                        role === "candidate" && styles.roleButtonTextActive,
-                      ]}
-                    >
-                      Job Seeker
-                    </Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    style={[
-                      styles.roleButton,
-                      role === "employer" && styles.roleButtonActive,
-                    ]}
-                    onPress={() => setRole("employer")}
-                  >
-                    <Ionicons
-                      name="briefcase"
-                      size={24}
-                      color={role === "employer" ? "#FFFFFF" : Colors.Secondary}
-                    />
-                    <Text
-                      style={[
-                        styles.roleButtonText,
-                        role === "employer" && styles.roleButtonTextActive,
-                      ]}
-                    >
-                      Employer
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-
-              {/* fullname input */}
-              <FormInput
-                label="Full Name"
-                value={fullName}
-                onChangeText={setFullName}
-                placeholder="Enter your full name"
-                iconName="person-outline"
-                autoCapitalize="words"
-              />
-
-              {/* email input */}
-              <FormInput
-                label="Email Address"
-                value={email}
-                onChangeText={setEmail}
-                placeholder="Enter your email"
-                iconName="mail-outline"
-                keyboardType="email-address"
-              />
-
-              {/* password input */}
-              <FormInput
-                label="Password"
-                value={password}
-                onChangeText={setPassword}
-                placeholder="Create a password"
-                iconName="lock-closed-outline"
-                secureTextEntry={true}
-                showPassword={showPassword}
-                setShowPassword={setShowPassword}
-              />
-              {/* phone input */}
-              <FormInput
-                label="Phone Number"
-                value={phone}
-                onChangeText={setPhone}
-                placeholder="Enter your phone number"
-                iconName="call-outline"
-                keyboardType="phone-pad"
-              />
-              {/* employer Fields */}
-              {role === "employer" && (
-                <>
-                  {/* city input */}
-                  <FormInput
-                    label="City"
-                    value={city}
-                    onChangeText={setCity}
-                    placeholder="Enter your city"
-                    iconName="location-outline"
-                    autoCapitalize="words"
-                  />
-
-                  {/* address input */}
-                  <FormInput
-                    label="Address"
-                    value={address}
-                    onChangeText={setAddress}
-                    placeholder="Enter your address"
-                    iconName="map-outline"
-                    autoCapitalize="words"
-                  />
-                </>
-              )}
-
-              {/* sign up button */}
-              <TouchableOpacity
-                style={[
-                  styles.signUpButton,
-                  isPending && styles.signUpButtonDisabled,
-                ]}
-                onPress={handleSignUp}
-                disabled={isPending}
-                activeOpacity={0.8}
-              >
-                <Text style={styles.signUpButtonText}>
-                  {isPending ? "Creating Account..." : "Sign Up"}
-                </Text>
-                {!isPending && (
-                  <Ionicons name="arrow-forward" size={20} color="#fff" />
-                )}
-              </TouchableOpacity>
-
-              {isError && (
-                <Text
-                  style={{ color: "red", textAlign: "center", marginTop: 10 }}
+            {/* role select */}
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>I am a</Text>
+              <View style={styles.roleContainer}>
+                <TouchableOpacity
+                  style={[
+                    styles.roleButton,
+                    role === "candidate" && styles.roleButtonActive,
+                  ]}
+                  onPress={() => setRole("candidate")}
                 >
-                  {error?.response?.data?.message || "Erreur"}
-                </Text>
-              )}
+                  <Ionicons
+                    name="person"
+                    size={24}
+                    color={role === "candidate" ? "#FFFFFF" : Colors.Secondary}
+                  />
+                  <Text
+                    style={[
+                      styles.roleButtonText,
+                      role === "candidate" && styles.roleButtonTextActive,
+                    ]}
+                  >
+                    Job Seeker
+                  </Text>
+                </TouchableOpacity>
 
-              {/* divider + login link */}
-              <Divider text="or" />
-
-              <TouchableOpacity
-                onPress={() => router.push("(auth)/logIn")}
-                style={styles.loginButton}
-              >
-                <Text style={styles.loginButtonText}>
-                  Already have an account? Log In
-                </Text>
-              </TouchableOpacity>
-
-              {/* terms */}
-              <Terms />
+                <TouchableOpacity
+                  style={[
+                    styles.roleButton,
+                    role === "employer" && styles.roleButtonActive,
+                  ]}
+                  onPress={() => setRole("employer")}
+                >
+                  <Ionicons
+                    name="briefcase"
+                    size={24}
+                    color={role === "employer" ? "#FFFFFF" : Colors.Secondary}
+                  />
+                  <Text
+                    style={[
+                      styles.roleButtonText,
+                      role === "employer" && styles.roleButtonTextActive,
+                    ]}
+                  >
+                    Employer
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
-          </ScrollView>
-        </LinearGradient>
+
+            {/* fullname input */}
+            <FormInput
+              label="Full Name"
+              value={fullName}
+              onChangeText={setFullName}
+              placeholder="Enter your full name"
+              iconName="person-outline"
+              autoCapitalize="words"
+            />
+
+            {/* email input */}
+            <FormInput
+              label="Email Address"
+              value={email}
+              onChangeText={setEmail}
+              placeholder="Enter your email"
+              iconName="mail-outline"
+              keyboardType="email-address"
+            />
+
+            {/* password input */}
+            <FormInput
+              label="Password"
+              value={password}
+              onChangeText={setPassword}
+              placeholder="Create a password"
+              iconName="lock-closed-outline"
+              secureTextEntry={true}
+              showPassword={showPassword}
+              setShowPassword={setShowPassword}
+            />
+            {/* phone input */}
+            <FormInput
+              label="Phone Number"
+              value={phone}
+              onChangeText={setPhone}
+              placeholder="Enter your phone number"
+              iconName="call-outline"
+              keyboardType="phone-pad"
+            />
+            {/* employer Fields */}
+            {role === "employer" && (
+              <>
+                {/* city input */}
+                <FormInput
+                  label="City"
+                  value={city}
+                  onChangeText={setCity}
+                  placeholder="Enter your city"
+                  iconName="location-outline"
+                  autoCapitalize="words"
+                />
+
+                {/* address input */}
+                <FormInput
+                  label="Address"
+                  value={address}
+                  onChangeText={setAddress}
+                  placeholder="Enter your address"
+                  iconName="map-outline"
+                  autoCapitalize="words"
+                />
+              </>
+            )}
+
+            {/* sign up button */}
+            <TouchableOpacity
+              style={[
+                styles.signUpButton,
+                isPending && styles.signUpButtonDisabled,
+              ]}
+              onPress={handleSignUp}
+              disabled={isPending}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.signUpButtonText}>
+                {isPending ? "Creating Account..." : "Sign Up"}
+              </Text>
+              {!isPending && (
+                <Ionicons name="arrow-forward" size={20} color="#fff" />
+              )}
+            </TouchableOpacity>
+
+            {isError && (
+              <Text
+                style={{ color: "red", textAlign: "center", marginTop: 10 }}
+              >
+                {error?.response?.data?.message || "Erreur"}
+              </Text>
+            )}
+
+            {/* divider + login link */}
+            <Divider text="or" />
+
+            <TouchableOpacity
+              onPress={() => router.push("(auth)/logIn")}
+              style={styles.loginButton}
+            >
+              <Text style={styles.loginButtonText}>
+                Already have an account? Log In
+              </Text>
+            </TouchableOpacity>
+
+            {/* terms */}
+            <Terms />
+          </View>
+        </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );

@@ -18,56 +18,55 @@ const image = require("../../assets/congrat.png");
 
 const LaundrifyOnboardingScreen = () => {
   return (
-    <SafeAreaView style={styles.mainContainer}>
+    <SafeAreaView style={styles.mainContainer} edges={["top", "bottom"]}>
       <StatusBar barStyle="light-content" backgroundColor={Colors.Primary} />
 
       <LinearGradient
         colors={[Colors.Primary, Colors.Secondary, "#FFFFFF"]}
         locations={[0, 0.5, 1]}
-        style={styles.gradientBackground}
-      >
-        {/* header logo */}
-        <View style={styles.header}>
-          <Logo />
-        </View>
+        style={[styles.gradientBackground, StyleSheet.absoluteFill]}
+      />
+      {/* header logo */}
+      <View style={styles.header}>
+        <Logo />
+      </View>
 
-        <View style={styles.illustrationContainer}>
-          <Image
-            source={image}
-            style={styles.illustration}
-            resizeMode="contain"
-          />
-        </View>
+      <View style={styles.illustrationContainer}>
+        <Image
+          source={image}
+          style={styles.illustration}
+          resizeMode="contain"
+        />
+      </View>
 
-        <View style={styles.contentBottom}>
-          <Text style={styles.title}>
-            Your dream job is{"\n"}
-            <Text style={styles.subtitle}>one tap away</Text>
-          </Text>
+      <View style={styles.contentBottom}>
+        <Text style={styles.title}>
+          Your dream job is{"\n"}
+          <Text style={styles.subtitle}>one tap away</Text>
+        </Text>
 
-          <TouchableOpacity
-            style={styles.getStartedButton}
-            onPress={() => router.push("(auth)/signUp")}
-          >
-            <Text style={styles.getStartedText}>Get Started</Text>
-          </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.getStartedButton}
+          onPress={() => router.push("(auth)/signUp")}
+        >
+          <Text style={styles.getStartedText}>Get Started</Text>
+        </TouchableOpacity>
 
-          <TouchableOpacity
-            style={styles.loginButton}
-            onPress={() => {
-              router.push("(auth)/logIn");
-            }}
-          >
-            <Text style={styles.loginText}>I already have an account</Text>
-          </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.loginButton}
+          onPress={() => {
+            router.push("(auth)/logIn");
+          }}
+        >
+          <Text style={styles.loginText}>I already have an account</Text>
+        </TouchableOpacity>
 
-          <Text style={styles.termsText}>
-            By continuing you agree to our{" "}
-            <Text style={styles.linkText}>Terms of Services</Text>
-            {"\n"}and <Text style={styles.linkText}>Privacy Policy</Text>
-          </Text>
-        </View>
-      </LinearGradient>
+        <Text style={styles.termsText}>
+          By continuing you agree to our{" "}
+          <Text style={styles.linkText}>Terms of Services</Text>
+          {"\n"}and <Text style={styles.linkText}>Privacy Policy</Text>
+        </Text>
+      </View>
     </SafeAreaView>
   );
 };

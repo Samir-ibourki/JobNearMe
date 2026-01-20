@@ -13,7 +13,9 @@ const styles = StyleSheet.create({
   logoContainer: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
     gap: 10,
+    // marginTop: 75,
   },
   logoIcon: {
     width: 32,

@@ -50,10 +50,10 @@ export default function ResetPassword() {
         onError: (err) => {
           Alert.alert(
             "Error",
-            err.response?.data?.message || "Failed to reset password"
+            err.response?.data?.message || "Failed to reset password",
           );
         },
-      }
+      },
     );
   };
 
@@ -64,109 +64,108 @@ export default function ResetPassword() {
         backgroundColor={Colors.Primary}
         translucent={false}
       />
+      <LinearGradient
+        colors={[Colors.Primary, Colors.Secondary, "#FFFFFF"]}
+        locations={[0, 0.3, 0.7]}
+        style={[styles.gradient, StyleSheet.absoluteFill]}
+      />
       <KeyboardAvoidingView
         style={styles.keyboardView}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        <LinearGradient
-          colors={[Colors.Primary, Colors.Secondary, "#FFFFFF"]}
-          locations={[0, 0.3, 0.7]}
-          style={styles.gradient}
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
         >
-          <ScrollView
-            contentContainerStyle={styles.scrollContent}
-            showsVerticalScrollIndicator={false}
-            keyboardShouldPersistTaps="handled"
-          >
-            {/* Header */}
-            <View style={styles.header}>
-              <View style={styles.logoContainer}>
-                <View style={styles.logoIcon}>
-                  <Ionicons name="lock-open-outline" size={20} color="#fff" />
-                </View>
-                <Text style={styles.logoText}>Reset Password</Text>
+          {/* Header */}
+          <View style={styles.header}>
+            <View style={styles.logoContainer}>
+              <View style={styles.logoIcon}>
+                <Ionicons name="lock-open-outline" size={20} color="#fff" />
               </View>
+              <Text style={styles.logoText}>Reset Password</Text>
             </View>
+          </View>
 
-            {/* form container */}
-            <View style={styles.formContainer}>
-              <Text style={styles.title}>New Password</Text>
-              <Text style={styles.subtitle}>
-                Enter your token (from email) and new password.
-              </Text>
+          {/* form container */}
+          <View style={styles.formContainer}>
+            <Text style={styles.title}>New Password</Text>
+            <Text style={styles.subtitle}>
+              Enter your token (from email) and new password.
+            </Text>
 
-              <View style={styles.stepContainer}>
-                {/*token input */}
-                <View style={styles.inputContainer}>
-                  <Text style={styles.label}>Reset Token</Text>
-                  <View
-                    style={[styles.inputWrapper, token && styles.inputFocused]}
-                  >
-                    <Ionicons
-                      name="key-outline"
-                      size={20}
-                      color={token ? Colors.Secondary : "#999"}
-                    />
-                    <TextInput
-                      style={styles.input}
-                      placeholder="Paste token here"
-                      placeholderTextColor="#999"
-                      value={token}
-                      onChangeText={setToken}
-                    />
-                  </View>
-                </View>
-
-                {/* new password input */}
-                <View style={styles.inputContainer}>
-                  <Text style={styles.label}>New Password</Text>
-                  <View
-                    style={[
-                      styles.inputWrapper,
-                      newPassword && styles.inputFocused,
-                    ]}
-                  >
-                    <Ionicons
-                      name="lock-closed-outline"
-                      size={20}
-                      color={newPassword ? Colors.Secondary : "#999"}
-                    />
-                    <TextInput
-                      style={styles.input}
-                      placeholder="Enter new password"
-                      placeholderTextColor="#999"
-                      secureTextEntry={!showPassword}
-                      value={newPassword}
-                      onChangeText={setNewPassword}
-                    />
-                    <TouchableOpacity
-                      onPress={() => setShowPassword(!showPassword)}
-                    >
-                      <Ionicons
-                        name={showPassword ? "eye-outline" : "eye-off-outline"}
-                        size={20}
-                        color="#999"
-                      />
-                    </TouchableOpacity>
-                  </View>
-                </View>
-
-                <TouchableOpacity
-                  style={[styles.actionButton, isResetting && { opacity: 0.7 }]}
-                  onPress={handleReset}
-                  disabled={isResetting}
+            <View style={styles.stepContainer}>
+              {/*token input */}
+              <View style={styles.inputContainer}>
+                <Text style={styles.label}>Reset Token</Text>
+                <View
+                  style={[styles.inputWrapper, token && styles.inputFocused]}
                 >
-                  <Text style={styles.actionButtonText}>
-                    {isResetting ? "Resetting..." : "Set New Password"}
-                  </Text>
-                  {!isResetting && (
-                    <Ionicons name="checkmark-circle" size={20} color="#fff" />
-                  )}
-                </TouchableOpacity>
+                  <Ionicons
+                    name="key-outline"
+                    size={20}
+                    color={token ? Colors.Secondary : "#999"}
+                  />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Paste token here"
+                    placeholderTextColor="#999"
+                    value={token}
+                    onChangeText={setToken}
+                  />
+                </View>
               </View>
+
+              {/* new password input */}
+              <View style={styles.inputContainer}>
+                <Text style={styles.label}>New Password</Text>
+                <View
+                  style={[
+                    styles.inputWrapper,
+                    newPassword && styles.inputFocused,
+                  ]}
+                >
+                  <Ionicons
+                    name="lock-closed-outline"
+                    size={20}
+                    color={newPassword ? Colors.Secondary : "#999"}
+                  />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Enter new password"
+                    placeholderTextColor="#999"
+                    secureTextEntry={!showPassword}
+                    value={newPassword}
+                    onChangeText={setNewPassword}
+                  />
+                  <TouchableOpacity
+                    onPress={() => setShowPassword(!showPassword)}
+                  >
+                    <Ionicons
+                      name={showPassword ? "eye-outline" : "eye-off-outline"}
+                      size={20}
+                      color="#999"
+                    />
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              <TouchableOpacity
+                style={[styles.actionButton, isResetting && { opacity: 0.7 }]}
+                onPress={handleReset}
+                disabled={isResetting}
+              >
+                <Text style={styles.actionButtonText}>
+                  {isResetting ? "Resetting..." : "Set New Password"}
+                </Text>
+                {!isResetting && (
+                  <Ionicons name="checkmark-circle" size={20} color="#fff" />
+                )}
+              </TouchableOpacity>
             </View>
-          </ScrollView>
-        </LinearGradient>
+          </View>
+        </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
