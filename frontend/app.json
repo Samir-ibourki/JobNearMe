@@ -14,7 +14,16 @@
     "android": {
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.samir_ibourki.JobNearMe"
+      "package": "com.samir_ibourki.JobNearMe",
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyCT40E6wtFMTrmOJSPlvWDt25DJu8pQGTQ"
+        }
+      },
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION"
+      ]
     },
     "splash": {
       "image": "./assets/splash.png",
@@ -36,7 +45,13 @@
         }
       ],
       "expo-asset",
-      "expo-web-browser"
+      "expo-web-browser",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow JobNearMe to access your location to show nearby jobs."
+        }
+      ]
     ],
     "platforms": ["android"],
     "experiments": {
