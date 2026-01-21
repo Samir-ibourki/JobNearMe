@@ -11,7 +11,7 @@ import Animated, {
   withSequence,
   Easing,
 } from "react-native-reanimated";
-import icon from "../assets/AppIcon.png";
+import icon from "../assets/splash.png";
 import Colors from "../theme/colors";
 
 export default function Index() {
@@ -67,7 +67,7 @@ export default function Index() {
             await AsyncStorage.setItem("alreadyLaunched", "true");
             router.replace("onboarding");
           } else {
-            router.replace("onboarding");
+            router.replace("onboarding/lastOnboard");
           }
         }, 400);
       }, 2500);

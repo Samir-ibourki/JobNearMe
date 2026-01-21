@@ -4,7 +4,7 @@
     "slug": "JobNearMe",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "../frontend/assets/logo.png",
+    "icon": "../frontend/assets/logo1.png",
     "scheme": "jobnearme",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -16,10 +16,11 @@
       "predictiveBackGestureEnabled": false,
       "package": "com.samir_ibourki.JobNearMe"
     },
-    // "web": {
-    //   "output": "static",
-    //   "favicon": "../frontend/assets/logo.png"
-    // },
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
     "plugins": [
       "expo-router",
       [
@@ -40,6 +41,12 @@
     "platforms": ["android"],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "aa0477dd-b481-4e8c-b0d3-35a3b751350e"
+      }
     }
   }
 }

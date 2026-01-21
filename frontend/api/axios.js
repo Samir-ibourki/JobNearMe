@@ -5,7 +5,10 @@ import { Platform } from "react-native";
 
 let API_URL;
 
-if (Platform.OS === "android" && !Constants.expoConfig?.hostUri?.includes("192.")) {
+if (
+  Platform.OS === "android" &&
+  !Constants.expoConfig?.hostUri?.includes("192.")
+) {
   // Android Emulator - use 10.0.2.2 to reach host machine's localhost
   API_URL = "http://10.0.2.2:3030/api";
 } else if (Constants.expoConfig?.hostUri) {
@@ -18,7 +21,7 @@ if (Platform.OS === "android" && !Constants.expoConfig?.hostUri?.includes("192."
 }
 
 const API = axios.create({
-  baseURL: API_URL,
+  baseURL: "https://jobnearme.up.railway.app/api",
   timeout: 10000,
 });
 
