@@ -13,6 +13,7 @@ import { router } from "expo-router";
 import Colors from "../../theme/colors";
 import { useMyApplications } from "../../hooks/useCandidate";
 import ApplicationCard from "../../components/ApplicationCard";
+import { useCallback } from "react";
 
 export default function CandidateApplications() {
   const { data: applications, isLoading, refetch } = useMyApplications();
@@ -37,6 +38,17 @@ export default function CandidateApplications() {
     applications?.filter((a) => a.status === "pending").length || 0;
   const acceptedCount =
     applications?.filter((a) => a.status === "accepted").length || 0;
+
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const renderApplication = useCallback(
+    ({ item }) => (
+      <ApplicationCard
+        application={item}
+        onPress={() => router.push(`/(candidate)/job/${item.jobId}`)}
+      />
+    ),
+    [],
+  );
 
   return (
     <SafeAreaView style={styles.container}>
@@ -79,12 +91,7 @@ export default function CandidateApplications() {
       <FlatList
         data={applications || []}
         keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <ApplicationCard
-            application={item}
-            onPress={() => router.push(`/(candidate)/job/${item.jobId}`)}
-          />
-        )}
+        renderItem={renderApplication}
         contentContainerStyle={styles.list}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={

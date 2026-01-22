@@ -1,4 +1,3 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { useEffect } from "react";
 import { Image, StyleSheet, Text, View } from "react-native";
@@ -13,9 +12,11 @@ import Animated, {
 } from "react-native-reanimated";
 import icon from "../assets/splash.png";
 import Colors from "../theme/colors";
+import { useAuthStore } from "../store/useAuthStore";
 
 export default function Index() {
   const router = useRouter();
+  const { isAuthenticated, user } = useAuthStore();
 
   // Animation values
   const opacity = useSharedValue(0);
@@ -55,25 +56,22 @@ export default function Index() {
       withTiming(360, { duration: 0 }),
     );
 
-    // Check first launch and navigate
-    const checkFirstLaunch = async () => {
-      const alreadyLaunched = await AsyncStorage.getItem("alreadyLaunched");
+    setTimeout(() => {
+      opacity.value = withTiming(0, { duration: 400 });
 
       setTimeout(() => {
-        opacity.value = withTiming(0, { duration: 400 });
-
-        setTimeout(async () => {
-          if (alreadyLaunched === null) {
-            await AsyncStorage.setItem("alreadyLaunched", "true");
-            router.replace("onboarding");
+        if (isAuthenticated && user) {
+          const userRole = user.role || user.userType;
+          if (userRole === "employer") {
+            router.replace("/(employer)/dashboard");
           } else {
-            router.replace("onboarding/lastOnboard");
+            router.replace("/(candidate)/home");
           }
-        }, 400);
-      }, 2500);
-    };
-
-    checkFirstLaunch();
+        } else {
+          router.replace("(auth)/logIn");
+        }
+      }, 400);
+    }, 2500);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
