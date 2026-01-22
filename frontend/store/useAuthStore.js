@@ -8,6 +8,8 @@ export const useAuthStore = create(
       user: null,
       token: null,
       isAuthenticated: false,
+      hasCompletedOnboarding: false,
+      isHydrated: false,
 
       login: (user, token) => {
         set({
@@ -24,10 +26,21 @@ export const useAuthStore = create(
           isAuthenticated: false,
         });
       },
+
+      setOnboardingComplete: () => {
+        set({ hasCompletedOnboarding: true });
+      },
+
+      setHydrated: (state) => {
+        set({ isHydrated: state });
+      },
     }),
     {
       name: "auth-storage",
       storage: createJSONStorage(() => AsyncStorage),
+      onRehydrateStorage: () => (state) => {
+        state?.setHydrated(true);
+      },
     },
   ),
 );

@@ -16,7 +16,7 @@ import { useAuthStore } from "../store/useAuthStore";
 
 export default function Index() {
   const router = useRouter();
-  const { isAuthenticated, user } = useAuthStore();
+  const { isAuthenticated, user, hasCompletedOnboarding, isHydrated } = useAuthStore();
 
   // Animation values
   const opacity = useSharedValue(0);
@@ -55,8 +55,13 @@ export default function Index() {
       withTiming(360, { duration: 1000, easing: Easing.out(Easing.exp) }),
       withTiming(360, { duration: 0 }),
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-    setTimeout(() => {
+  useEffect(() => {
+    if (!isHydrated) return;
+
+    const navigateAfterSplash = setTimeout(() => {
       opacity.value = withTiming(0, { duration: 400 });
 
       setTimeout(() => {
@@ -65,15 +70,22 @@ export default function Index() {
           if (userRole === "employer") {
             router.replace("/(employer)/dashboard");
           } else {
-            router.replace("/(candidate)/home");
+            router.replace("/(candidate)");
           }
-        } else {
-          router.replace("(auth)/logIn");
+        }
+        
+        else if (hasCompletedOnboarding) {
+          router.replace("/onboarding/lastOnboard");
+        }
+        else {
+          router.replace("/onboarding");
         }
       }, 400);
     }, 2500);
+
+    return () => clearTimeout(navigateAfterSplash);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isHydrated]);
 
   return (
     <LinearGradient
