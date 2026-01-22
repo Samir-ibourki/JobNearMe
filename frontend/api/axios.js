@@ -9,14 +9,12 @@ if (
   Platform.OS === "android" &&
   !Constants.expoConfig?.hostUri?.includes("192.")
 ) {
-  // Android Emulator - use 10.0.2.2 to reach host machine's localhost
   API_URL = "http://10.0.2.2:3030/api";
 } else if (Constants.expoConfig?.hostUri) {
-  // Physical Device (Expo Go / Dev Build) - use the host machine's IP
   const ip = Constants.expoConfig.hostUri.split(":").shift();
   API_URL = `http://${ip}:3030/api`;
 } else {
-  // Fallback for web or other platforms
+  // eslint-disable-next-line no-unused-vars
   API_URL = "http://localhost:3030/api";
 }
 
@@ -26,9 +24,16 @@ const API = axios.create({
 });
 
 API.interceptors.request.use(async (config) => {
-  const token = await AsyncStorage.getItem("token");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+  try {
+    const authStorage = await AsyncStorage.getItem("auth-storage");
+    if (authStorage) {
+      const { state } = JSON.parse(authStorage);
+      if (state?.token) {
+        config.headers.Authorization = `Bearer ${state.token}`;
+      }
+    }
+  } catch (error) {
+    console.error("Error reading auth token:", error);
   }
   return config;
 });

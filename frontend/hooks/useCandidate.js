@@ -51,7 +51,6 @@ export const useProfile = () => {
   });
 };
 
-// Update candidate profile (mutation)
 export const useUpdateProfile = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -60,7 +59,6 @@ export const useUpdateProfile = () => {
       return response.data;
     },
     onSuccess: () => {
-      // Invalidate profile to refetch updated data
       queryClient.invalidateQueries({ queryKey: ["profile"] });
     },
   });

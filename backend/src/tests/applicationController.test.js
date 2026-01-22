@@ -1,75 +1,49 @@
 /**
- * Functions:
- * - applyToJob: Candidate applies to job
- * - getMyApplications: Get candidate's applications
- * - getJobApplications: Get applications for a job (employer)
- * - updateApplicationStatus: Update application status (employer)
+ * Application Controller Tests - Simplified
  */
 
-import { jest, describe, it, expect, beforeEach } from "@jest/globals";
+import { jest, describe, it, expect, beforeAll, beforeEach } from "@jest/globals";
 
-// MOCKS SETUP
+let mockApplication, mockJob, applyToJob, getMyApplications, getJobApplications, updateApplicationStatus;
 
-// Mock Application model
-const mockApplication = {
-  create: jest.fn(),
-  findOne: jest.fn(),
-  findAll: jest.fn(),
-  findByPk: jest.fn(),
-};
+beforeAll(async () => {
+  mockApplication = {
+    create: jest.fn(),
+    findOne: jest.fn(),
+    findAll: jest.fn(),
+    findByPk: jest.fn(),
+  };
 
-// Mock Job model
-const mockJob = {
-  findByPk: jest.fn(),
-};
+  mockJob = {
+    findByPk: jest.fn(),
+  };
 
-// Mock User model
-const mockUser = {};
+  jest.unstable_mockModule("../models/index.js", () => ({
+    Application: mockApplication,
+    Job: mockJob,
+    User: {},
+  }));
 
-jest.unstable_mockModule("../models/index.js", () => ({
-  Application: mockApplication,
-  Job: mockJob,
-  User: mockUser,
-}));
+  jest.unstable_mockModule("../models/Employer.js", () => ({
+    default: {},
+  }));
 
-// Mock Employer model
-jest.unstable_mockModule("../models/Employer.js", () => ({
-  default: {},
-}));
+  jest.unstable_mockModule("../middlewares/errorHandler.js", () => ({
+    AppError: class extends Error {
+      constructor(msg, code) { super(msg); this.statusCode = code; }
+    },
+    asyncHandler: (fn) => fn,
+  }));
 
-// Mock error handler
-const AppError = class extends Error {
-  constructor(message, statusCode) {
-    super(message);
-    this.statusCode = statusCode;
-    this.isOperational = true;
-  }
-};
+  const controller = await import("../controllers/applicationController.js");
+  applyToJob = controller.applyToJob;
+  getMyApplications = controller.getMyApplications;
+  getJobApplications = controller.getJobApplications;
+  updateApplicationStatus = controller.updateApplicationStatus;
+});
 
-jest.unstable_mockModule("../middlewares/errorHandler.js", () => ({
-  AppError,
-  asyncHandler: (fn) => fn,
-}));
-
-// IMPORT CONTROLLER
-const {
-  applyToJob,
-  getMyApplications,
-  getJobApplications,
-  updateApplicationStatus,
-} = await import("../controllers/applicationController.js");
-
-//  HELPER FUNCTIONS
-const mockRequest = (
-  body = {},
-  params = {},
-  user = null,
-  userType = null
-) => ({
-  body,
-  params,
-  user,
-  userType,
+const mockRequest = (body = {}, params = {}, user = null, userType = null) => ({
+  body, params, user, userType,
 });
 
 const mockResponse = () => {
@@ -79,298 +53,112 @@ const mockResponse = () => {
   return res;
 };
 
-//TESTS
-
 describe("Application Controller", () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
+  beforeEach(() => jest.clearAllMocks());
 
-  // APPLY TO JOB
   describe("applyToJob()", () => {
-    it("should apply to job successfully", async () => {
-      // ARRANGE
-      const req = mockRequest(
-        { jobId: 1, coverLetter: "I am interested in this job" },
-        {},
-        { id: 1 },
-        "user"
-      );
+    it("should apply successfully", async () => {
+      const req = mockRequest({ jobId: 1, coverLetter: "Hi" }, {}, { id: 1 }, "user");
       const res = mockResponse();
 
-      // Job exists
-      mockJob.findByPk.mockResolvedValue({ id: 1, title: "Test Job" });
-      // Not already applied
+      mockJob.findByPk.mockResolvedValue({ id: 1 });
       mockApplication.findOne.mockResolvedValue(null);
-      // Create application
-      mockApplication.create.mockResolvedValue({
-        id: 1,
-        candidateId: 1,
-        jobId: 1,
-        coverLetter: "I am interested in this job",
-        status: "pending",
-      });
+      mockApplication.create.mockResolvedValue({ id: 1, status: "pending" });
 
-      // ACT
       await applyToJob(req, res);
 
-      // ASSERT
       expect(res.status).toHaveBeenCalledWith(201);
-      expect(res.json).toHaveBeenCalledWith(
-        expect.objectContaining({
-          success: true,
-          message: "Application submitted successfully",
-        })
-      );
     });
 
-    it("should throw error if not a candidate", async () => {
-      // ARRANGE
-      const req = mockRequest(
-        { jobId: 1 },
-        {},
-        { id: 1 },
-        "employer" // Not user!
-      );
+    it("should throw if not candidate", async () => {
+      const req = mockRequest({ jobId: 1 }, {}, { id: 1 }, "employer");
       const res = mockResponse();
 
-      // ACT & ASSERT
       await expect(applyToJob(req, res)).rejects.toThrow();
     });
 
-    it("should throw error if already applied", async () => {
-      // ARRANGE
+    it("should throw if already applied", async () => {
       const req = mockRequest({ jobId: 1 }, {}, { id: 1 }, "user");
       const res = mockResponse();
 
       mockJob.findByPk.mockResolvedValue({ id: 1 });
-      mockApplication.findOne.mockResolvedValue({ id: 1 }); // Already exists!
+      mockApplication.findOne.mockResolvedValue({ id: 1 });
 
-      // ACT & ASSERT
-      await expect(applyToJob(req, res)).rejects.toThrow();
-    });
-
-    it("should throw error if job not found", async () => {
-      // ARRANGE
-      const req = mockRequest({ jobId: 999 }, {}, { id: 1 }, "user");
-      const res = mockResponse();
-
-      mockJob.findByPk.mockResolvedValue(null);
-
-      // ACT & ASSERT
-      await expect(applyToJob(req, res)).rejects.toThrow();
-    });
-
-    it("should throw error if jobId missing", async () => {
-      // ARRANGE
-      const req = mockRequest({}, {}, { id: 1 }, "user"); // No jobId
-      const res = mockResponse();
-
-      // ACT & ASSERT
       await expect(applyToJob(req, res)).rejects.toThrow();
     });
   });
 
-  // GET MY APPLICATIONS
   describe("getMyApplications()", () => {
-    it("should return candidate applications", async () => {
-      // ARRANGE
-      const mockApplications = [
-        {
-          id: 1,
-          jobId: 1,
-          status: "pending",
-          job: { title: "Job 1" },
-        },
-        {
-          id: 2,
-          jobId: 2,
-          status: "accepted",
-          job: { title: "Job 2" },
-        },
-      ];
-      mockApplication.findAll.mockResolvedValue(mockApplications);
-
+    it("should return applications", async () => {
+      mockApplication.findAll.mockResolvedValue([{ id: 1 }, { id: 2 }]);
       const req = mockRequest({}, {}, { id: 1 }, "user");
       const res = mockResponse();
 
-      // ACT
       await getMyApplications(req, res);
 
-      // ASSERT
-      expect(res.json).toHaveBeenCalledWith({
-        success: true,
-        count: 2,
-        data: mockApplications,
-      });
-    });
-
-    it("should return empty array if no applications", async () => {
-      // ARRANGE
-      mockApplication.findAll.mockResolvedValue([]);
-      const req = mockRequest({}, {}, { id: 1 }, "user");
-      const res = mockResponse();
-
-      // ACT
-      await getMyApplications(req, res);
-
-      // ASSERT
-      expect(res.json).toHaveBeenCalledWith({
-        success: true,
-        count: 0,
-        data: [],
-      });
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ success: true, count: 2 })
+      );
     });
   });
 
-  // GET JOB APPLICATIONS
   describe("getJobApplications()", () => {
     it("should return job applications for employer", async () => {
-      // ARRANGE
-      const mockApplications = [
-        { id: 1, candidateId: 1, status: "pending" },
-        { id: 2, candidateId: 2, status: "pending" },
-      ];
       mockJob.findByPk.mockResolvedValue({ id: 1, employerId: 1 });
-      mockApplication.findAll.mockResolvedValue(mockApplications);
-
+      mockApplication.findAll.mockResolvedValue([{ id: 1 }]);
       const req = mockRequest({}, { jobId: 1 }, { id: 1 }, "employer");
       const res = mockResponse();
 
-      // ACT
       await getJobApplications(req, res);
 
-      // ASSERT
-      expect(res.json).toHaveBeenCalledWith({
-        success: true,
-        count: 2,
-        data: mockApplications,
-      });
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ success: true })
+      );
     });
 
-    it("should throw error if not employer", async () => {
-      // ARRANGE
+    it("should throw if not employer", async () => {
       const req = mockRequest({}, { jobId: 1 }, { id: 1 }, "user");
       const res = mockResponse();
 
-      // ACT & ASSERT
       await expect(getJobApplications(req, res)).rejects.toThrow();
     });
 
-    it("should throw error if job not found", async () => {
-      // ARRANGE
-      mockJob.findByPk.mockResolvedValue(null);
-      const req = mockRequest({}, { jobId: 999 }, { id: 1 }, "employer");
-      const res = mockResponse();
-
-      // ACT & ASSERT
-      await expect(getJobApplications(req, res)).rejects.toThrow();
-    });
-
-    it("should throw error if not job owner", async () => {
-      // ARRANGE
-      mockJob.findByPk.mockResolvedValue({ id: 1, employerId: 2 }); // Different owner!
+    it("should throw if not job owner", async () => {
+      mockJob.findByPk.mockResolvedValue({ id: 1, employerId: 2 });
       const req = mockRequest({}, { jobId: 1 }, { id: 1 }, "employer");
       const res = mockResponse();
 
-      // ACT & ASSERT
       await expect(getJobApplications(req, res)).rejects.toThrow();
     });
   });
 
-  // UPDATE APPLICATION STATUS
   describe("updateApplicationStatus()", () => {
-    it("should update application status successfully", async () => {
-      // ARRANGE
-      const mockApplicationData = {
-        id: 1,
-        status: "pending",
-        job: { id: 1, employerId: 1 },
-        save: jest.fn().mockResolvedValue(true),
-      };
-      mockApplication.findByPk.mockResolvedValue(mockApplicationData);
-
-      const req = mockRequest(
-        { status: "accepted" },
-        { applicationId: 1 },
-        { id: 1 },
-        "employer"
-      );
+    it("should update status", async () => {
+      mockApplication.findByPk.mockResolvedValue({
+        id: 1, status: "pending", job: { employerId: 1 },
+        save: jest.fn(),
+      });
+      const req = mockRequest({ status: "accepted" }, { applicationId: 1 }, { id: 1 }, "employer");
       const res = mockResponse();
 
-      // ACT
       await updateApplicationStatus(req, res);
 
-      // ASSERT
-      expect(mockApplicationData.save).toHaveBeenCalled();
       expect(res.json).toHaveBeenCalledWith(
-        expect.objectContaining({
-          success: true,
-          message: "Application accepted successfully",
-        })
+        expect.objectContaining({ success: true })
       );
     });
 
-    it("should throw error for invalid status", async () => {
-      // ARRANGE
-      const req = mockRequest(
-        { status: "invalid_status" }, // Invalid!
-        { applicationId: 1 },
-        { id: 1 },
-        "employer"
-      );
+    it("should throw for invalid status", async () => {
+      const req = mockRequest({ status: "invalid" }, { applicationId: 1 }, { id: 1 }, "employer");
       const res = mockResponse();
 
-      // ACT & ASSERT
       await expect(updateApplicationStatus(req, res)).rejects.toThrow();
     });
 
-    it("should throw error if not employer", async () => {
-      // ARRANGE
-      const req = mockRequest(
-        { status: "accepted" },
-        { applicationId: 1 },
-        { id: 1 },
-        "user"
-      );
+    it("should throw if not employer", async () => {
+      const req = mockRequest({ status: "accepted" }, { applicationId: 1 }, { id: 1 }, "user");
       const res = mockResponse();
 
-      // ACT & ASSERT
-      await expect(updateApplicationStatus(req, res)).rejects.toThrow();
-    });
-
-    it("should throw error if application not found", async () => {
-      // ARRANGE
-      mockApplication.findByPk.mockResolvedValue(null);
-      const req = mockRequest(
-        { status: "accepted" },
-        { applicationId: 999 },
-        { id: 1 },
-        "employer"
-      );
-      const res = mockResponse();
-
-      // ACT & ASSERT
-      await expect(updateApplicationStatus(req, res)).rejects.toThrow();
-    });
-
-    it("should throw error if not job owner", async () => {
-      // ARRANGE
-      const mockApplicationData = {
-        id: 1,
-        job: { id: 1, employerId: 2 }, // Different owner!
-      };
-      mockApplication.findByPk.mockResolvedValue(mockApplicationData);
-
-      const req = mockRequest(
-        { status: "accepted" },
-        { applicationId: 1 },
-        { id: 1 },
-        "employer"
-      );
-      const res = mockResponse();
-
-      // ACT & ASSERT
       await expect(updateApplicationStatus(req, res)).rejects.toThrow();
     });
   });

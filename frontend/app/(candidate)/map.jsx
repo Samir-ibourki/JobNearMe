@@ -11,7 +11,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import MapView, { Marker } from "react-native-maps";
 import * as Location from "expo-location";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import Colors from "../../theme/colors";
 import { useAllJobs } from "../../hooks/useCandidate";
 
@@ -24,8 +24,9 @@ export default function CandidateMap() {
   const { data: jobs } = useAllJobs();
 
   // Filter only jobs have coordinates
-  const jobsWithCoordinates =
-    jobs?.filter((job) => job.latitude && job.longitude) || [];
+  const jobsWithCoordinates = useMemo(() => {
+    return jobs?.filter((job) => job.latitude && job.longitude) || [];
+  }, [jobs]);
 
   useEffect(() => {
     (async () => {
@@ -50,13 +51,13 @@ export default function CandidateMap() {
             latitudeDelta: 0.05,
             longitudeDelta: 0.05,
           },
-          1000
+          1000,
         );
       }
     })();
   }, []);
 
-  const centerOnUser = () => {
+  const centerOnUser = useCallback(() => {
     if (location && mapRef.current) {
       mapRef.current.animateToRegion(
         {
@@ -65,18 +66,21 @@ export default function CandidateMap() {
           latitudeDelta: 0.05,
           longitudeDelta: 0.05,
         },
-        500
+        500,
       );
     }
-  };
+  }, [location]);
 
   // Default region (casa)
-  const initialRegion = {
-    latitude: location?.coords?.latitude || 33.5731,
-    longitude: location?.coords?.longitude || -7.5898,
-    latitudeDelta: 0.08,
-    longitudeDelta: 0.08,
-  };
+  const initialRegion = useMemo(
+    () => ({
+      latitude: location?.coords?.latitude || 33.5731,
+      longitude: location?.coords?.longitude || -7.5898,
+      latitudeDelta: 0.08,
+      longitudeDelta: 0.08,
+    }),
+    [location],
+  );
 
   return (
     <View style={styles.container}>

@@ -14,7 +14,7 @@ import { router } from "expo-router";
 import Colors from "../../theme/colors";
 import { useAllJobs } from "../../hooks/useCandidate";
 import CandidateJobCard from "../../components/CandidateJobCard";
-import { useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 export default function CandidateHome() {
   // eslint-disable-next-line no-unused-vars
@@ -31,21 +31,35 @@ export default function CandidateHome() {
     "Tech",
   ];
 
-  const filteredJobs = jobs?.filter((job) => {
-    // category filter
-    const matchesCategory =
-      selectedCategory === "All" ||
-      job.category?.toLowerCase() === selectedCategory.toLowerCase();
+  const filteredJobs = useMemo(() => {
+    return jobs?.filter((job) => {
+      // category filter
+      const matchesCategory =
+        selectedCategory === "All" ||
+        job.category?.toLowerCase() === selectedCategory.toLowerCase();
 
-    // search filter
-    const matchesSearch =
-      searchQuery === "" ||
-      job.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      job.city?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      job.employer?.fullname?.toLowerCase().includes(searchQuery.toLowerCase());
+      // search filter
+      const matchesSearch =
+        searchQuery === "" ||
+        job.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        job.city?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        job.employer?.fullname
+          ?.toLowerCase()
+          .includes(searchQuery.toLowerCase());
 
-    return matchesCategory && matchesSearch;
-  });
+      return matchesCategory && matchesSearch;
+    });
+  }, [jobs, selectedCategory, searchQuery]);
+
+  const renderJobItem = useCallback(
+    ({ item }) => (
+      <CandidateJobCard
+        job={item}
+        onPress={() => router.push(`/(candidate)/job/${item.id}`)}
+      />
+    ),
+    [],
+  );
 
   if (isLoading) {
     return (
@@ -129,12 +143,7 @@ export default function CandidateHome() {
         <FlatList
           data={filteredJobs}
           keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => (
-            <CandidateJobCard
-              job={item}
-              onPress={() => router.push(`/(candidate)/job/${item.id}`)}
-            />
-          )}
+          renderItem={renderJobItem}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.jobsList}
         />

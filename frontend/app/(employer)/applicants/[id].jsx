@@ -12,6 +12,7 @@ import Colors from "../../../theme/colors";
 import { useJobApplications, useJobById } from "../../../hooks/useEmployer";
 import { router, useLocalSearchParams } from "expo-router";
 import ApplicantCard from "../../../components/ApplicantCard";
+import { useCallback } from "react";
 
 export default function JobApplicants() {
   const { id } = useLocalSearchParams();
@@ -19,6 +20,11 @@ export default function JobApplicants() {
   const { data: applications, isLoading: appsLoading } = useJobApplications(id);
 
   const isLoading = jobLoading || appsLoading;
+
+  const renderApplicant = useCallback(
+    ({ item }) => <ApplicantCard item={item} />,
+    [],
+  );
 
   if (isLoading) {
     return (
@@ -57,7 +63,7 @@ export default function JobApplicants() {
       <FlatList
         data={applications}
         keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => <ApplicantCard item={item} />}
+        renderItem={renderApplicant}
         contentContainerStyle={styles.list}
         ListEmptyComponent={
           <View style={styles.emptyState}>
