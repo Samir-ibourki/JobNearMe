@@ -20,9 +20,11 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { onboardingData } from "../../utils/data.js";
 import Colors from "../../theme/colors";
 import Logo from "../../components/Logo.jsx";
+import { useAuthStore } from "../../store/useAuthStore";
 
 export default function IndexOnboarding() {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const { setOnboardingComplete } = useAuthStore();
 
   // Animation values
   const opacity = useSharedValue(0);
@@ -65,7 +67,8 @@ export default function IndexOnboarding() {
     if (currentIndex < onboardingData.length - 1) {
       setCurrentIndex(currentIndex + 1);
     } else {
-      router.push("onboarding/lastOnboard");
+      setOnboardingComplete();
+      router.push("/onboarding/lastOnboard");
     }
   };
 
@@ -150,7 +153,10 @@ export default function IndexOnboarding() {
         {/* Skip Button */}
         {currentIndex < onboardingData.length - 1 && (
           <TouchableOpacity
-            onPress={() => router.push("onboarding/lastOnboard")}
+            onPress={() => {
+              setOnboardingComplete();
+              router.push("/onboarding/lastOnboard");
+            }}
             style={styles.skipButton}
           >
             <Text style={styles.skipText}>Skip</Text>

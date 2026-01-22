@@ -18,6 +18,17 @@ import { useCallback } from "react";
 export default function CandidateApplications() {
   const { data: applications, isLoading, refetch } = useMyApplications();
 
+  // Hooks must be called before any early returns
+  const renderApplication = useCallback(
+    ({ item }) => (
+      <ApplicationCard
+        application={item}
+        onPress={() => router.push(`/(candidate)/job/${item.jobId}`)}
+      />
+    ),
+    [],
+  );
+
   if (isLoading) {
     return (
       <SafeAreaView style={styles.container}>
@@ -38,17 +49,6 @@ export default function CandidateApplications() {
     applications?.filter((a) => a.status === "pending").length || 0;
   const acceptedCount =
     applications?.filter((a) => a.status === "accepted").length || 0;
-
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const renderApplication = useCallback(
-    ({ item }) => (
-      <ApplicationCard
-        application={item}
-        onPress={() => router.push(`/(candidate)/job/${item.jobId}`)}
-      />
-    ),
-    [],
-  );
 
   return (
     <SafeAreaView style={styles.container}>
