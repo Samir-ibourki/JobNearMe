@@ -1,232 +1,237 @@
-/**
- * Auth Controller Tests - Simplified
- * Tests l register, login, getProfile  
- */
+import { jest, describe, it, expect, beforeEach } from "@jest/globals";
+import bcrypt from "bcryptjs";
 
-import { jest, describe, it, expect, beforeAll, beforeEach } from "@jest/globals";
-
-// Mocks
-let mockBcrypt, mockUser, mockEmployer, register, login, getProfile, updateProfile;
-
-beforeAll(async () => {
-  // Mock bcrypt
-  mockBcrypt = {
-    hash: jest.fn(),
-    compare: jest.fn(),
-  };
-  jest.unstable_mockModule("bcryptjs", () => ({
-    default: mockBcrypt,
-  }));
-
-  // Mock jwt
-  jest.unstable_mockModule("jsonwebtoken", () => ({
-    default: {
-      sign: jest.fn(() => "mocked-token"),
-      verify: jest.fn(),
-    },
-  }));
-
-  // Mock User
-  mockUser = {
-    create: jest.fn(),
-    findOne: jest.fn(),
-    findByPk: jest.fn(),
-  };
-  jest.unstable_mockModule("../models/User.js", () => ({
-    default: mockUser,
-  }));
-
-  // Mock Employer
-  mockEmployer = {
-    create: jest.fn(),
-    findOne: jest.fn(),
-    findByPk: jest.fn(),
-  };
-  jest.unstable_mockModule("../models/Employer.js", () => ({
-    default: mockEmployer,
-  }));
-
-  // Mock email service
-  jest.unstable_mockModule("../utils/emailService.js", () => ({
-    sendEmail: jest.fn(),
-  }));
-
-  // Mock error handler
-  jest.unstable_mockModule("../middlewares/errorHandler.js", () => ({
-    AppError: class AppError extends Error {
-      constructor(message, statusCode) {
-        super(message);
-        this.statusCode = statusCode;
-        this.isOperational = true;
-      }
-    },
-  }));
-
-  // Mock sequelize
-  jest.unstable_mockModule("sequelize", () => ({
-    Op: { gt: Symbol("gt") },
-  }));
-
-  // Import controller after mocks
-  const controller = await import("../controllers/authController.js");
-  register = controller.register;
-  login = controller.login;
-  getProfile = controller.getProfile;
-  updateProfile = controller.updateProfile;
-});
-
-// Helpers
-const mockRequest = (body = {}, params = {}, user = null, userType = null) => ({
-  body, params, user, userType,
-});
-
-const mockResponse = () => {
-  const res = {};
-  res.status = jest.fn().mockReturnValue(res);
-  res.json = jest.fn().mockReturnValue(res);
-  return res;
+// Fake User model
+const mockUserModel = {
+  findOne: jest.fn(),
+  create: jest.fn(),
 };
 
-const mockNext = jest.fn();
+// Fake Employer model
+const mockEmployerModel = {
+  findOne: jest.fn(),
+  create: jest.fn(),
+};
 
-// Tests
+// Fake email service
+const mockSendEmail = jest.fn().mockResolvedValue(true);
+
+// Mock dial modules
+jest.unstable_mockModule("../models/User.js", () => ({
+  default: mockUserModel,
+}));
+
+jest.unstable_mockModule("../models/Employer.js", () => ({
+  default: mockEmployerModel,
+}));
+
+jest.unstable_mockModule("../utils/emailService.js", () => ({
+  sendEmail: mockSendEmail,
+}));
+
+// Environment variables
+process.env.JWT_SECRET = "test-secret";
+process.env.JWT_EXPIRES_IN = "1h";
+
+// Import controller
+const { register, login, getProfile, updateProfile } =
+  await import("../controllers/authController.js");
+
 describe("Auth Controller", () => {
+  let req;
+  let res;
+  let next;
+
+  // Before each test, reset everything
   beforeEach(() => {
     jest.clearAllMocks();
+
+    req = { body: {}, params: {}, user: null, userType: null };
+    res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn().mockReturnThis(),
+    };
+    next = jest.fn();
   });
 
+  // Registeer
   describe("register()", () => {
-    it("should register a candidate successfully", async () => {
-      const req = mockRequest({
+    it("create new user", async () => {
+      req.body = {
         role: "candidate",
-        fullname: "Test User",
-        email: "test@example.com",
+        fullname: "Ahmed Test",
+        email: "ahmed@test.com",
         password: "password123",
-      });
-      const res = mockResponse();
+        phone: "0612345678",
+      };
 
-      mockUser.findOne.mockResolvedValue(null);
-      mockBcrypt.hash.mockResolvedValue("hashed-password");
-      mockUser.create.mockResolvedValue({
-        id: 1, role: "candidate", fullname: "Test User", email: "test@example.com",
+      // Email makaynch f database
+      mockUserModel.findOne.mockResolvedValue(null);
+      mockUserModel.create.mockResolvedValue({
+        id: 1,
+        fullname: "Ahmed Test",
+        email: "ahmed@test.com",
       });
 
-      await register(req, res, mockNext);
+      await register(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(201);
       expect(res.json).toHaveBeenCalledWith(
-        expect.objectContaining({ success: true })
+        expect.objectContaining({ success: true }),
       );
     });
 
-    it("should throw error if email already exists", async () => {
-      const req = mockRequest({
-        fullname: "Test", email: "exists@test.com", password: "123",
-      });
-      const res = mockResponse();
-      mockUser.findOne.mockResolvedValue({ id: 1 });
+    it("error input required", async () => {
+      req.body = { email: "test@test.com" };
+      await register(req, res, next);
 
-      await register(req, res, mockNext);
-
-      expect(mockNext).toHaveBeenCalled();
+      expect(next).toHaveBeenCalledWith(
+        expect.objectContaining({ statusCode: 400 }),
+      );
     });
 
-    it("should throw error if fields missing", async () => {
-      const req = mockRequest({ fullname: "Test" }); // missing email, password
-      const res = mockResponse();
+    it("error email already exist", async () => {
+      req.body = {
+        fullname: "Test",
+        email: "existing@test.com",
+        password: "password123",
+      };
 
-      await register(req, res, mockNext);
+      // Email kayn f database
+      mockUserModel.findOne.mockResolvedValue({ id: 1 });
 
-      expect(mockNext).toHaveBeenCalled();
+      await register(req, res, next);
+
+      expect(next).toHaveBeenCalledWith(
+        expect.objectContaining({ statusCode: 409 }),
+      );
     });
   });
+
+  // Login
 
   describe("login()", () => {
-    it("should login successfully", async () => {
-      const req = mockRequest({ email: "test@test.com", password: "pass" });
-      const res = mockResponse();
+    it("login", async () => {
+      const hashedPassword = await bcrypt.hash("password123", 10);
 
-      mockUser.findOne.mockResolvedValue({
-        id: 1, email: "test@test.com", password: "h", fullname: "Test",
+      req.body = {
+        email: "ahmed@test.com",
+        password: "password123",
+      };
+
+      mockUserModel.findOne.mockResolvedValue({
+        id: 1,
+        fullname: "Ahmed",
+        email: "ahmed@test.com",
+        password: hashedPassword,
       });
-      mockBcrypt.compare.mockResolvedValue(true);
 
-      await login(req, res, mockNext);
+      await login(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ success: true }),
+      );
     });
 
-    it("should throw error for wrong password", async () => {
-      const req = mockRequest({ email: "test@test.com", password: "wrong" });
-      const res = mockResponse();
+    it("error email not found", async () => {
+      req.body = {
+        email: "notfound@test.com",
+        password: "password123",
+      };
 
-      mockUser.findOne.mockResolvedValue({ id: 1, password: "h" });
-      mockBcrypt.compare.mockResolvedValue(false);
+      mockUserModel.findOne.mockResolvedValue(null);
+      mockEmployerModel.findOne.mockResolvedValue(null);
 
-      await login(req, res, mockNext);
+      await login(req, res, next);
 
-      expect(mockNext).toHaveBeenCalled();
+      expect(next).toHaveBeenCalledWith(
+        expect.objectContaining({ statusCode: 401 }),
+      );
     });
 
-    it("should throw error if user not found", async () => {
-      const req = mockRequest({ email: "no@test.com", password: "pass" });
-      const res = mockResponse();
+    it("Error password wrong", async () => {
+      req.body = {
+        email: "ahmed@test.com",
+        password: "wrongpassword",
+      };
 
-      mockUser.findOne.mockResolvedValue(null);
-      mockEmployer.findOne.mockResolvedValue(null);
+      mockUserModel.findOne.mockResolvedValue({
+        id: 1,
+        email: "ahmed@test.com",
+        password: await bcrypt.hash("correctpassword", 10),
+      });
 
-      await login(req, res, mockNext);
+      await login(req, res, next);
 
-      expect(mockNext).toHaveBeenCalled();
+      expect(next).toHaveBeenCalledWith(
+        expect.objectContaining({ statusCode: 401 }),
+      );
     });
   });
 
-  describe("getProfile()", () => {
-    it("should return profile", async () => {
-      const userData = {
-        id: 1, fullname: "Test", email: "t@t.com",
-        toJSON: () => ({ id: 1, fullname: "Test" }),
-      };
-      const req = mockRequest({}, {}, userData, "user");
-      const res = mockResponse();
+  // tests get profiles
 
-      await getProfile(req, res, mockNext);
+  describe("getProfile()", () => {
+    it("getProfile", async () => {
+      req.user = {
+        id: 1,
+        fullname: "Ahmed",
+        email: "ahmed@test.com",
+        toJSON: function () {
+          return { id: 1, fullname: "Ahmed" };
+        },
+      };
+      req.userType = "user";
+
+      await getProfile(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(200);
     });
 
-    it("should return 404 if no user", async () => {
-      const req = mockRequest({}, {}, null);
-      const res = mockResponse();
+    it("Error", async () => {
+      req.user = null;
 
-      await getProfile(req, res, mockNext);
+      await getProfile(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(404);
     });
   });
 
+  // tests update
+
   describe("updateProfile()", () => {
-    it("should update profile", async () => {
-      const userData = {
-        id: 1, fullname: "Old",
+    it("Update", async () => {
+      req.user = {
+        id: 1,
+        fullname: "Old Name",
+        phone: "0600000000",
         save: jest.fn().mockResolvedValue(true),
-        toJSON: () => ({ id: 1, fullname: "New" }),
+        toJSON: function () {
+          return { id: 1, fullname: this.fullname };
+        },
       };
-      const req = mockRequest({ fullname: "New" }, {}, userData, "user");
-      const res = mockResponse();
 
-      await updateProfile(req, res, mockNext);
+      req.body = {
+        fullname: "New Name",
+        phone: "0699999999",
+      };
 
+      await updateProfile(req, res, next);
+
+      expect(req.user.fullname).toBe("New Name");
       expect(res.status).toHaveBeenCalledWith(200);
     });
 
-    it("should throw error if no user", async () => {
-      const req = mockRequest({ fullname: "X" }, {}, null);
-      const res = mockResponse();
+    it("Error", async () => {
+      req.user = null;
+      req.body = { fullname: "Test" };
 
-      await updateProfile(req, res, mockNext);
+      await updateProfile(req, res, next);
 
-      expect(mockNext).toHaveBeenCalled();
+      expect(next).toHaveBeenCalledWith(
+        expect.objectContaining({ statusCode: 404 }),
+      );
     });
   });
 });
