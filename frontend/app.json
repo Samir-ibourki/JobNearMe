@@ -51,9 +51,12 @@
         {
           "locationAlwaysAndWhenInUsePermission": "Allow JobNearMe to access your location to show nearby jobs."
         }
-      ]
+      ],
+      "expo-font"
     ],
-    "platforms": ["android"],
+    "platforms": [
+      "android"
+    ],
     "experiments": {
       "typedRoutes": true
     },
