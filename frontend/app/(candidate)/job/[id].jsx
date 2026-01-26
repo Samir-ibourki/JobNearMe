@@ -13,13 +13,12 @@ import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import Colors from "../../../theme/colors";
 import { useJobDetails, useApplyJob } from "../../../hooks/useCandidate";
-import { useState } from "react";
+import { formatDate } from "../../../utils/dateFormatter";
 
 export default function CandidateJobDetails() {
   const { id } = useLocalSearchParams();
   const { data: detail, isLoading, error } = useJobDetails(id);
-  const applyMutation = useApplyJob();
-  const [applying, setApplying] = useState(false);
+  const { mutate: apply, isPending: isApplying } = useApplyJob();
 
   // Fixed requirements that apply to all jobs
   const requirements = [
@@ -69,45 +68,33 @@ export default function CandidateJobDetails() {
   const employerName = job.employer?.fullname || "Employer";
   const avatarLetter = employerName.charAt(0).toUpperCase();
 
-  // Format date
-  const formatDate = (dateStr) => {
-    if (!dateStr) return "N/A";
-    const date = new Date(dateStr);
-    const now = new Date();
-    const diffTime = Math.abs(now - date);
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-
-    if (diffDays === 0) return "Today";
-    if (diffDays === 1) return "Yesterday";
-    if (diffDays < 7) return `${diffDays} days ago`;
-    return date.toLocaleDateString();
-  };
-
-  const handleApply = async () => {
-    setApplying(true);
-    try {
-      await applyMutation.mutateAsync({ jobId: id, coverLetter: "" });
-      Alert.alert(
-        "Success! 🎉",
-        "Your application has been sent to the employer. They will contact you soon!",
-        [
-          {
-            text: "View My Applications",
-            onPress: () => router.push("/(candidate)/applications"),
-          },
-          { text: "OK", style: "default" },
-        ]
-      );
-    } catch (err) {
-      Alert.alert(
-        "Error",
-        err.response?.data?.message ||
-          "Failed to send application. Please try again.",
-        [{ text: "OK" }]
-      );
-    } finally {
-      setApplying(false);
-    }
+  const handleApply = () => {
+    apply(
+      { jobId: id, coverLetter: "" },
+      {
+        onSuccess: () => {
+          Alert.alert(
+            "Success! 🎉",
+            "Your application has been sent to the employer. They will contact you soon!",
+            [
+              {
+                text: "View My Applications",
+                onPress: () => router.push("/(candidate)/applications"),
+              },
+              { text: "OK", style: "default" },
+            ],
+          );
+        },
+        onError: (err) => {
+          Alert.alert(
+            "Error",
+            err.response?.data?.message ||
+              "Failed to send application. Please try again.",
+            [{ text: "OK" }],
+          );
+        },
+      },
+    );
   };
 
   return (
@@ -225,11 +212,11 @@ export default function CandidateJobDetails() {
           <Ionicons name="bookmark-outline" size={24} color={Colors.Primary} />
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.applyBtn, applying && { opacity: 0.7 }]}
+          style={[styles.applyBtn, isApplying && { opacity: 0.7 }]}
           onPress={handleApply}
-          disabled={applying}
+          disabled={isApplying}
         >
-          {applying ? (
+          {isApplying ? (
             <>
               <ActivityIndicator size="small" color="#FFF" />
               <Text style={styles.applyBtnText}>Applying...</Text>

@@ -60,6 +60,7 @@ export const useCreateJob = () => {
   return useMutation({
     mutationFn: createJob,
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["jobs"] });
       queryClient.invalidateQueries({ queryKey: ["myJobs"] });
       queryClient.invalidateQueries({ queryKey: ["employerStats"] });
     },
