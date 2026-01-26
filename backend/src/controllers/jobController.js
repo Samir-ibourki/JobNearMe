@@ -57,7 +57,7 @@ export const getNearbyJobs = asyncHandler(async (req, res) => {
         latitude,
         longitude,
         job.latitude,
-        job.longitude
+        job.longitude,
       );
       if (distance <= maxRadius) {
         return { ...job.toJSON(), distance: Math.round(distance) };
@@ -100,7 +100,7 @@ export const createJob = asyncHandler(async (req, res) => {
   if (!latitude || !longitude) {
     throw new AppError(
       "Could not determine location coordinates. Please provide a more specific address.",
-      400
+      400,
     );
   }
 
