@@ -14,7 +14,7 @@ import Colors from "../../theme/colors";
 import FormInput from "../../components/FormInput";
 import { useCreateJob } from "../../hooks/useEmployer";
 import { router } from "expo-router";
-import CustomAlert from "../../components/CustomAlert";
+import { useAlert } from "../../hooks/useAlert";
 
 export default function AddJob() {
   const [formData, setFormData] = useState({
@@ -27,41 +27,21 @@ export default function AddJob() {
   });
   const createMutation = useCreateJob();
   const [loading, setLoading] = useState(false);
-  const [alertConfig, setAlertConfig] = useState({
-    visible: false,
-    title: "",
-    message: "",
-    type: "success",
-    onClose: () => {},
-  });
-
-  const showAlert = (title, message, type = "success", onClose = null) => {
-    setAlertConfig({
-      visible: true,
-      title,
-      message,
-      type,
-      onClose:
-        onClose ||
-        (() => setAlertConfig((prev) => ({ ...prev, visible: false }))),
-    });
-  };
+  const { showSuccess, showError } = useAlert();
 
   const handleCreate = async () => {
     if (!formData.title || !formData.description || !formData.city) {
-      showAlert(
+      showError(
         "Error",
-        "Please fill in all required fields: Title, Description, and City.",
-        "error"
+        "Please fill in all required fields: Title, Description, and City."
       );
       return;
     }
 
     if (!formData.address) {
-      showAlert(
+      showError(
         "Error",
-        "Please provide a full address so we can show the job on the map.",
-        "error"
+        "Please provide a full address so we can show the job on the map."
       );
       return;
     }
@@ -79,21 +59,22 @@ export default function AddJob() {
 
       const res = await createMutation.mutateAsync(payload);
       if (res.success) {
-        showAlert(
-          "Success!",
-          "Your job has been posted successfully.",
-          "success",
-          () => {
-            router.push("/(employer)/my-jobs");
+        // Show success alert - navigation happens when user clicks OK
+        showSuccess(
+          "Success! 🎉",
+          "Your job has been posted successfully. Click OK to view your jobs.",
+          {
+            onConfirm: () => {
+              router.push("/(employer)/my-jobs");
+            },
           }
         );
       }
     } catch (error) {
-      showAlert(
+      showError(
         "Error",
         error.response?.data?.message ||
-          "Something went wrong. Please try again.",
-        "error"
+          "Something went wrong. Please try again."
       );
     } finally {
       setLoading(false);
@@ -198,14 +179,7 @@ export default function AddJob() {
           </TouchableOpacity>
           <View style={{ height: 40 }} />
         </ScrollView>
-      </KeyboardAvoidingView>
-      <CustomAlert
-        visible={alertConfig.visible}
-        title={alertConfig.title}
-        message={alertConfig.message}
-        type={alertConfig.type}
-        onClose={alertConfig.onClose}
-      />
+    </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }

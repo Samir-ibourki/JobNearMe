@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   StatusBar,
   ActivityIndicator,
-  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -14,11 +13,13 @@ import { router, useLocalSearchParams } from "expo-router";
 import Colors from "../../../theme/colors";
 import { useJobDetails, useApplyJob } from "../../../hooks/useCandidate";
 import { formatDate } from "../../../utils/dateFormatter";
+import { useAlert } from "../../../hooks/useAlert";
 
 export default function CandidateJobDetails() {
   const { id } = useLocalSearchParams();
   const { data: detail, isLoading, error } = useJobDetails(id);
   const { mutate: apply, isPending: isApplying } = useApplyJob();
+  const { showSuccess, showError } = useAlert();
 
   // Fixed requirements that apply to all jobs
   const requirements = [
@@ -73,24 +74,19 @@ export default function CandidateJobDetails() {
       { jobId: id, coverLetter: "" },
       {
         onSuccess: () => {
-          Alert.alert(
+          showSuccess(
             "Success! 🎉",
             "Your application has been sent to the employer. They will contact you soon!",
-            [
-              {
-                text: "View My Applications",
-                onPress: () => router.push("/(candidate)/applications"),
-              },
-              { text: "OK", style: "default" },
-            ],
           );
+          setTimeout(() => {
+            router.push("/(candidate)/applications");
+          }, 2000);
         },
         onError: (err) => {
-          Alert.alert(
+          showError(
             "Error",
             err.response?.data?.message ||
               "Failed to send application. Please try again.",
-            [{ text: "OK" }],
           );
         },
       },

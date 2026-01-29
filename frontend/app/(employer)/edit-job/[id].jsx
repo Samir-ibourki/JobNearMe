@@ -15,11 +15,12 @@ import Colors from "../../../theme/colors";
 import FormInput from "../../../components/FormInput";
 import { useUpdateJob, useJobById } from "../../../hooks/useEmployer";
 import { router, useLocalSearchParams } from "expo-router";
-import CustomAlert from "../../../components/CustomAlert";
+import { useAlert } from "../../../hooks/useAlert";
 
 export default function EditJob() {
   const { id } = useLocalSearchParams();
   const { data: jobData, isLoading: fetching, error } = useJobById(id);
+  const { showSuccess, showError } = useAlert();
 
   const [formData, setFormData] = useState({
     title: "",
@@ -33,26 +34,6 @@ export default function EditJob() {
   });
   const [loading, setLoading] = useState(false);
   const updateMutation = useUpdateJob();
-
-  const [alertConfig, setAlertConfig] = useState({
-    visible: false,
-    title: "",
-    message: "",
-    type: "success",
-    onClose: () => {},
-  });
-
-  const showAlert = (title, message, type = "success", onClose = null) => {
-    setAlertConfig({
-      visible: true,
-      title,
-      message,
-      type,
-      onClose:
-        onClose ||
-        (() => setAlertConfig((prev) => ({ ...prev, visible: false }))),
-    });
-  };
 
   // Populate form when job data is loaded
   useEffect(() => {
@@ -73,18 +54,17 @@ export default function EditJob() {
 
   useEffect(() => {
     if (error) {
-      showAlert("Error", "Failed to load job data.", "error", () =>
-        router.back()
-      );
+      showError("Error", "Failed to load job data.", {
+        onClose: () => router.back(),
+      });
     }
   }, [error]);
 
   const handleUpdate = async () => {
     if (!formData.title || !formData.description || !formData.city) {
-      showAlert(
+      showError(
         "Error",
-        "Please fill in all required fields: Title, Description, and City.",
-        "error"
+        "Please fill in all required fields: Title, Description, and City."
       );
       return;
     }
@@ -99,21 +79,21 @@ export default function EditJob() {
 
       const res = await updateMutation.mutateAsync({ id, data: payload });
       if (res.success) {
-        showAlert(
+        showSuccess(
           "Success!",
           "Your job has been updated successfully.",
-          "success",
-          () => {
-            router.push("/(employer)/my-jobs");
+          {
+            onConfirm: () => {
+              router.push("/(employer)/my-jobs");
+            },
           }
         );
       }
     } catch (err) {
-      showAlert(
+      showError(
         "Error",
         err.response?.data?.message ||
-          "Something went wrong. Please try again.",
-        "error"
+          "Something went wrong. Please try again."
       );
     } finally {
       setLoading(false);
@@ -235,13 +215,6 @@ export default function EditJob() {
           <View style={{ height: 40 }} />
         </ScrollView>
       </KeyboardAvoidingView>
-      <CustomAlert
-        visible={alertConfig.visible}
-        title={alertConfig.title}
-        message={alertConfig.message}
-        type={alertConfig.type}
-        onClose={alertConfig.onClose}
-      />
     </SafeAreaView>
   );
 }

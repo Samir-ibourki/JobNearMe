@@ -11,22 +11,23 @@ import {
   TouchableOpacity,
   View,
   StatusBar,
-  Alert,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Colors from "../../theme/colors";
 import { useForgotPassword } from "../../hooks/useAuth";
+import { useAlert } from "../../hooks/useAlert";
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
+  const { showSuccess, showError } = useAlert();
 
   // mutations
   const { mutate: sendOtp, isPending: isSendingOtp } = useForgotPassword();
 
   const handleSendLink = () => {
     if (!email.trim() || !email.includes("@")) {
-      Alert.alert("Error", "Please enter a valid email address");
+      showError("Error", "Please enter a valid email address");
       return;
     }
 
@@ -34,19 +35,16 @@ export default function ForgotPassword() {
       { email },
       {
         onSuccess: (data) => {
-          Alert.alert(
+          showSuccess(
             "Success",
             "Reset link sent! If the link doesn't open automatically, copy the token from your email.",
-            [
-              {
-                text: "OK",
-                onPress: () => router.push("/(auth)/resetPassword"),
-              },
-            ],
           );
+          setTimeout(() => {
+            router.push("/(auth)/resetPassword");
+          }, 2000);
         },
         onError: (err) => {
-          Alert.alert(
+          showError(
             "Error",
             err.response?.data?.message || "Failed to send reset link",
           );

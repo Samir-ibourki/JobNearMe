@@ -9,7 +9,6 @@ import {
   TouchableOpacity,
   View,
   StatusBar,
-  Alert,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -19,6 +18,7 @@ import FormInput from "../../components/FormInput";
 import Divider from "../../components/Divider";
 import Terms from "../../components/Terms";
 import { useLogin } from "../../hooks/useAuth";
+import { useAlert } from "../../hooks/useAlert";
 
 export default function LogIn() {
   const {
@@ -30,10 +30,11 @@ export default function LogIn() {
     setShowPassword,
   } = useUserStore();
   const { mutate: login, isPending, isError, error } = useLogin();
+  const { showSuccess, showError } = useAlert();
 
   const handleLogin = () => {
     if (!email.trim() || !password.trim()) {
-      Alert.alert("Erreur", "Veuillez remplir email et mot de passe");
+      showError("Erreur", "Veuillez remplir email et mot de passe");
       return;
     }
 
@@ -41,20 +42,22 @@ export default function LogIn() {
       { email, password },
       {
         onSuccess: (res) => {
-          Alert.alert("Succès", "Connexion réussie !");
+          showSuccess("Succès", "Connexion réussie !", { autoClose: true });
           setEmail("");
           setPassword("");
 
           const user = res.data.data.user;
 
-          if (user.role === "employer") {
-            router.replace("/(employer)/dashboard");
-          } else {
-            router.replace("/(candidate)");
-          }
+          setTimeout(() => {
+            if (user.role === "employer") {
+              router.replace("/(employer)/dashboard");
+            } else {
+              router.replace("/(candidate)");
+            }
+          }, 1500);
         },
         onError: (err) => {
-          Alert.alert(
+          showError(
             "Erreur",
             err.response?.data?.message || "Échec de connexion",
           );

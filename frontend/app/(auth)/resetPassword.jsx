@@ -11,18 +11,19 @@ import {
   TouchableOpacity,
   View,
   StatusBar,
-  Alert,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Colors from "../../theme/colors";
 import { useResetPassword } from "../../hooks/useAuth";
+import { useAlert } from "../../hooks/useAlert";
 
 export default function ResetPassword() {
   const params = useLocalSearchParams();
   const [token, setToken] = useState(params.token || "");
   const [newPassword, setNewPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const { showSuccess, showError } = useAlert();
 
   if (params.token && params.token !== token) {
     setToken(params.token);
@@ -31,11 +32,11 @@ export default function ResetPassword() {
 
   const handleReset = () => {
     if (!token) {
-      Alert.alert("Error", "Please enter the reset token.");
+      showError("Error", "Please enter the reset token.");
       return;
     }
     if (newPassword.length < 6) {
-      Alert.alert("Error", "Password must be at least 6 characters");
+      showError("Error", "Password must be at least 6 characters");
       return;
     }
 
@@ -43,12 +44,13 @@ export default function ResetPassword() {
       { token, newPassword },
       {
         onSuccess: () => {
-          Alert.alert("Success", "Password reset successfully! Please login.", [
-            { text: "OK", onPress: () => router.replace("(auth)/logIn") },
-          ]);
+          showSuccess("Success", "Password reset successfully! Please login.", { autoClose: true });
+          setTimeout(() => {
+            router.replace("(auth)/logIn");
+          }, 1500);
         },
         onError: (err) => {
-          Alert.alert(
+          showError(
             "Error",
             err.response?.data?.message || "Failed to reset password",
           );

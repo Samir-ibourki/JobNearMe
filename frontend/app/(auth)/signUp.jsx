@@ -9,7 +9,6 @@ import {
   TouchableOpacity,
   View,
   StatusBar,
-  Alert,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -20,6 +19,7 @@ import FormInput from "../../components/FormInput";
 import Divider from "../../components/Divider";
 import Terms from "../../components/Terms";
 import Logo from "../../components/Logo.jsx";
+import { useAlert } from "../../hooks/useAlert";
 
 export default function SignUp() {
   const {
@@ -43,33 +43,34 @@ export default function SignUp() {
   } = useUserStore();
 
   const { mutate: register, isPending, isError, error } = useRegister();
+  const { showSuccess, showError } = useAlert();
 
   const handleSignUp = () => {
     if (!fullName.trim()) {
-      Alert.alert("Erreur", "Please enter your full name");
+      showError("Erreur", "Please enter your full name");
       return;
     }
     if (!email.trim() || !email.includes("@")) {
-      Alert.alert("Erreur", "Please enter a valid email");
+      showError("Erreur", "Please enter a valid email");
       return;
     }
     if (password.length < 6) {
-      Alert.alert("Erreur", "Password must be at least 6 characters");
+      showError("Erreur", "Password must be at least 6 characters");
       return;
     }
 
     if (!phone.trim()) {
-      Alert.alert("Erreur", "Please enter your phone number");
+      showError("Erreur", "Please enter your phone number");
       return;
     }
 
     if (role === "employer") {
       if (!city.trim()) {
-        Alert.alert("Erreur", "Please enter your city");
+        showError("Erreur", "Please enter your city");
         return;
       }
       if (!address.trim()) {
-        Alert.alert("Erreur", "Please enter your address/location");
+        showError("Erreur", "Please enter your address/location");
         return;
       }
     }
@@ -78,12 +79,14 @@ export default function SignUp() {
       { fullname: fullName, email, password, role, phone, city, address },
       {
         onSuccess: () => {
-          Alert.alert("Succès", "Inscription réussie !");
+          showSuccess("Succès", "Inscription réussie !", { autoClose: true });
           resetForm();
-          router.replace("/(auth)/logIn");
+          setTimeout(() => {
+            router.replace("/(auth)/logIn");
+          }, 1500);
         },
         onError: (err) => {
-          Alert.alert(
+          showError(
             "Erreur",
             err.response?.data?.message || "Échec de l'inscription",
           );
