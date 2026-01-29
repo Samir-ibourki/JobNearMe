@@ -3,7 +3,7 @@ import Application from "./Application.js";
 import Job from "./Job.js";
 import User from "./User.js";
 import Employer from "./Employer.js";
-
+import Notification from "./Notification.js";
 //associations
 //job posted by employer
 Employer.hasMany(Job, { foreignKey: "employerId", as: "postedJobs" });
@@ -17,4 +17,4 @@ Application.belongsTo(User, { foreignKey: "candidateId", as: "candidate" });
 Job.hasMany(Application, { foreignKey: "jobId", as: "applications" });
 Application.belongsTo(Job, { foreignKey: "jobId", as: "job" });
 
-export { sequelize, User, Job, Application };
+export { sequelize, User, Job, Application, Notification };

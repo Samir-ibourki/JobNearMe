@@ -4,6 +4,7 @@ import authRoutes from "./src/routes/authRoutes.js";
 import jobRoutes from "./src/routes/jobRoutes.js";
 import applicationRoutes from "./src/routes/applicationRoutes.js";
 import userRoutes from "./src/routes/userRoutes.js";
+import notificationRoutes from "./src/routes/notificationRoutes.js";
 import cors from "cors";
 import "./src/models/index.js";
 import seedData from "./src/seeders/seed.js";
@@ -24,11 +25,11 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Health check route
 app.get("/", (req, res) => {
-  res.status(200).json({ 
-    status: "ok", 
+  res.status(200).json({
+    status: "ok",
     message: "JobNearMe API is running",
     documentation: "/api-docs",
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 });
 
@@ -37,6 +38,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/jobs", jobRoutes);
 app.use("/api/applications", applicationRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 //error handler
 app.use(errorHandler);
@@ -47,13 +49,15 @@ sequelize
     console.log("Database synced successfully!");
 
     // Run seeders only in development mode
-    if (process.env.NODE_ENV !== 'production') {
+    if (process.env.NODE_ENV !== "production") {
       await seedData();
       await fixJobCoordinates();
     }
 
-    app.listen(port, '0.0.0.0', () => {
-      console.log(`Server running on port ${port} in ${process.env.NODE_ENV || 'development'} mode`);
+    app.listen(port, "0.0.0.0", () => {
+      console.log(
+        `Server running on port ${port} in ${process.env.NODE_ENV || "development"} mode`,
+      );
       console.log(`📚 API Documentation: http://localhost:${port}/api-docs`);
     });
   })
