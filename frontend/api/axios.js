@@ -19,6 +19,7 @@ if (
 }
 
 const API = axios.create({
+  // TODO: Revert to production after testing: "https://jobnearme.up.railway.app/api"
   baseURL: "https://jobnearme.up.railway.app/api",
   timeout: 10000,
 });
@@ -39,3 +40,5 @@ API.interceptors.request.use(async (config) => {
 });
 
 export default API;
+
+//baseURL: "https://jobnearme.up.railway.app/api"

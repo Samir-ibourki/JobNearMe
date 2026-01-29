@@ -14,6 +14,7 @@ import { router } from "expo-router";
 import Colors from "../../theme/colors";
 import { useAllJobs } from "../../hooks/useCandidate";
 import CandidateJobCard from "../../components/CandidateJobCard";
+import NotificationBadge from "../../components/NotificationBadge";
 import { useCallback, useMemo, useState } from "react";
 
 export default function CandidateHome() {
@@ -79,12 +80,15 @@ export default function CandidateHome() {
           <Text style={styles.greeting}>Hello 👋</Text>
           <Text style={styles.headerTitle}>Find your job</Text>
         </View>
-        <TouchableOpacity
-          style={styles.mapBtn}
-          onPress={() => router.push("/(candidate)/map")}
-        >
-          <Ionicons name="map-outline" size={22} color={Colors.Primary} />
-        </TouchableOpacity>
+        <View style={styles.headerRight}>
+          <NotificationBadge size={22} color={Colors.Primary} />
+          <TouchableOpacity
+            style={styles.mapBtn}
+            onPress={() => router.push("/(candidate)/map")}
+          >
+            <Ionicons name="map-outline" size={22} color={Colors.Primary} />
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* search-bar */}
@@ -203,6 +207,11 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: "800",
     color: "#1A1A1A",
+  },
+  headerRight: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
   },
   mapBtn: {
     width: 44,

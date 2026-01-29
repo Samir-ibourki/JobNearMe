@@ -17,6 +17,7 @@ import { useEmployerDashboardData } from "../../hooks/useEmployer";
 import StatCard from "../../components/StatCard";
 import QuickActionCard from "../../components/QuickActionCard";
 import EmployerJobCard from "../../components/EmployerJobCard";
+import NotificationBadge from "../../components/NotificationBadge";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function EmployerDashboard() {
@@ -71,8 +72,12 @@ export default function EmployerDashboard() {
             </View>
           </View>
 
+          {/* Notification Icon */}
+          <NotificationBadge size={22} color="#FFF" style={styles.notificationButton} />
+
+          {/* Logout Button */}
           <TouchableOpacity
-            style={styles.notificationButton}
+            style={styles.logoutButton}
             onPress={() => {
               Alert.alert(
                 "Switch Account",
@@ -91,7 +96,7 @@ export default function EmployerDashboard() {
               );
             }}
           >
-            <View style={styles.notificationIconContainer}>
+            <View style={styles.logoutIconContainer}>
               <Ionicons name="log-out-outline" size={22} color="#FFF" />
             </View>
           </TouchableOpacity>
@@ -287,9 +292,12 @@ const styles = StyleSheet.create({
     color: "#FFF",
   },
   notificationButton: {
-    marginLeft: 12,
+    marginLeft: 8,
   },
-  notificationIconContainer: {
+  logoutButton: {
+    marginLeft: 8,
+  },
+  logoutIconContainer: {
     width: 44,
     height: 44,
     borderRadius: 22,

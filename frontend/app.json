@@ -20,10 +20,7 @@
           "apiKey": "AIzaSyCT40E6wtFMTrmOJSPlvWDt25DJu8pQGTQ"
         }
       },
-      "permissions": [
-        "ACCESS_FINE_LOCATION",
-        "ACCESS_COARSE_LOCATION"
-      ]
+      "permissions": ["ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION"]
     },
     "splash": {
       "image": "./assets/splash.png",
@@ -47,6 +44,13 @@
       "expo-asset",
       "expo-web-browser",
       [
+        "expo-notifications",
+        {
+          "icon": "./assets/logo.png",
+          "color": "#0066FF"
+        }
+      ],
+      [
         "expo-location",
         {
           "locationAlwaysAndWhenInUsePermission": "Allow JobNearMe to access your location to show nearby jobs."
@@ -54,9 +58,7 @@
       ],
       "expo-font"
     ],
-    "platforms": [
-      "android"
-    ],
+    "platforms": ["android"],
     "experiments": {
       "typedRoutes": true
     },

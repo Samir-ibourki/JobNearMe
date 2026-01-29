@@ -1,6 +1,7 @@
-import { Application, Job, User } from "../models/index.js";
+import { Application, Job, Notification, User } from "../models/index.js";
 import { AppError, asyncHandler } from "../middlewares/errorHandler.js";
 import Employer from "../models/Employer.js";
+import { sendPushNotification } from "../utils/pushNotification.js";
 
 export const applyToJob = asyncHandler(async (req, res) => {
   const { jobId, coverLetter } = req.body;
@@ -29,6 +30,16 @@ export const applyToJob = asyncHandler(async (req, res) => {
     jobId,
     coverLetter,
     status: "pending",
+  });
+  // create notification l'employer
+  await Notification.create({
+    userId: job.employerId,
+    userType: "employer",
+    type: "new_application",
+    title: "New Application! 📩",
+    message: `${req.user.fullname} applied to your job: ${job.title}`,
+    relatedId: application.id,
+    isRead: false,
   });
 
   res.status(201).json({
@@ -110,7 +121,7 @@ export const updateApplicationStatus = asyncHandler(async (req, res) => {
   if (!validStatuses.includes(status)) {
     throw new AppError(
       "Invalid status. Must be: pending, accepted, or rejected",
-      400
+      400,
     );
   }
 
@@ -127,7 +138,34 @@ export const updateApplicationStatus = asyncHandler(async (req, res) => {
   if (application.job.employerId !== req.user.id) {
     throw new AppError(
       "You can only update applications for your own jobs",
-      403
+      403,
+    );
+  }
+  await Notification.create({
+    userId: application.candidateId,
+    userType: "user",
+    type:
+      status === "accepted" ? "application_accepted" : "application_rejected",
+    title:
+      status === "accepted" ? "Application Accepted!" : "Application Update",
+    message: `Your application for "${application.job.title}" was ${status}`,
+    relatedId: application.id,
+    isRead: false,
+  });
+  // Send push notification to candidate
+  const candidate = await User.findByPk(application.candidateId);
+  if (candidate?.pushToken) {
+    sendPushNotification(
+      candidate.pushToken,
+      status === "accepted" ? "Application Accepted! 🎉" : "Application Update",
+      `Your application for "${application.job.title}" was ${status}`,
+      {
+        type:
+          status === "accepted"
+            ? "application_accepted"
+            : "application_rejected",
+        applicationId: application.id,
+      },
     );
   }
 
