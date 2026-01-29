@@ -90,9 +90,9 @@ export function addNotificationListeners(
       }
     });
 
-  // Return cleanup function
+  // Return cleanup function - use .remove() method (new API)
   return () => {
-    Notifications.removeNotificationSubscription(notificationListener);
-    Notifications.removeNotificationSubscription(responseListener);
+    notificationListener.remove();
+    responseListener.remove();
   };
 }

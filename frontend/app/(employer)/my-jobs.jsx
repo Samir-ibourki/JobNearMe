@@ -9,69 +9,38 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import { useState } from "react";
 import Colors from "../../theme/colors";
 import { useMyJobs, useDeleteJob } from "../../hooks/useEmployer";
 import { router } from "expo-router";
-import CustomAlert from "../../components/CustomAlert";
 import MyJobCard from "../../components/MyJobCard";
+import { useAlert } from "../../hooks/useAlert";
 
 export default function MyJobs() {
   const { data: jobs, isLoading, isFetching, refetch } = useMyJobs();
   const deleteMutation = useDeleteJob();
-
-  const [alertConfig, setAlertConfig] = useState({
-    visible: false,
-    title: "",
-    message: "",
-    type: "success",
-    onConfirm: null,
-  });
-
-  const showAlert = (title, message, type = "success", onConfirm = null) => {
-    setAlertConfig({
-      visible: true,
-      title,
-      message,
-      type,
-      onConfirm,
-    });
-  };
-
-  const hideAlert = () => {
-    setAlertConfig((prev) => ({ ...prev, visible: false }));
-  };
+  const { showSuccess, showError, showConfirm } = useAlert();
 
   const onRefresh = () => {
     refetch();
   };
 
-  const handleDelete = (id) => {
-    showAlert(
+  const handleDelete = async (id) => {
+    const confirmed = await showConfirm(
       "Delete Job",
       "Are you sure you want to delete this job offer? This action cannot be undone.",
-      "confirm",
-      async () => {
-        hideAlert();
-        try {
-          await deleteMutation.mutateAsync(id);
-          setTimeout(() => {
-            showAlert(
-              "Deleted!",
-              "Job post has been successfully removed.",
-              "success"
-            );
-          }, 500);
-          // eslint-disable-next-line no-unused-vars
-        } catch (error) {
-          showAlert(
-            "Error",
-            "Failed to delete job. Please try again.",
-            "error"
-          );
-        }
-      }
+      { confirmText: "Delete", cancelText: "Cancel" }
     );
+
+    if (confirmed) {
+      try {
+        await deleteMutation.mutateAsync(id);
+        showSuccess("Deleted!", "Job post has been successfully removed.", {
+          autoClose: true,
+        });
+      } catch (error) {
+        showError("Error", "Failed to delete job. Please try again.");
+      }
+    }
   };
 
   return (
@@ -119,14 +88,6 @@ export default function MyJobs() {
           }
         />
       )}
-      <CustomAlert
-        visible={alertConfig.visible}
-        title={alertConfig.title}
-        message={alertConfig.message}
-        type={alertConfig.type}
-        onClose={hideAlert}
-        onConfirm={alertConfig.onConfirm}
-      />
     </SafeAreaView>
   );
 }

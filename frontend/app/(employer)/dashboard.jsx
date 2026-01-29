@@ -7,7 +7,6 @@ import {
   ScrollView,
   TouchableOpacity,
   StatusBar,
-  Alert,
   ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -19,9 +18,11 @@ import QuickActionCard from "../../components/QuickActionCard";
 import EmployerJobCard from "../../components/EmployerJobCard";
 import NotificationBadge from "../../components/NotificationBadge";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useAlert } from "../../hooks/useAlert";
 
 export default function EmployerDashboard() {
   const { user, stats, recentJobs, isLoading } = useEmployerDashboardData();
+  const { showConfirm } = useAlert();
 
   if (isLoading) {
     return (
@@ -39,6 +40,19 @@ export default function EmployerDashboard() {
         .toUpperCase()
         .substring(0, 2)
     : "EM";
+
+  const handleLogout = async () => {
+    const confirmed = await showConfirm(
+      "Switch Account",
+      "You will be logged out to switch account.",
+      { confirmText: "Continue", cancelText: "Cancel" }
+    );
+    if (confirmed) {
+      await AsyncStorage.removeItem("token");
+      await AsyncStorage.removeItem("user");
+      router.replace("/(auth)/logIn");
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
@@ -78,23 +92,7 @@ export default function EmployerDashboard() {
           {/* Logout Button */}
           <TouchableOpacity
             style={styles.logoutButton}
-            onPress={() => {
-              Alert.alert(
-                "Switch Account",
-                "You will be logged out to switch account.",
-                [
-                  { text: "Cancel", style: "cancel" },
-                  {
-                    text: "Continue",
-                    onPress: async () => {
-                      await AsyncStorage.removeItem("token");
-                      await AsyncStorage.removeItem("user");
-                      router.replace("/(auth)/logIn");
-                    },
-                  },
-                ]
-              );
-            }}
+            onPress={handleLogout}
           >
             <View style={styles.logoutIconContainer}>
               <Ionicons name="log-out-outline" size={22} color="#FFF" />

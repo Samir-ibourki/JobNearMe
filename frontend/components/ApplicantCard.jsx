@@ -1,59 +1,50 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import Colors from "../theme/colors";
 import { useUpdateApplicationStatus } from "../hooks/useEmployer";
+import { useAlert } from "../hooks/useAlert";
 
 const ApplicantCard = ({ item }) => {
   const updateStatusMutation = useUpdateApplicationStatus();
+  const { showSuccess, showError, showConfirm } = useAlert();
 
-  const handleAccept = () => {
-    Alert.alert(
+  const handleAccept = async () => {
+    const confirmed = await showConfirm(
       "Accept Application",
       `Are you sure you want to accept ${item.candidate?.fullname}?`,
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Accept",
-          onPress: async () => {
-            try {
-              await updateStatusMutation.mutateAsync({
-                applicationId: item.id,
-                status: "accepted",
-              });
-              Alert.alert("Success", "Application accepted!");
-            } catch (err) {
-              Alert.alert("Error", err.message || "Failed to update status");
-            }
-          },
-        },
-      ]
+      { confirmText: "Accept", cancelText: "Cancel" }
     );
+    if (confirmed) {
+      try {
+        await updateStatusMutation.mutateAsync({
+          applicationId: item.id,
+          status: "accepted",
+        });
+        showSuccess("Success", "Application accepted!", { autoClose: true });
+      } catch (err) {
+        showError("Error", err.message || "Failed to update status");
+      }
+    }
   };
 
-  const handleReject = () => {
-    Alert.alert(
+  const handleReject = async () => {
+    const confirmed = await showConfirm(
       "Reject Application",
       `Are you sure you want to reject ${item.candidate?.fullname}?`,
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Reject",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              await updateStatusMutation.mutateAsync({
-                applicationId: item.id,
-                status: "rejected",
-              });
-              Alert.alert("Done", "Application rejected");
-            } catch (err) {
-              Alert.alert("Error", err.message || "Failed to update status");
-            }
-          },
-        },
-      ]
+      { confirmText: "Reject", cancelText: "Cancel" }
     );
+    if (confirmed) {
+      try {
+        await updateStatusMutation.mutateAsync({
+          applicationId: item.id,
+          status: "rejected",
+        });
+        showSuccess("Done", "Application rejected", { autoClose: true });
+      } catch (err) {
+        showError("Error", err.message || "Failed to update status");
+      }
+    }
   };
 
   return (

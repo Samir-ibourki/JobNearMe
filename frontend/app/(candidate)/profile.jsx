@@ -7,7 +7,6 @@ import {
   StatusBar,
   ActivityIndicator,
   TextInput,
-  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -16,6 +15,7 @@ import { useState, useEffect } from "react";
 import Colors from "../../theme/colors";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useProfile, useUpdateProfile } from "../../hooks/useCandidate";
+import { useAlert } from "../../hooks/useAlert";
 
 export default function CandidateProfile() {
   const { data: user, isLoading, error, refetch } = useProfile();
@@ -25,6 +25,7 @@ export default function CandidateProfile() {
     fullname: "",
     phone: "",
   });
+  const { showSuccess, showError, showConfirm } = useAlert();
 
   useEffect(() => {
     if (user) {
@@ -38,25 +39,24 @@ export default function CandidateProfile() {
   const handleSave = async () => {
     try {
       await updateMutation.mutateAsync(formData);
-      Alert.alert("Success", "Profile updated successfully!");
+      showSuccess("Success", "Profile updated successfully!", { autoClose: true });
       setIsEditing(false);
     } catch (err) {
-      Alert.alert("Error", err.message || "Failed to update profile");
+      showError("Error", err.message || "Failed to update profile");
     }
   };
 
   const handleLogout = async () => {
-    Alert.alert("Switch Account", "You will be logged out to switch account.", [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Continue",
-        onPress: async () => {
-          await AsyncStorage.removeItem("token");
-          await AsyncStorage.removeItem("user");
-          router.replace("/(auth)/logIn");
-        },
-      },
-    ]);
+    const confirmed = await showConfirm(
+      "Switch Account",
+      "You will be logged out to switch account.",
+      { confirmText: "Continue", cancelText: "Cancel" }
+    );
+    if (confirmed) {
+      await AsyncStorage.removeItem("token");
+      await AsyncStorage.removeItem("user");
+      router.replace("/(auth)/logIn");
+    }
   };
 
   if (isLoading) {
