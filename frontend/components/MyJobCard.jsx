@@ -4,6 +4,22 @@ import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import Colors from "../theme/colors";
 
+// Helper function to format salary properly
+const formatSalary = (salary) => {
+  if (!salary) return "Negotiable";
+  // Clean up any non-printable characters and trim
+  const cleanSalary = String(salary).replace(/[^\x20-\x7E\u0600-\u06FF]/g, '').trim();
+  // If it's just a number, add DH suffix
+  if (/^\d+$/.test(cleanSalary)) {
+    return `${cleanSalary} DH`;
+  }
+  // If it contains a range like "4000 - 5000", add DH if not present
+  if (!cleanSalary.toLowerCase().includes('dh') && /\d/.test(cleanSalary)) {
+    return `${cleanSalary} DH`;
+  }
+  return cleanSalary;
+};
+
 const MyJobCard = ({ item, onDelete }) => {
   return (
     <View style={styles.card}>
@@ -35,7 +51,7 @@ const MyJobCard = ({ item, onDelete }) => {
         </View>
         <View style={styles.infoRow}>
           <Ionicons name="cash-outline" size={14} color="#888" />
-          <Text style={styles.infoText}>{item.salary || "Negotiable"}</Text>
+          <Text style={styles.infoText}>{formatSalary(item.salary)}</Text>
         </View>
         <View style={styles.dateBadge}>
           <Text style={styles.dateText}>

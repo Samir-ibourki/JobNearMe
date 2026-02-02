@@ -69,14 +69,10 @@ export default function SignUp() {
         showError("Erreur", "Please enter your city");
         return;
       }
-      if (!address.trim()) {
-        showError("Erreur", "Please enter your address/location");
-        return;
-      }
     }
 
     register(
-      { fullname: fullName, email, password, role, phone, city, address },
+      { fullname: fullName, email, password, role, phone, city },
       {
         onSuccess: () => {
           showSuccess("Succès", "Inscription réussie !", { autoClose: true });
@@ -226,27 +222,14 @@ export default function SignUp() {
             />
             {/* employer Fields */}
             {role === "employer" && (
-              <>
-                {/* city input */}
-                <FormInput
-                  label="City"
-                  value={city}
-                  onChangeText={setCity}
-                  placeholder="Enter your city"
-                  iconName="location-outline"
-                  autoCapitalize="words"
-                />
-
-                {/* address input */}
-                <FormInput
-                  label="Address"
-                  value={address}
-                  onChangeText={setAddress}
-                  placeholder="Enter your address"
-                  iconName="map-outline"
-                  autoCapitalize="words"
-                />
-              </>
+              <FormInput
+                label="City"
+                value={city}
+                onChangeText={setCity}
+                placeholder="Enter your city"
+                iconName="location-outline"
+                autoCapitalize="words"
+              />
             )}
 
             {/* sign up button */}

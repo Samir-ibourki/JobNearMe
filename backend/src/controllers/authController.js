@@ -92,11 +92,10 @@ const login = async (req, res, next) => {
       throw new AppError("Email and password are required", 400);
     }
 
-    //try finding in User first
+
     let user = await User.findOne({ where: { email } });
     let type = "user";
 
-    // If not found in User, try Employer
     if (!user) {
       user = await Employer.findOne({ where: { email } });
       type = "employer";

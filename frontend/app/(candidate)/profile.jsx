@@ -53,8 +53,8 @@ export default function CandidateProfile() {
       { confirmText: "Continue", cancelText: "Cancel" }
     );
     if (confirmed) {
-      await AsyncStorage.removeItem("token");
-      await AsyncStorage.removeItem("user");
+      // Clear both storages to avoid conflicts
+      await AsyncStorage.multiRemove(["token", "user", "auth-storage"]);
       router.replace("/(auth)/logIn");
     }
   };
@@ -78,6 +78,12 @@ export default function CandidateProfile() {
           <Text style={styles.errorText}>Failed to load profile</Text>
           <TouchableOpacity style={styles.retryBtn} onPress={() => refetch()}>
             <Text style={styles.retryBtnText}>Retry</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.retryBtn, { backgroundColor: "#666", marginTop: 10 }]}
+            onPress={handleLogout}
+          >
+            <Text style={styles.retryBtnText}>Switch Account</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
