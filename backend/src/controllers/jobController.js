@@ -253,7 +253,11 @@ export const updateJob = asyncHandler(async (req, res) => {
     throw new AppError("You can only update your own jobs", 403);
   }
 
-  if (address && address !== job.address && (!latitude || !longitude)) {
+  // Re-geocode if address or city has changed
+  const addressChanged = address && address !== job.address;
+  const cityChanged = city && city !== job.city;
+  
+  if (address && (addressChanged || cityChanged)) {
     const coords = await geocodeAddress(`${address}, ${city}`);
     if (coords) {
       latitude = coords.latitude;
@@ -268,9 +272,12 @@ export const updateJob = asyncHandler(async (req, res) => {
     category,
     city,
     address,
-    latitude: latitude ? parseFloat(latitude) : job.latitude,
-    longitude: longitude ? parseFloat(longitude) : job.longitude,
+    latitude: latitude || job.latitude,
+    longitude: longitude || job.longitude,
   });
+
+  // Reload job to get fresh data
+  await job.reload();
 
   res.json({
     success: true,

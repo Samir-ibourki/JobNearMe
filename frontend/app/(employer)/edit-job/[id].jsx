@@ -7,6 +7,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
+  StatusBar,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -71,11 +72,25 @@ export default function EditJob() {
 
     setLoading(true);
     try {
+
+      const originalJob = jobData?.data;
+      const addressChanged = formData.address !== (originalJob?.address || "");
+      const cityChanged = formData.city !== (originalJob?.city || "");
+      
       const payload = {
-        ...formData,
-        latitude: parseFloat(formData.latitude),
-        longitude: parseFloat(formData.longitude),
+        title: formData.title,
+        description: formData.description,
+        salary: formData.salary,
+        category: formData.category,
+        city: formData.city,
+        address: formData.address,
       };
+      
+      // Only include coordinates if address/city didn't change
+      if (!addressChanged && !cityChanged) {
+        payload.latitude = parseFloat(formData.latitude);
+        payload.longitude = parseFloat(formData.longitude);
+      }
 
       const res = await updateMutation.mutateAsync({ id, data: payload });
       if (res.success) {
@@ -115,6 +130,7 @@ export default function EditJob() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <StatusBar barStyle={"dark-content"} />
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : "height"}

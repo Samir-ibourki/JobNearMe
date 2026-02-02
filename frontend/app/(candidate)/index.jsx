@@ -25,11 +25,18 @@ export default function CandidateHome() {
 
   const categories = [
     "All",
-    "Restaurant",
-    "Retail",
-    "Delivery",
+    "Hospitality & Tourism",
+    "Retail & Sales",
+    "Food & Restaurant",
+    "Healthcare",
+    "Education",
+    "Technology & IT",
+    "Construction",
+    "Transportation",
     "Security",
-    "Tech",
+    "Cleaning & Maintenance",
+    "Customer Service",
+    "Other",
   ];
 
   const filteredJobs = useMemo(() => {
