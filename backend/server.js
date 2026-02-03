@@ -12,6 +12,11 @@ import fixJobCoordinates from "./src/seeders/fixJobCoordinates.js";
 import { errorHandler } from "./src/middlewares/errorHandler.js";
 import swaggerUi from "swagger-ui-express";
 import swaggerSpec from "./src/config/swagger.js";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const port = process.env.PORT || 3030;
@@ -19,6 +24,9 @@ const port = process.env.PORT || 3030;
 //middlewares
 app.use(cors());
 app.use(express.json());
+
+// Serve static files (for delete-account page)
+app.use(express.static(path.join(__dirname, "public")));
 
 // Swagger API Documentation
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
