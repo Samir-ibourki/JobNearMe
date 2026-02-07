@@ -4,7 +4,7 @@
     "slug": "JobNearMe",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "../frontend/assets/logo1.png",
+    "icon": "./assets/icon.jpg",
     "scheme": "jobnearme",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -46,7 +46,7 @@
       [
         "expo-notifications",
         {
-          "icon": "./assets/logo.png",
+          "icon": "./assets/icon.jpg",
           "color": "#0066FF"
         }
       ],
