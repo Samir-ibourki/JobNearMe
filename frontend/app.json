@@ -4,7 +4,7 @@
     "slug": "JobNearMe",
     "version": "1.0.1",
     "orientation": "portrait",
-    "icon": "./assets/icon.jpg",
+    "icon": "./assets/icon.jpeg",
     "scheme": "jobnearme",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -16,6 +16,10 @@
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
       "package": "com.samir_ibourki.JobNearMe",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/icon.jpeg",
+        "backgroundColor": "#5A9FBF"
+      },
       "config": {
         "googleMaps": {
           "apiKey": "AIzaSyCT40E6wtFMTrmOJSPlvWDt25DJu8pQGTQ"
@@ -47,7 +51,7 @@
       [
         "expo-notifications",
         {
-          "icon": "./assets/icon.jpg",
+          "icon": "./assets/icon.jpeg",
           "color": "#0066FF"
         }
       ],
